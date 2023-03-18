@@ -1,102 +1,61 @@
-cmake_minimum_required(VERSION 2.8.12...3.20)
+cmake_minimum_required(VERSION 3.5)
 
-project(enet)
+include(CheckCXXCompilerFlag)
 
-# The "configure" step.
-include(CheckFunctionExists)
-include(CheckStructHasMember)
-include(CheckTypeSize)
-check_function_exists("fcntl" HAS_FCNTL)
-check_function_exists("poll" HAS_POLL)
-check_function_exists("getaddrinfo" HAS_GETADDRINFO)
-check_function_exists("getnameinfo" HAS_GETNAMEINFO)
-check_function_exists("gethostbyname_r" HAS_GETHOSTBYNAME_R)
-check_function_exists("gethostbyaddr_r" HAS_GETHOSTBYADDR_R)
-check_function_exists("inet_pton" HAS_INET_PTON)
-check_function_exists("inet_ntop" HAS_INET_NTOP)
-check_struct_has_member("struct msghdr" "msg_flags" "sys/types.h;sys/socket.h" HAS_MSGHDR_FLAGS)
-set(CMAKE_EXTRA_INCLUDE_FILES "sys/types.h" "sys/socket.h")
-check_type_size("socklen_t" HAS_SOCKLEN_T BUILTIN_TYPES_ONLY)
-unset(CMAKE_EXTRA_INCLUDE_FILES)
-if(MSVC)
-	add_definitions(-W3)
+# Check all passed flags and assign them to the target if found.
+function(target_cxx_compiler_flags)
+    cmake_parse_arguments(PARSE_ARGV 1 _ARGS "" "" "PUBLIC")
+    foreach(_FLAG ${_ARGS_PUBLIC})
+        check_cxx_compiler_flag(${_FLAG} "ENETCPP_PUBLIC_${_FLAG}")
+        if(${ENETCPP_PUBLIC_${_FLAG}})
+            target_compile_options(${ARGV0} PUBLIC ${_FLAG})
+        endif()
+    endforeach()
+endfunction()
+
+project(enetcpp LANGUAGES CXX)
+
+set(ENETCPP_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/callbacks.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/enetcpp.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/list.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/protocol.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/time.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/types.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/utility.h")
+
+set(ENETCPP_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/callbacks.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/compress.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/host.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/list.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/packet.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/peer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/protocol.cpp")
+
+# Add sources and headers based on platform.
+if(WIN32)
+    list(APPEND ENETCPP_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/win32.h")
+    list(APPEND ENETCPP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/win32.cpp")
+elseif(UNIX)
+    list(APPEND ENETCPP_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/unix.h")
+    list(APPEND ENETCPP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/unix.cpp")
 else()
-	add_definitions(-Wno-error)
+    status(FATAL_ERROR "Unknown system, please create your own platform abstraction.")
 endif()
 
-if(HAS_FCNTL)
-    add_definitions(-DHAS_FCNTL=1)
+# EnetCPP static library.
+add_library(enetcpp STATIC ${ENETCPP_SOURCES} ${ENETCPP_HEADERS})
+if(MSVC)
+    # MSVC and ClangCL
+    # Clang's /W4 aliases -Wall -Wextra but -Wall is turned into -Weverything.
+    target_cxx_compiler_flags(enetcpp PUBLIC /W4 -Wmost -Wc++14-compat)
+else()
+    # GCC and Clang
+    target_cxx_compiler_flags(enetcpp PUBLIC -Wall -Wextra -Wmost -Wc++14-compat)
 endif()
-if(HAS_POLL)
-    add_definitions(-DHAS_POLL=1)
+target_include_directories(enetcpp PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(enetcpp)
+if(WIN32)
+    target_link_libraries(enetcpp PUBLIC winmm ws2_32)
 endif()
-if(HAS_GETNAMEINFO)
-    add_definitions(-DHAS_GETNAMEINFO=1)
-endif()
-if(HAS_GETADDRINFO)
-    add_definitions(-DHAS_GETADDRINFO=1)
-endif()
-if(HAS_GETHOSTBYNAME_R)
-    add_definitions(-DHAS_GETHOSTBYNAME_R=1)
-endif()
-if(HAS_GETHOSTBYADDR_R)
-    add_definitions(-DHAS_GETHOSTBYADDR_R=1)
-endif()
-if(HAS_INET_PTON)
-    add_definitions(-DHAS_INET_PTON=1)
-endif()
-if(HAS_INET_NTOP)
-    add_definitions(-DHAS_INET_NTOP=1)
-endif()
-if(HAS_MSGHDR_FLAGS)
-    add_definitions(-DHAS_MSGHDR_FLAGS=1)
-endif()
-if(HAS_SOCKLEN_T)
-    add_definitions(-DHAS_SOCKLEN_T=1)
-endif()
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
-set(INCLUDE_FILES_PREFIX include/enet)
-set(INCLUDE_FILES
-    ${INCLUDE_FILES_PREFIX}/callbacks.h
-    ${INCLUDE_FILES_PREFIX}/enet.h
-    ${INCLUDE_FILES_PREFIX}/list.h
-    ${INCLUDE_FILES_PREFIX}/protocol.h
-    ${INCLUDE_FILES_PREFIX}/time.h
-    ${INCLUDE_FILES_PREFIX}/types.h
-    ${INCLUDE_FILES_PREFIX}/unix.h
-    ${INCLUDE_FILES_PREFIX}/utility.h
-    ${INCLUDE_FILES_PREFIX}/win32.h
-)
-
-set(SOURCE_FILES
-    callbacks.c
-    compress.c
-    host.c
-    list.c
-    packet.c
-    peer.c
-    protocol.c
-    unix.c
-    win32.c)
-
-source_group(include FILES ${INCLUDE_FILES})
-source_group(source FILES ${SOURCE_FILES})
-
-add_library(enet STATIC
-    ${INCLUDE_FILES}
-    ${SOURCE_FILES}
-)
-
-if (MINGW)
-    target_link_libraries(enet winmm ws2_32)
-endif()
-
-install(TARGETS enet
-    RUNTIME DESTINATION bin
-    ARCHIVE DESTINATION lib/static
-    LIBRARY DESTINATION lib)
-
-install(DIRECTORY include/
-        DESTINATION include)
