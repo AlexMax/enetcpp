@@ -19,13 +19,13 @@ struct ENetList
     ENetListNode sentinel;
 };
 
-extern void enet_list_clear(ENetList *);
+extern void enet_list_clear(ENetList *list);
 
-extern ENetListIterator enet_list_insert(ENetListIterator, void *);
-extern void *enet_list_remove(ENetListIterator);
-extern ENetListIterator enet_list_move(ENetListIterator, void *, void *);
+extern ENetListIterator enet_list_insert(ENetListIterator position, void *data);
+extern void *enet_list_remove(ENetListIterator position);
+extern ENetListIterator enet_list_move(ENetListIterator position, void *dataFirst, void *dataLast);
 
-extern size_t enet_list_size(ENetList *);
+extern size_t enet_list_size(ENetList *list);
 
 #define enet_list_begin(list) ((list)->sentinel.next)
 #define enet_list_end(list) (&(list)->sentinel)

@@ -499,7 +499,7 @@ ENET_API uint32_t enet_time_get();
 /**
   Sets the current wall-time in milliseconds.
   */
-ENET_API void enet_time_set(uint32_t);
+ENET_API void enet_time_set(uint32_t newTimeBase);
 
 /** @defgroup socket ENet socket functions
     @{
