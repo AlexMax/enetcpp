@@ -6,7 +6,7 @@
 #include <string.h>
 #include "enetcpp/enetcpp.h"
 
-typedef struct _ENetSymbol
+struct ENetSymbol
 {
     /* binary indexed tree of symbols */
     uint8_t value;
@@ -19,7 +19,7 @@ typedef struct _ENetSymbol
     uint16_t escapes;
     uint16_t total;
     uint16_t parent;
-} ENetSymbol;
+};
 
 /* adaptation constants tuned aggressively for small packet sizes rather than large file compression */
 enum
@@ -39,11 +39,11 @@ enum
 /* context exclusion roughly halves compression speed, so disable for now */
 #undef ENET_CONTEXT_EXCLUSION
 
-typedef struct _ENetRangeCoder
+struct ENetRangeCoder
 {
     /* only allocate enough symbols for reasonable MTUs, would need to be larger for large file compression */
     ENetSymbol symbols[4096];
-} ENetRangeCoder;
+};
 
 void *enet_range_coder_create(void)
 {
@@ -487,11 +487,11 @@ size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, siz
         })
 
 #ifdef ENET_CONTEXT_EXCLUSION
-typedef struct _ENetExclude
+struct ENetExclude
 {
     uint8_t value;
     uint16_t under;
-} ENetExclude;
+};
 
 #define ENET_CONTEXT_DECODE_EXCLUDE(context, total, minimum)                                                           \
     {                                                                                                                  \

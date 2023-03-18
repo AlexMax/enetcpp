@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <winsock2.h>
 
-typedef SOCKET ENetSocket;
+using ENetSocket = SOCKET;
 
 #define ENET_SOCKET_NULL INVALID_SOCKET
 
@@ -28,11 +28,11 @@ typedef SOCKET ENetSocket;
 #define ENET_NET_TO_HOST_16(value) (ntohs(value))
 #define ENET_NET_TO_HOST_32(value) (ntohl(value))
 
-typedef struct
+struct ENetBuffer
 {
     size_t dataLength;
     void *data;
-} ENetBuffer;
+};
 
 #define ENET_CALLBACK __cdecl
 
@@ -46,7 +46,7 @@ typedef struct
 #define ENET_API extern
 #endif /* ENET_DLL */
 
-typedef fd_set ENetSocketSet;
+using ENetSocketSet = fd_set;
 
 #define ENET_SOCKETSET_EMPTY(sockset) FD_ZERO(&(sockset))
 #define ENET_SOCKETSET_ADD(sockset, socket) FD_SET(socket, &(sockset))

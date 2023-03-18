@@ -27,27 +27,27 @@
 #define ENET_VERSION_GET_PATCH(version) ((version)&0xFF)
 #define ENET_VERSION ENET_VERSION_CREATE(ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH)
 
-typedef uint32_t ENetVersion;
+using ENetVersion = uint32_t;
 
-struct _ENetHost;
-struct _ENetEvent;
-struct _ENetPacket;
+struct ENetHost;
+struct ENetEvent;
+struct ENetPacket;
 
-typedef enum _ENetSocketType
+enum ENetSocketType
 {
     ENET_SOCKET_TYPE_STREAM = 1,
     ENET_SOCKET_TYPE_DATAGRAM = 2
-} ENetSocketType;
+};
 
-typedef enum _ENetSocketWait
+enum ENetSocketWait
 {
     ENET_SOCKET_WAIT_NONE = 0,
     ENET_SOCKET_WAIT_SEND = (1 << 0),
     ENET_SOCKET_WAIT_RECEIVE = (1 << 1),
     ENET_SOCKET_WAIT_INTERRUPT = (1 << 2)
-} ENetSocketWait;
+};
 
-typedef enum _ENetSocketOption
+enum ENetSocketOption
 {
     ENET_SOCKOPT_NONBLOCK = 1,
     ENET_SOCKOPT_BROADCAST = 2,
@@ -59,14 +59,14 @@ typedef enum _ENetSocketOption
     ENET_SOCKOPT_ERROR = 8,
     ENET_SOCKOPT_NODELAY = 9,
     ENET_SOCKOPT_TTL = 10
-} ENetSocketOption;
+};
 
-typedef enum _ENetSocketShutdown
+enum ENetSocketShutdown
 {
     ENET_SOCKET_SHUTDOWN_READ = 0,
     ENET_SOCKET_SHUTDOWN_WRITE = 1,
     ENET_SOCKET_SHUTDOWN_READ_WRITE = 2
-} ENetSocketShutdown;
+};
 
 #define ENET_HOST_ANY 0
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU
@@ -82,11 +82,11 @@ typedef enum _ENetSocketShutdown
  * but not for enet_host_create.  Once a server responds to a broadcast, the
  * address is updated from ENET_HOST_BROADCAST to the server's actual IP address.
  */
-typedef struct _ENetAddress
+struct ENetAddress
 {
     uint32_t host;
     uint16_t port;
-} ENetAddress;
+};
 
 /**
  * Packet flag bit constants.
@@ -97,7 +97,7 @@ typedef struct _ENetAddress
 
    @sa ENetPacket
 */
-typedef enum _ENetPacketFlag
+enum ENetPacketFlag
 {
     /** packet must be received by the target peer and resend attempts should be
      * made until the packet is delivered */
@@ -114,9 +114,9 @@ typedef enum _ENetPacketFlag
 
     /** whether the packet has been sent from all queues it has been entered into */
     ENET_PACKET_FLAG_SENT = (1 << 8)
-} ENetPacketFlag;
+};
 
-typedef void(ENET_CALLBACK *ENetPacketFreeCallback)(struct _ENetPacket *);
+using ENetPacketFreeCallback = void(ENET_CALLBACK *)(ENetPacket *);
 
 /**
  * ENet packet structure.
@@ -141,7 +141,7 @@ typedef void(ENET_CALLBACK *ENetPacketFreeCallback)(struct _ENetPacket *);
  *    ENET_PACKET_FLAG_SENT - whether the packet has been sent from all queues it has been entered into
    @sa ENetPacketFlag
  */
-typedef struct _ENetPacket
+struct ENetPacket
 {
     size_t referenceCount;               /**< internal use only */
     uint32_t flags;                      /**< bitwise-or of ENetPacketFlag constants */
@@ -149,16 +149,16 @@ typedef struct _ENetPacket
     size_t dataLength;                   /**< length of data */
     ENetPacketFreeCallback freeCallback; /**< function to be called when the packet is no longer in use */
     void *userData;                      /**< application private data, may be freely modified */
-} ENetPacket;
+};
 
-typedef struct _ENetAcknowledgement
+struct ENetAcknowledgement
 {
     ENetListNode acknowledgementList;
     uint32_t sentTime;
     ENetProtocol command;
-} ENetAcknowledgement;
+};
 
-typedef struct _ENetOutgoingCommand
+struct ENetOutgoingCommand
 {
     ENetListNode outgoingCommandList;
     uint16_t reliableSequenceNumber;
@@ -171,9 +171,9 @@ typedef struct _ENetOutgoingCommand
     uint16_t sendAttempts;
     ENetProtocol command;
     ENetPacket *packet;
-} ENetOutgoingCommand;
+};
 
-typedef struct _ENetIncomingCommand
+struct ENetIncomingCommand
 {
     ENetListNode incomingCommandList;
     uint16_t reliableSequenceNumber;
@@ -183,9 +183,9 @@ typedef struct _ENetIncomingCommand
     uint32_t fragmentsRemaining;
     uint32_t *fragments;
     ENetPacket *packet;
-} ENetIncomingCommand;
+};
 
-typedef enum _ENetPeerState
+enum ENetPeerState
 {
     ENET_PEER_STATE_DISCONNECTED = 0,
     ENET_PEER_STATE_CONNECTING = 1,
@@ -197,7 +197,7 @@ typedef enum _ENetPeerState
     ENET_PEER_STATE_DISCONNECTING = 7,
     ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT = 8,
     ENET_PEER_STATE_ZOMBIE = 9
-} ENetPeerState;
+};
 
 #ifndef ENET_BUFFER_MAXIMUM
 #define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
@@ -234,7 +234,7 @@ enum
     ENET_PEER_FREE_RELIABLE_WINDOWS = 8
 };
 
-typedef struct _ENetChannel
+struct ENetChannel
 {
     uint16_t outgoingReliableSequenceNumber;
     uint16_t outgoingUnreliableSequenceNumber;
@@ -244,23 +244,23 @@ typedef struct _ENetChannel
     uint16_t incomingUnreliableSequenceNumber;
     ENetList incomingReliableCommands;
     ENetList incomingUnreliableCommands;
-} ENetChannel;
+};
 
-typedef enum _ENetPeerFlag
+enum ENetPeerFlag
 {
     ENET_PEER_FLAG_NEEDS_DISPATCH = (1 << 0),
     ENET_PEER_FLAG_CONTINUE_SENDING = (1 << 1)
-} ENetPeerFlag;
+};
 
 /**
  * An ENet peer which data packets may be sent or received from.
  *
  * No fields should be modified unless otherwise specified.
  */
-typedef struct _ENetPeer
+struct ENetPeer
 {
     ENetListNode dispatchList;
-    struct _ENetHost *host;
+    ENetHost *host;
     uint16_t outgoingPeerID;
     uint16_t incomingPeerID;
     uint32_t connectID;
@@ -321,11 +321,11 @@ typedef struct _ENetPeer
     uint32_t unsequencedWindow[ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32];
     uint32_t eventData;
     size_t totalWaitingData;
-} ENetPeer;
+};
 
 /** An ENet packet compressor for compressing UDP packets before socket sends or receives.
  */
-typedef struct _ENetCompressor
+struct ENetCompressor
 {
     /** Context data for the compressor. Must be non-NULL. */
     void *context;
@@ -339,14 +339,14 @@ typedef struct _ENetCompressor
                                       size_t outLimit);
     /** Destroys the context when compression is disabled or the host is destroyed. May be NULL. */
     void(ENET_CALLBACK *destroy)(void *context);
-} ENetCompressor;
+};
 
 /** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
-typedef uint32_t(ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer *buffers, size_t bufferCount);
+using ENetChecksumCallback = uint32_t(ENET_CALLBACK *)(const ENetBuffer *buffers, size_t bufferCount);
 
 /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to
  * propagate an error. */
-typedef int(ENET_CALLBACK *ENetInterceptCallback)(struct _ENetHost *host, struct _ENetEvent *event);
+using ENetInterceptCallback = int(ENET_CALLBACK *)(ENetHost *host, ENetEvent *event);
 
 /** An ENet host for communicating with peers.
   *
@@ -364,7 +364,7 @@ typedef int(ENET_CALLBACK *ENetInterceptCallback)(struct _ENetHost *host, struct
     @sa enet_host_bandwidth_limit()
     @sa enet_host_bandwidth_throttle()
   */
-typedef struct _ENetHost
+struct ENetHost
 {
     ENetSocket socket;
     ENetAddress address;        /**< Internet address of the host */
@@ -405,12 +405,12 @@ typedef struct _ENetHost
     size_t maximumPacketSize;  /**< the maximum allowable packet size that may be sent or received on a peer */
     size_t maximumWaitingData; /**< the maximum aggregate amount of buffer space a peer may use waiting for packets
                                   to be delivered */
-} ENetHost;
+};
 
 /**
  * An ENet event type, as specified in @ref ENetEvent.
  */
-typedef enum _ENetEventType
+enum ENetEventType
 {
     /** no event occurred within the specified time limit */
     ENET_EVENT_TYPE_NONE = 0,
@@ -436,21 +436,21 @@ typedef enum _ENetEventType
      * enet_packet_destroy after use.
      */
     ENET_EVENT_TYPE_RECEIVE = 3
-} ENetEventType;
+};
 
 /**
  * An ENet event as returned by enet_host_service().
 
    @sa enet_host_service
  */
-typedef struct _ENetEvent
+struct ENetEvent
 {
     ENetEventType type; /**< type of the event */
     ENetPeer *peer;     /**< peer that generated a connect, disconnect or receive event */
     uint8_t channelID;  /**< channel on the peer that generated the event, if appropriate */
     uint32_t data;      /**< data associated with the event, if appropriate */
     ENetPacket *packet; /**< packet associated with the event, if appropriate */
-} ENetEvent;
+};
 
 /** @defgroup global ENet global functions
     @{

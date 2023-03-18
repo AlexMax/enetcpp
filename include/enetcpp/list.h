@@ -6,18 +6,18 @@
 
 #include <stdlib.h>
 
-typedef struct _ENetListNode
+struct ENetListNode
 {
-    struct _ENetListNode *next;
-    struct _ENetListNode *previous;
-} ENetListNode;
+    ENetListNode *next;
+    ENetListNode *previous;
+};
 
-typedef ENetListNode *ENetListIterator;
+using ENetListIterator = ENetListNode *;
 
-typedef struct _ENetList
+struct ENetList
 {
     ENetListNode sentinel;
-} ENetList;
+};
 
 extern void enet_list_clear(ENetList *);
 
