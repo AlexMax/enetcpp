@@ -2,8 +2,7 @@
  @file  callbacks.h
  @brief ENet callbacks
 */
-#ifndef __ENET_CALLBACKS_H__
-#define __ENET_CALLBACKS_H__
+#pragma once
 
 #include <stdlib.h>
 
@@ -22,5 +21,3 @@ extern void *enet_malloc(size_t);
 extern void enet_free(void *);
 
 /** @} */
-
-#endif /* __ENET_CALLBACKS_H__ */

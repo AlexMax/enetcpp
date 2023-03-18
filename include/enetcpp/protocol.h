@@ -2,8 +2,7 @@
  @file  protocol.h
  @brief ENet protocol
 */
-#ifndef __ENET_PROTOCOL_H__
-#define __ENET_PROTOCOL_H__
+#pragma once
 
 #include "enetcpp/types.h"
 
@@ -192,5 +191,3 @@ typedef union _ENetProtocol {
 #ifdef _MSC_VER
 #pragma pack(pop)
 #endif
-
-#endif /* __ENET_PROTOCOL_H__ */
