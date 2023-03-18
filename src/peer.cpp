@@ -242,6 +242,8 @@ static void enet_peer_reset_outgoing_commands(ENet::List *queue)
 static void enet_peer_remove_incoming_commands(ENet::List *queue, ENet::ListIterator startCommand,
                                                ENet::ListIterator endCommand, ENetIncomingCommand *excludeCommand)
 {
+    (void)queue;
+
     ENet::ListIterator currentCommand;
 
     for (currentCommand = startCommand; currentCommand != endCommand;)
