@@ -21,7 +21,6 @@ set(ENETCPP_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/list.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/protocol.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/time.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/types.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/enetcpp/utility.h")
 
 set(ENETCPP_SOURCES

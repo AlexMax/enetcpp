@@ -17,7 +17,7 @@
     @param flags        flags for this packet as described for the ENetPacket structure.
     @returns the packet on success, NULL on failure
 */
-ENetPacket *enet_packet_create(const void *data, size_t dataLength, enet_uint32 flags)
+ENetPacket *enet_packet_create(const void *data, size_t dataLength, uint32_t flags)
 {
     ENetPacket *packet = (ENetPacket *)enet_malloc(sizeof(ENetPacket));
     if (packet == NULL)
@@ -27,7 +27,7 @@ ENetPacket *enet_packet_create(const void *data, size_t dataLength, enet_uint32 
 
     if (flags & ENET_PACKET_FLAG_NO_ALLOCATE)
     {
-        packet->data = (enet_uint8 *)data;
+        packet->data = (uint8_t *)data;
     }
     else if (dataLength <= 0)
     {
@@ -35,7 +35,7 @@ ENetPacket *enet_packet_create(const void *data, size_t dataLength, enet_uint32 
     }
     else
     {
-        packet->data = (enet_uint8 *)enet_malloc(dataLength);
+        packet->data = (uint8_t *)enet_malloc(dataLength);
         if (packet->data == NULL)
         {
             enet_free(packet);
@@ -86,7 +86,7 @@ void enet_packet_destroy(ENetPacket *packet)
 */
 int enet_packet_resize(ENetPacket *packet, size_t dataLength)
 {
-    enet_uint8 *newData;
+    uint8_t *newData;
 
     if (dataLength <= packet->dataLength || (packet->flags & ENET_PACKET_FLAG_NO_ALLOCATE))
     {
@@ -95,7 +95,7 @@ int enet_packet_resize(ENetPacket *packet, size_t dataLength)
         return 0;
     }
 
-    newData = (enet_uint8 *)enet_malloc(dataLength);
+    newData = (uint8_t *)enet_malloc(dataLength);
     if (newData == NULL)
     {
         return -1;
@@ -110,7 +110,7 @@ int enet_packet_resize(ENetPacket *packet, size_t dataLength)
     return 0;
 }
 
-static const enet_uint32 crcTable[256] = {
+static const uint32_t crcTable[256] = {
     0,          0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3, 0x0EDB8832,
     0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2,
     0xF3B97148, 0x84BE41DE, 0x1ADAD47D, 0x6DDDE4EB, 0xF4D4B551, 0x83D385C7, 0x136C9856, 0x646BA8C0, 0xFD62F97A,
@@ -141,13 +141,13 @@ static const enet_uint32 crcTable[256] = {
     0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF, 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
     0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D};
 
-enet_uint32 enet_crc32(const ENetBuffer *buffers, size_t bufferCount)
+uint32_t enet_crc32(const ENetBuffer *buffers, size_t bufferCount)
 {
-    enet_uint32 crc = 0xFFFFFFFF;
+    uint32_t crc = 0xFFFFFFFF;
 
     while (bufferCount-- > 0)
     {
-        const enet_uint8 *data = (const enet_uint8 *)buffers->data, *dataEnd = &data[buffers->dataLength];
+        const uint8_t *data = (const uint8_t *)buffers->data, *dataEnd = &data[buffers->dataLength];
 
         while (data < dataEnd)
         {

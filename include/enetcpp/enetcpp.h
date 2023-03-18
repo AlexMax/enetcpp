@@ -5,6 +5,8 @@
 #pragma once
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #ifdef _WIN32
 #include "enetcpp/win32.h"
@@ -12,7 +14,6 @@
 #include "enetcpp/unix.h"
 #endif
 
-#include "enetcpp/types.h"
 #include "enetcpp/protocol.h"
 #include "enetcpp/list.h"
 #include "enetcpp/callbacks.h"
@@ -26,7 +27,7 @@
 #define ENET_VERSION_GET_PATCH(version) ((version)&0xFF)
 #define ENET_VERSION ENET_VERSION_CREATE(ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH)
 
-typedef enet_uint32 ENetVersion;
+typedef uint32_t ENetVersion;
 
 struct _ENetHost;
 struct _ENetEvent;
@@ -83,8 +84,8 @@ typedef enum _ENetSocketShutdown
  */
 typedef struct _ENetAddress
 {
-    enet_uint32 host;
-    enet_uint16 port;
+    uint32_t host;
+    uint16_t port;
 } ENetAddress;
 
 /**
@@ -143,8 +144,8 @@ typedef void(ENET_CALLBACK *ENetPacketFreeCallback)(struct _ENetPacket *);
 typedef struct _ENetPacket
 {
     size_t referenceCount;               /**< internal use only */
-    enet_uint32 flags;                   /**< bitwise-or of ENetPacketFlag constants */
-    enet_uint8 *data;                    /**< allocated data for packet */
+    uint32_t flags;                      /**< bitwise-or of ENetPacketFlag constants */
+    uint8_t *data;                       /**< allocated data for packet */
     size_t dataLength;                   /**< length of data */
     ENetPacketFreeCallback freeCallback; /**< function to be called when the packet is no longer in use */
     void *userData;                      /**< application private data, may be freely modified */
@@ -153,21 +154,21 @@ typedef struct _ENetPacket
 typedef struct _ENetAcknowledgement
 {
     ENetListNode acknowledgementList;
-    enet_uint32 sentTime;
+    uint32_t sentTime;
     ENetProtocol command;
 } ENetAcknowledgement;
 
 typedef struct _ENetOutgoingCommand
 {
     ENetListNode outgoingCommandList;
-    enet_uint16 reliableSequenceNumber;
-    enet_uint16 unreliableSequenceNumber;
-    enet_uint32 sentTime;
-    enet_uint32 roundTripTimeout;
-    enet_uint32 queueTime;
-    enet_uint32 fragmentOffset;
-    enet_uint16 fragmentLength;
-    enet_uint16 sendAttempts;
+    uint16_t reliableSequenceNumber;
+    uint16_t unreliableSequenceNumber;
+    uint32_t sentTime;
+    uint32_t roundTripTimeout;
+    uint32_t queueTime;
+    uint32_t fragmentOffset;
+    uint16_t fragmentLength;
+    uint16_t sendAttempts;
     ENetProtocol command;
     ENetPacket *packet;
 } ENetOutgoingCommand;
@@ -175,12 +176,12 @@ typedef struct _ENetOutgoingCommand
 typedef struct _ENetIncomingCommand
 {
     ENetListNode incomingCommandList;
-    enet_uint16 reliableSequenceNumber;
-    enet_uint16 unreliableSequenceNumber;
+    uint16_t reliableSequenceNumber;
+    uint16_t unreliableSequenceNumber;
     ENetProtocol command;
-    enet_uint32 fragmentCount;
-    enet_uint32 fragmentsRemaining;
-    enet_uint32 *fragments;
+    uint32_t fragmentCount;
+    uint32_t fragmentsRemaining;
+    uint32_t *fragments;
     ENetPacket *packet;
 } ENetIncomingCommand;
 
@@ -235,12 +236,12 @@ enum
 
 typedef struct _ENetChannel
 {
-    enet_uint16 outgoingReliableSequenceNumber;
-    enet_uint16 outgoingUnreliableSequenceNumber;
-    enet_uint16 usedReliableWindows;
-    enet_uint16 reliableWindows[ENET_PEER_RELIABLE_WINDOWS];
-    enet_uint16 incomingReliableSequenceNumber;
-    enet_uint16 incomingUnreliableSequenceNumber;
+    uint16_t outgoingReliableSequenceNumber;
+    uint16_t outgoingUnreliableSequenceNumber;
+    uint16_t usedReliableWindows;
+    uint16_t reliableWindows[ENET_PEER_RELIABLE_WINDOWS];
+    uint16_t incomingReliableSequenceNumber;
+    uint16_t incomingUnreliableSequenceNumber;
     ENetList incomingReliableCommands;
     ENetList incomingUnreliableCommands;
 } ENetChannel;
@@ -260,65 +261,65 @@ typedef struct _ENetPeer
 {
     ENetListNode dispatchList;
     struct _ENetHost *host;
-    enet_uint16 outgoingPeerID;
-    enet_uint16 incomingPeerID;
-    enet_uint32 connectID;
-    enet_uint8 outgoingSessionID;
-    enet_uint8 incomingSessionID;
+    uint16_t outgoingPeerID;
+    uint16_t incomingPeerID;
+    uint32_t connectID;
+    uint8_t outgoingSessionID;
+    uint8_t incomingSessionID;
     ENetAddress address; /**< Internet address of the peer */
     void *data;          /**< Application private data, may be freely modified */
     ENetPeerState state;
     ENetChannel *channels;
-    size_t channelCount;           /**< Number of channels allocated for communication with peer */
-    enet_uint32 incomingBandwidth; /**< Downstream bandwidth of the client in bytes/second */
-    enet_uint32 outgoingBandwidth; /**< Upstream bandwidth of the client in bytes/second */
-    enet_uint32 incomingBandwidthThrottleEpoch;
-    enet_uint32 outgoingBandwidthThrottleEpoch;
-    enet_uint32 incomingDataTotal;
-    enet_uint32 outgoingDataTotal;
-    enet_uint32 lastSendTime;
-    enet_uint32 lastReceiveTime;
-    enet_uint32 nextTimeout;
-    enet_uint32 earliestTimeout;
-    enet_uint32 packetLossEpoch;
-    enet_uint32 packetsSent;
-    enet_uint32 packetsLost;
-    enet_uint32 packetLoss; /**< mean packet loss of reliable packets as a ratio with respect to the constant
+    size_t channelCount;        /**< Number of channels allocated for communication with peer */
+    uint32_t incomingBandwidth; /**< Downstream bandwidth of the client in bytes/second */
+    uint32_t outgoingBandwidth; /**< Upstream bandwidth of the client in bytes/second */
+    uint32_t incomingBandwidthThrottleEpoch;
+    uint32_t outgoingBandwidthThrottleEpoch;
+    uint32_t incomingDataTotal;
+    uint32_t outgoingDataTotal;
+    uint32_t lastSendTime;
+    uint32_t lastReceiveTime;
+    uint32_t nextTimeout;
+    uint32_t earliestTimeout;
+    uint32_t packetLossEpoch;
+    uint32_t packetsSent;
+    uint32_t packetsLost;
+    uint32_t packetLoss; /**< mean packet loss of reliable packets as a ratio with respect to the constant
                                ENET_PEER_PACKET_LOSS_SCALE */
-    enet_uint32 packetLossVariance;
-    enet_uint32 packetThrottle;
-    enet_uint32 packetThrottleLimit;
-    enet_uint32 packetThrottleCounter;
-    enet_uint32 packetThrottleEpoch;
-    enet_uint32 packetThrottleAcceleration;
-    enet_uint32 packetThrottleDeceleration;
-    enet_uint32 packetThrottleInterval;
-    enet_uint32 pingInterval;
-    enet_uint32 timeoutLimit;
-    enet_uint32 timeoutMinimum;
-    enet_uint32 timeoutMaximum;
-    enet_uint32 lastRoundTripTime;
-    enet_uint32 lowestRoundTripTime;
-    enet_uint32 lastRoundTripTimeVariance;
-    enet_uint32 highestRoundTripTimeVariance;
-    enet_uint32 roundTripTime; /**< mean round trip time (RTT), in milliseconds, between sending a reliable packet
+    uint32_t packetLossVariance;
+    uint32_t packetThrottle;
+    uint32_t packetThrottleLimit;
+    uint32_t packetThrottleCounter;
+    uint32_t packetThrottleEpoch;
+    uint32_t packetThrottleAcceleration;
+    uint32_t packetThrottleDeceleration;
+    uint32_t packetThrottleInterval;
+    uint32_t pingInterval;
+    uint32_t timeoutLimit;
+    uint32_t timeoutMinimum;
+    uint32_t timeoutMaximum;
+    uint32_t lastRoundTripTime;
+    uint32_t lowestRoundTripTime;
+    uint32_t lastRoundTripTimeVariance;
+    uint32_t highestRoundTripTimeVariance;
+    uint32_t roundTripTime; /**< mean round trip time (RTT), in milliseconds, between sending a reliable packet
                                   and receiving its acknowledgement */
-    enet_uint32 roundTripTimeVariance;
-    enet_uint32 mtu;
-    enet_uint32 windowSize;
-    enet_uint32 reliableDataInTransit;
-    enet_uint16 outgoingReliableSequenceNumber;
+    uint32_t roundTripTimeVariance;
+    uint32_t mtu;
+    uint32_t windowSize;
+    uint32_t reliableDataInTransit;
+    uint16_t outgoingReliableSequenceNumber;
     ENetList acknowledgements;
     ENetList sentReliableCommands;
     ENetList outgoingSendReliableCommands;
     ENetList outgoingCommands;
     ENetList dispatchedCommands;
-    enet_uint16 flags;
-    enet_uint16 reserved;
-    enet_uint16 incomingUnsequencedGroup;
-    enet_uint16 outgoingUnsequencedGroup;
-    enet_uint32 unsequencedWindow[ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32];
-    enet_uint32 eventData;
+    uint16_t flags;
+    uint16_t reserved;
+    uint16_t incomingUnsequencedGroup;
+    uint16_t outgoingUnsequencedGroup;
+    uint32_t unsequencedWindow[ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32];
+    uint32_t eventData;
     size_t totalWaitingData;
 } ENetPeer;
 
@@ -331,17 +332,17 @@ typedef struct _ENetCompressor
     /** Compresses from inBuffers[0:inBufferCount-1], containing inLimit bytes, to outData, outputting at most
      * outLimit bytes. Should return 0 on failure. */
     size_t(ENET_CALLBACK *compress)(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
-                                    enet_uint8 *outData, size_t outLimit);
+                                    uint8_t *outData, size_t outLimit);
     /** Decompresses from inData, containing inLimit bytes, to outData, outputting at most outLimit bytes. Should
      * return 0 on failure. */
-    size_t(ENET_CALLBACK *decompress)(void *context, const enet_uint8 *inData, size_t inLimit, enet_uint8 *outData,
+    size_t(ENET_CALLBACK *decompress)(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData,
                                       size_t outLimit);
     /** Destroys the context when compression is disabled or the host is destroyed. May be NULL. */
     void(ENET_CALLBACK *destroy)(void *context);
 } ENetCompressor;
 
 /** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
-typedef enet_uint32(ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer *buffers, size_t bufferCount);
+typedef uint32_t(ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer *buffers, size_t bufferCount);
 
 /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to
  * propagate an error. */
@@ -366,37 +367,37 @@ typedef int(ENET_CALLBACK *ENetInterceptCallback)(struct _ENetHost *host, struct
 typedef struct _ENetHost
 {
     ENetSocket socket;
-    ENetAddress address;           /**< Internet address of the host */
-    enet_uint32 incomingBandwidth; /**< downstream bandwidth of the host */
-    enet_uint32 outgoingBandwidth; /**< upstream bandwidth of the host */
-    enet_uint32 bandwidthThrottleEpoch;
-    enet_uint32 mtu;
-    enet_uint32 randomSeed;
+    ENetAddress address;        /**< Internet address of the host */
+    uint32_t incomingBandwidth; /**< downstream bandwidth of the host */
+    uint32_t outgoingBandwidth; /**< upstream bandwidth of the host */
+    uint32_t bandwidthThrottleEpoch;
+    uint32_t mtu;
+    uint32_t randomSeed;
     int recalculateBandwidthLimits;
     ENetPeer *peers;     /**< array of peers allocated for this host */
     size_t peerCount;    /**< number of peers allocated for this host */
     size_t channelLimit; /**< maximum number of channels allowed for connected peers */
-    enet_uint32 serviceTime;
+    uint32_t serviceTime;
     ENetList dispatchQueue;
-    enet_uint32 totalQueued;
+    uint32_t totalQueued;
     size_t packetSize;
-    enet_uint16 headerFlags;
+    uint16_t headerFlags;
     ENetProtocol commands[ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     size_t commandCount;
     ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
     size_t bufferCount;
     ENetChecksumCallback checksum; /**< callback the user can set to enable packet checksums for this host */
     ENetCompressor compressor;
-    enet_uint8 packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
+    uint8_t packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
     ENetAddress receivedAddress;
-    enet_uint8 *receivedData;
+    uint8_t *receivedData;
     size_t receivedDataLength;
-    enet_uint32 totalSentData;     /**< total data sent, user should reset to 0 as needed to prevent overflow */
-    enet_uint32 totalSentPackets;  /**< total UDP packets sent, user should reset to 0 as needed to prevent overflow */
-    enet_uint32 totalReceivedData; /**< total data received, user should reset to 0 as needed to prevent overflow */
-    enet_uint32 totalReceivedPackets; /**< total UDP packets received, user should reset to 0 as needed to prevent
+    uint32_t totalSentData;        /**< total data sent, user should reset to 0 as needed to prevent overflow */
+    uint32_t totalSentPackets;     /**< total UDP packets sent, user should reset to 0 as needed to prevent overflow */
+    uint32_t totalReceivedData;    /**< total data received, user should reset to 0 as needed to prevent overflow */
+    uint32_t totalReceivedPackets; /**< total UDP packets received, user should reset to 0 as needed to prevent
                                          overflow */
-    ENetInterceptCallback intercept;  /**< callback the user can set to intercept received raw UDP packets */
+    ENetInterceptCallback intercept; /**< callback the user can set to intercept received raw UDP packets */
     size_t connectedPeers;
     size_t bandwidthLimitedPeers;
     size_t duplicatePeers;     /**< optional number of allowed peers from duplicate IPs, defaults to
@@ -444,11 +445,11 @@ typedef enum _ENetEventType
  */
 typedef struct _ENetEvent
 {
-    ENetEventType type;   /**< type of the event */
-    ENetPeer *peer;       /**< peer that generated a connect, disconnect or receive event */
-    enet_uint8 channelID; /**< channel on the peer that generated the event, if appropriate */
-    enet_uint32 data;     /**< data associated with the event, if appropriate */
-    ENetPacket *packet;   /**< packet associated with the event, if appropriate */
+    ENetEventType type; /**< type of the event */
+    ENetPeer *peer;     /**< peer that generated a connect, disconnect or receive event */
+    uint8_t channelID;  /**< channel on the peer that generated the event, if appropriate */
+    uint32_t data;      /**< data associated with the event, if appropriate */
+    ENetPacket *packet; /**< packet associated with the event, if appropriate */
 } ENetEvent;
 
 /** @defgroup global ENet global functions
@@ -494,11 +495,11 @@ ENET_API ENetVersion enet_linked_version(void);
   Returns the wall-time in milliseconds.  Its initial value is unspecified
   unless otherwise set.
   */
-ENET_API enet_uint32 enet_time_get(void);
+ENET_API uint32_t enet_time_get(void);
 /**
   Sets the current wall-time in milliseconds.
   */
-ENET_API void enet_time_set(enet_uint32);
+ENET_API void enet_time_set(uint32_t);
 
 /** @defgroup socket ENet socket functions
     @{
@@ -511,12 +512,12 @@ ENET_API ENetSocket enet_socket_accept(ENetSocket, ENetAddress *);
 ENET_API int enet_socket_connect(ENetSocket, const ENetAddress *);
 ENET_API int enet_socket_send(ENetSocket, const ENetAddress *, const ENetBuffer *, size_t);
 ENET_API int enet_socket_receive(ENetSocket, ENetAddress *, ENetBuffer *, size_t);
-ENET_API int enet_socket_wait(ENetSocket, enet_uint32 *, enet_uint32);
+ENET_API int enet_socket_wait(ENetSocket, uint32_t *, uint32_t);
 ENET_API int enet_socket_set_option(ENetSocket, ENetSocketOption, int);
 ENET_API int enet_socket_get_option(ENetSocket, ENetSocketOption, int *);
 ENET_API int enet_socket_shutdown(ENetSocket, ENetSocketShutdown);
 ENET_API void enet_socket_destroy(ENetSocket);
-ENET_API int enet_socketset_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
+ENET_API int enet_socketset_select(ENetSocket, ENetSocketSet *, ENetSocketSet *, uint32_t);
 
 /** @} */
 
@@ -566,45 +567,45 @@ ENET_API int enet_address_get_host(const ENetAddress *address, char *hostName, s
 
 /** @} */
 
-ENET_API ENetPacket *enet_packet_create(const void *, size_t, enet_uint32);
+ENET_API ENetPacket *enet_packet_create(const void *, size_t, uint32_t);
 ENET_API void enet_packet_destroy(ENetPacket *);
 ENET_API int enet_packet_resize(ENetPacket *, size_t);
-ENET_API enet_uint32 enet_crc32(const ENetBuffer *, size_t);
+ENET_API uint32_t enet_crc32(const ENetBuffer *, size_t);
 
-ENET_API ENetHost *enet_host_create(const ENetAddress *, size_t, size_t, enet_uint32, enet_uint32);
+ENET_API ENetHost *enet_host_create(const ENetAddress *, size_t, size_t, uint32_t, uint32_t);
 ENET_API void enet_host_destroy(ENetHost *);
-ENET_API ENetPeer *enet_host_connect(ENetHost *, const ENetAddress *, size_t, enet_uint32);
+ENET_API ENetPeer *enet_host_connect(ENetHost *, const ENetAddress *, size_t, uint32_t);
 ENET_API int enet_host_check_events(ENetHost *, ENetEvent *);
-ENET_API int enet_host_service(ENetHost *, ENetEvent *, enet_uint32);
+ENET_API int enet_host_service(ENetHost *, ENetEvent *, uint32_t);
 ENET_API void enet_host_flush(ENetHost *);
-ENET_API void enet_host_broadcast(ENetHost *, enet_uint8, ENetPacket *);
+ENET_API void enet_host_broadcast(ENetHost *, uint8_t, ENetPacket *);
 ENET_API void enet_host_compress(ENetHost *, const ENetCompressor *);
 ENET_API int enet_host_compress_with_range_coder(ENetHost *host);
 ENET_API void enet_host_channel_limit(ENetHost *, size_t);
-ENET_API void enet_host_bandwidth_limit(ENetHost *, enet_uint32, enet_uint32);
+ENET_API void enet_host_bandwidth_limit(ENetHost *, uint32_t, uint32_t);
 extern void enet_host_bandwidth_throttle(ENetHost *);
-extern enet_uint32 enet_host_random_seed(void);
-extern enet_uint32 enet_host_random(ENetHost *);
+extern uint32_t enet_host_random_seed(void);
+extern uint32_t enet_host_random(ENetHost *);
 
-ENET_API int enet_peer_send(ENetPeer *, enet_uint8, ENetPacket *);
-ENET_API ENetPacket *enet_peer_receive(ENetPeer *, enet_uint8 *channelID);
+ENET_API int enet_peer_send(ENetPeer *, uint8_t, ENetPacket *);
+ENET_API ENetPacket *enet_peer_receive(ENetPeer *, uint8_t *channelID);
 ENET_API void enet_peer_ping(ENetPeer *);
-ENET_API void enet_peer_ping_interval(ENetPeer *, enet_uint32);
-ENET_API void enet_peer_timeout(ENetPeer *, enet_uint32, enet_uint32, enet_uint32);
+ENET_API void enet_peer_ping_interval(ENetPeer *, uint32_t);
+ENET_API void enet_peer_timeout(ENetPeer *, uint32_t, uint32_t, uint32_t);
 ENET_API void enet_peer_reset(ENetPeer *);
-ENET_API void enet_peer_disconnect(ENetPeer *, enet_uint32);
-ENET_API void enet_peer_disconnect_now(ENetPeer *, enet_uint32);
-ENET_API void enet_peer_disconnect_later(ENetPeer *, enet_uint32);
-ENET_API void enet_peer_throttle_configure(ENetPeer *, enet_uint32, enet_uint32, enet_uint32);
-extern int enet_peer_throttle(ENetPeer *, enet_uint32);
+ENET_API void enet_peer_disconnect(ENetPeer *, uint32_t);
+ENET_API void enet_peer_disconnect_now(ENetPeer *, uint32_t);
+ENET_API void enet_peer_disconnect_later(ENetPeer *, uint32_t);
+ENET_API void enet_peer_throttle_configure(ENetPeer *, uint32_t, uint32_t, uint32_t);
+extern int enet_peer_throttle(ENetPeer *, uint32_t);
 extern void enet_peer_reset_queues(ENetPeer *);
 extern int enet_peer_has_outgoing_commands(ENetPeer *);
 extern void enet_peer_setup_outgoing_command(ENetPeer *, ENetOutgoingCommand *);
-extern ENetOutgoingCommand *enet_peer_queue_outgoing_command(ENetPeer *, const ENetProtocol *, ENetPacket *,
-                                                             enet_uint32, enet_uint16);
+extern ENetOutgoingCommand *enet_peer_queue_outgoing_command(ENetPeer *, const ENetProtocol *, ENetPacket *, uint32_t,
+                                                             uint16_t);
 extern ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *, const ENetProtocol *, const void *, size_t,
-                                                             enet_uint32, enet_uint32);
-extern ENetAcknowledgement *enet_peer_queue_acknowledgement(ENetPeer *, const ENetProtocol *, enet_uint16);
+                                                             uint32_t, uint32_t);
+extern ENetAcknowledgement *enet_peer_queue_acknowledgement(ENetPeer *, const ENetProtocol *, uint16_t);
 extern void enet_peer_dispatch_incoming_unreliable_commands(ENetPeer *, ENetChannel *, ENetIncomingCommand *);
 extern void enet_peer_dispatch_incoming_reliable_commands(ENetPeer *, ENetChannel *, ENetIncomingCommand *);
 extern void enet_peer_on_connect(ENetPeer *);
@@ -612,7 +613,7 @@ extern void enet_peer_on_disconnect(ENetPeer *);
 
 ENET_API void *enet_range_coder_create(void);
 ENET_API void enet_range_coder_destroy(void *);
-ENET_API size_t enet_range_coder_compress(void *, const ENetBuffer *, size_t, size_t, enet_uint8 *, size_t);
-ENET_API size_t enet_range_coder_decompress(void *, const enet_uint8 *, size_t, enet_uint8 *, size_t);
+ENET_API size_t enet_range_coder_compress(void *, const ENetBuffer *, size_t, size_t, uint8_t *, size_t);
+ENET_API size_t enet_range_coder_decompress(void *, const uint8_t *, size_t, uint8_t *, size_t);
 
-extern size_t enet_protocol_command_size(enet_uint8);
+extern size_t enet_protocol_command_size(uint8_t);

@@ -4,8 +4,6 @@
 */
 #pragma once
 
-#include "enetcpp/types.h"
-
 enum
 {
     ENET_PROTOCOL_MINIMUM_MTU = 576,
@@ -63,78 +61,78 @@ typedef enum _ENetProtocolFlag
 
 typedef struct _ENetProtocolHeader
 {
-    enet_uint16 peerID;
-    enet_uint16 sentTime;
+    uint16_t peerID;
+    uint16_t sentTime;
 } ENET_PACKED ENetProtocolHeader;
 
 typedef struct _ENetProtocolCommandHeader
 {
-    enet_uint8 command;
-    enet_uint8 channelID;
-    enet_uint16 reliableSequenceNumber;
+    uint8_t command;
+    uint8_t channelID;
+    uint16_t reliableSequenceNumber;
 } ENET_PACKED ENetProtocolCommandHeader;
 
 typedef struct _ENetProtocolAcknowledge
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 receivedReliableSequenceNumber;
-    enet_uint16 receivedSentTime;
+    uint16_t receivedReliableSequenceNumber;
+    uint16_t receivedSentTime;
 } ENET_PACKED ENetProtocolAcknowledge;
 
 typedef struct _ENetProtocolConnect
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 outgoingPeerID;
-    enet_uint8 incomingSessionID;
-    enet_uint8 outgoingSessionID;
-    enet_uint32 mtu;
-    enet_uint32 windowSize;
-    enet_uint32 channelCount;
-    enet_uint32 incomingBandwidth;
-    enet_uint32 outgoingBandwidth;
-    enet_uint32 packetThrottleInterval;
-    enet_uint32 packetThrottleAcceleration;
-    enet_uint32 packetThrottleDeceleration;
-    enet_uint32 connectID;
-    enet_uint32 data;
+    uint16_t outgoingPeerID;
+    uint8_t incomingSessionID;
+    uint8_t outgoingSessionID;
+    uint32_t mtu;
+    uint32_t windowSize;
+    uint32_t channelCount;
+    uint32_t incomingBandwidth;
+    uint32_t outgoingBandwidth;
+    uint32_t packetThrottleInterval;
+    uint32_t packetThrottleAcceleration;
+    uint32_t packetThrottleDeceleration;
+    uint32_t connectID;
+    uint32_t data;
 } ENET_PACKED ENetProtocolConnect;
 
 typedef struct _ENetProtocolVerifyConnect
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 outgoingPeerID;
-    enet_uint8 incomingSessionID;
-    enet_uint8 outgoingSessionID;
-    enet_uint32 mtu;
-    enet_uint32 windowSize;
-    enet_uint32 channelCount;
-    enet_uint32 incomingBandwidth;
-    enet_uint32 outgoingBandwidth;
-    enet_uint32 packetThrottleInterval;
-    enet_uint32 packetThrottleAcceleration;
-    enet_uint32 packetThrottleDeceleration;
-    enet_uint32 connectID;
+    uint16_t outgoingPeerID;
+    uint8_t incomingSessionID;
+    uint8_t outgoingSessionID;
+    uint32_t mtu;
+    uint32_t windowSize;
+    uint32_t channelCount;
+    uint32_t incomingBandwidth;
+    uint32_t outgoingBandwidth;
+    uint32_t packetThrottleInterval;
+    uint32_t packetThrottleAcceleration;
+    uint32_t packetThrottleDeceleration;
+    uint32_t connectID;
 } ENET_PACKED ENetProtocolVerifyConnect;
 
 typedef struct _ENetProtocolBandwidthLimit
 {
     ENetProtocolCommandHeader header;
-    enet_uint32 incomingBandwidth;
-    enet_uint32 outgoingBandwidth;
+    uint32_t incomingBandwidth;
+    uint32_t outgoingBandwidth;
 } ENET_PACKED ENetProtocolBandwidthLimit;
 
 typedef struct _ENetProtocolThrottleConfigure
 {
     ENetProtocolCommandHeader header;
-    enet_uint32 packetThrottleInterval;
-    enet_uint32 packetThrottleAcceleration;
-    enet_uint32 packetThrottleDeceleration;
+    uint32_t packetThrottleInterval;
+    uint32_t packetThrottleAcceleration;
+    uint32_t packetThrottleDeceleration;
 } ENET_PACKED ENetProtocolThrottleConfigure;
 
 typedef struct _ENetProtocolDisconnect
 {
     ENetProtocolCommandHeader header;
-    enet_uint32 data;
+    uint32_t data;
 } ENET_PACKED ENetProtocolDisconnect;
 
 typedef struct _ENetProtocolPing
@@ -145,32 +143,32 @@ typedef struct _ENetProtocolPing
 typedef struct _ENetProtocolSendReliable
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 dataLength;
+    uint16_t dataLength;
 } ENET_PACKED ENetProtocolSendReliable;
 
 typedef struct _ENetProtocolSendUnreliable
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 unreliableSequenceNumber;
-    enet_uint16 dataLength;
+    uint16_t unreliableSequenceNumber;
+    uint16_t dataLength;
 } ENET_PACKED ENetProtocolSendUnreliable;
 
 typedef struct _ENetProtocolSendUnsequenced
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 unsequencedGroup;
-    enet_uint16 dataLength;
+    uint16_t unsequencedGroup;
+    uint16_t dataLength;
 } ENET_PACKED ENetProtocolSendUnsequenced;
 
 typedef struct _ENetProtocolSendFragment
 {
     ENetProtocolCommandHeader header;
-    enet_uint16 startSequenceNumber;
-    enet_uint16 dataLength;
-    enet_uint32 fragmentCount;
-    enet_uint32 fragmentNumber;
-    enet_uint32 totalLength;
-    enet_uint32 fragmentOffset;
+    uint16_t startSequenceNumber;
+    uint16_t dataLength;
+    uint32_t fragmentCount;
+    uint32_t fragmentNumber;
+    uint32_t totalLength;
+    uint32_t fragmentOffset;
 } ENET_PACKED ENetProtocolSendFragment;
 
 typedef union _ENetProtocol {

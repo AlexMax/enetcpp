@@ -23,7 +23,7 @@ static const size_t commandSizes[ENET_PROTOCOL_COMMAND_COUNT] = {0,
                                                                  sizeof(ENetProtocolThrottleConfigure),
                                                                  sizeof(ENetProtocolSendFragment)};
 
-size_t enet_protocol_command_size(enet_uint8 commandNumber)
+size_t enet_protocol_command_size(uint8_t commandNumber)
 {
     return commandSizes[commandNumber & ENET_PROTOCOL_COMMAND_MASK];
 }
@@ -200,8 +200,8 @@ static void enet_protocol_remove_sent_unreliable_commands(ENetPeer *peer, ENetLi
     }
 }
 
-static ENetOutgoingCommand *enet_protocol_find_sent_reliable_command(ENetList *list, enet_uint16 reliableSequenceNumber,
-                                                                     enet_uint8 channelID)
+static ENetOutgoingCommand *enet_protocol_find_sent_reliable_command(ENetList *list, uint16_t reliableSequenceNumber,
+                                                                     uint8_t channelID)
 {
     ENetListIterator currentCommand;
 
@@ -230,9 +230,8 @@ static ENetOutgoingCommand *enet_protocol_find_sent_reliable_command(ENetList *l
     return NULL;
 }
 
-static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *peer,
-                                                                      enet_uint16 reliableSequenceNumber,
-                                                                      enet_uint8 channelID)
+static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *peer, uint16_t reliableSequenceNumber,
+                                                                      uint8_t channelID)
 {
     ENetOutgoingCommand *outgoingCommand = NULL;
     ENetListIterator currentCommand;
@@ -272,7 +271,7 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *
     if (channelID < peer->channelCount)
     {
         ENetChannel *channel = &peer->channels[channelID];
-        enet_uint16 reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+        uint16_t reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
         if (channel->reliableWindows[reliableWindow] > 0)
         {
             --channel->reliableWindows[reliableWindow];
@@ -320,8 +319,8 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *
 
 static ENetPeer *enet_protocol_handle_connect(ENetHost *host, ENetProtocolHeader *header, ENetProtocol *command)
 {
-    enet_uint8 incomingSessionID, outgoingSessionID;
-    enet_uint32 mtu, windowSize;
+    uint8_t incomingSessionID, outgoingSessionID;
+    uint32_t mtu, windowSize;
     ENetChannel *channel;
     size_t channelCount, duplicatePeers = 0;
     ENetPeer *currentPeer, *peer = NULL;
@@ -502,7 +501,7 @@ static ENetPeer *enet_protocol_handle_connect(ENetHost *host, ENetProtocolHeader
 }
 
 static int enet_protocol_handle_send_reliable(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
-                                              enet_uint8 **currentData)
+                                              uint8_t **currentData)
 {
     size_t dataLength;
 
@@ -520,7 +519,7 @@ static int enet_protocol_handle_send_reliable(ENetHost *host, ENetPeer *peer, co
         return -1;
     }
 
-    if (enet_peer_queue_incoming_command(peer, command, (const enet_uint8 *)command + sizeof(ENetProtocolSendReliable),
+    if (enet_peer_queue_incoming_command(peer, command, (const uint8_t *)command + sizeof(ENetProtocolSendReliable),
                                          dataLength, ENET_PACKET_FLAG_RELIABLE, 0) == NULL)
     {
         return -1;
@@ -530,9 +529,9 @@ static int enet_protocol_handle_send_reliable(ENetHost *host, ENetPeer *peer, co
 }
 
 static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
-                                                 enet_uint8 **currentData)
+                                                 uint8_t **currentData)
 {
-    enet_uint32 unsequencedGroup, index;
+    uint32_t unsequencedGroup, index;
     size_t dataLength;
 
     if (command->header.channelID >= peer->channelCount ||
@@ -557,7 +556,7 @@ static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer,
         unsequencedGroup += 0x10000;
     }
 
-    if (unsequencedGroup >= (enet_uint32)peer->incomingUnsequencedGroup +
+    if (unsequencedGroup >= (uint32_t)peer->incomingUnsequencedGroup +
                                 ENET_PEER_FREE_UNSEQUENCED_WINDOWS * ENET_PEER_UNSEQUENCED_WINDOW_SIZE)
     {
         return 0;
@@ -576,9 +575,8 @@ static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer,
         return 0;
     }
 
-    if (enet_peer_queue_incoming_command(peer, command,
-                                         (const enet_uint8 *)command + sizeof(ENetProtocolSendUnsequenced), dataLength,
-                                         ENET_PACKET_FLAG_UNSEQUENCED, 0) == NULL)
+    if (enet_peer_queue_incoming_command(peer, command, (const uint8_t *)command + sizeof(ENetProtocolSendUnsequenced),
+                                         dataLength, ENET_PACKET_FLAG_UNSEQUENCED, 0) == NULL)
     {
         return -1;
     }
@@ -589,7 +587,7 @@ static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer,
 }
 
 static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
-                                                enet_uint8 **currentData)
+                                                uint8_t **currentData)
 {
     size_t dataLength;
 
@@ -607,8 +605,8 @@ static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, 
         return -1;
     }
 
-    if (enet_peer_queue_incoming_command(
-            peer, command, (const enet_uint8 *)command + sizeof(ENetProtocolSendUnreliable), dataLength, 0, 0) == NULL)
+    if (enet_peer_queue_incoming_command(peer, command, (const uint8_t *)command + sizeof(ENetProtocolSendUnreliable),
+                                         dataLength, 0, 0) == NULL)
     {
         return -1;
     }
@@ -617,11 +615,11 @@ static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, 
 }
 
 static int enet_protocol_handle_send_fragment(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
-                                              enet_uint8 **currentData)
+                                              uint8_t **currentData)
 {
-    enet_uint32 fragmentNumber, fragmentCount, fragmentOffset, fragmentLength, startSequenceNumber, totalLength;
+    uint32_t fragmentNumber, fragmentCount, fragmentOffset, fragmentLength, startSequenceNumber, totalLength;
     ENetChannel *channel;
-    enet_uint16 startWindow, currentWindow;
+    uint16_t startWindow, currentWindow;
     ENetListIterator currentCommand;
     ENetIncomingCommand *startCommand = NULL;
 
@@ -728,7 +726,7 @@ static int enet_protocol_handle_send_fragment(ENetHost *host, ENetPeer *peer, co
             fragmentLength = startCommand->packet->dataLength - fragmentOffset;
         }
 
-        memcpy(startCommand->packet->data + fragmentOffset, (enet_uint8 *)command + sizeof(ENetProtocolSendFragment),
+        memcpy(startCommand->packet->data + fragmentOffset, (uint8_t *)command + sizeof(ENetProtocolSendFragment),
                fragmentLength);
 
         if (startCommand->fragmentsRemaining <= 0)
@@ -741,11 +739,11 @@ static int enet_protocol_handle_send_fragment(ENetHost *host, ENetPeer *peer, co
 }
 
 static int enet_protocol_handle_send_unreliable_fragment(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
-                                                         enet_uint8 **currentData)
+                                                         uint8_t **currentData)
 {
-    enet_uint32 fragmentNumber, fragmentCount, fragmentOffset, fragmentLength, reliableSequenceNumber,
-        startSequenceNumber, totalLength;
-    enet_uint16 reliableWindow, currentWindow;
+    uint32_t fragmentNumber, fragmentCount, fragmentOffset, fragmentLength, reliableSequenceNumber, startSequenceNumber,
+        totalLength;
+    uint16_t reliableWindow, currentWindow;
     ENetChannel *channel;
     ENetListIterator currentCommand;
     ENetIncomingCommand *startCommand = NULL;
@@ -867,7 +865,7 @@ static int enet_protocol_handle_send_unreliable_fragment(ENetHost *host, ENetPee
             fragmentLength = startCommand->packet->dataLength - fragmentOffset;
         }
 
-        memcpy(startCommand->packet->data + fragmentOffset, (enet_uint8 *)command + sizeof(ENetProtocolSendFragment),
+        memcpy(startCommand->packet->data + fragmentOffset, (uint8_t *)command + sizeof(ENetProtocolSendFragment),
                fragmentLength);
 
         if (startCommand->fragmentsRemaining <= 0)
@@ -994,7 +992,7 @@ static int enet_protocol_handle_disconnect(ENetHost *host, ENetPeer *peer, const
 static int enet_protocol_handle_acknowledge(ENetHost *host, ENetEvent *event, ENetPeer *peer,
                                             const ENetProtocol *command)
 {
-    enet_uint32 roundTripTime, receivedSentTime, receivedReliableSequenceNumber;
+    uint32_t roundTripTime, receivedSentTime, receivedReliableSequenceNumber;
     ENetProtocolCommand commandNumber;
 
     if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE)
@@ -1025,13 +1023,13 @@ static int enet_protocol_handle_acknowledge(ENetHost *host, ENetEvent *event, EN
 
         if (roundTripTime >= peer->roundTripTime)
         {
-            enet_uint32 diff = roundTripTime - peer->roundTripTime;
+            uint32_t diff = roundTripTime - peer->roundTripTime;
             peer->roundTripTimeVariance += diff / 4;
             peer->roundTripTime += diff / 8;
         }
         else
         {
-            enet_uint32 diff = peer->roundTripTime - roundTripTime;
+            uint32_t diff = peer->roundTripTime - roundTripTime;
             peer->roundTripTimeVariance += diff / 4;
             peer->roundTripTime -= diff / 8;
         }
@@ -1107,7 +1105,7 @@ static int enet_protocol_handle_acknowledge(ENetHost *host, ENetEvent *event, EN
 static int enet_protocol_handle_verify_connect(ENetHost *host, ENetEvent *event, ENetPeer *peer,
                                                const ENetProtocol *command)
 {
-    enet_uint32 mtu, windowSize;
+    uint32_t mtu, windowSize;
     size_t channelCount;
 
     if (peer->state != ENET_PEER_STATE_CONNECTING)
@@ -1186,10 +1184,10 @@ static int enet_protocol_handle_incoming_commands(ENetHost *host, ENetEvent *eve
     ENetProtocolHeader *header;
     ENetProtocol *command;
     ENetPeer *peer;
-    enet_uint8 *currentData;
+    uint8_t *currentData;
     size_t headerSize;
-    enet_uint16 peerID, flags;
-    enet_uint8 sessionID;
+    uint16_t peerID, flags;
+    uint8_t sessionID;
 
     if (host->receivedDataLength < (size_t) & ((ENetProtocolHeader *)0)->sentTime)
     {
@@ -1207,7 +1205,7 @@ static int enet_protocol_handle_incoming_commands(ENetHost *host, ENetEvent *eve
                                                               : (size_t) & ((ENetProtocolHeader *)0)->sentTime);
     if (host->checksum != NULL)
     {
-        headerSize += sizeof(enet_uint32);
+        headerSize += sizeof(uint32_t);
     }
 
     if (peerID == ENET_PROTOCOL_MAXIMUM_PEER_ID)
@@ -1254,8 +1252,8 @@ static int enet_protocol_handle_incoming_commands(ENetHost *host, ENetEvent *eve
 
     if (host->checksum != NULL)
     {
-        enet_uint32 *checksum = (enet_uint32 *)&host->receivedData[headerSize - sizeof(enet_uint32)],
-                    desiredChecksum = *checksum;
+        uint32_t *checksum = (uint32_t *)&host->receivedData[headerSize - sizeof(uint32_t)],
+                 desiredChecksum = *checksum;
         ENetBuffer buffer;
 
         *checksum = peer != NULL ? peer->connectID : 0;
@@ -1280,7 +1278,7 @@ static int enet_protocol_handle_incoming_commands(ENetHost *host, ENetEvent *eve
 
     while (currentData < &host->receivedData[host->receivedDataLength])
     {
-        enet_uint8 commandNumber;
+        uint8_t commandNumber;
         size_t commandSize;
 
         command = (ENetProtocol *)currentData;
@@ -1408,7 +1406,7 @@ static int enet_protocol_handle_incoming_commands(ENetHost *host, ENetEvent *eve
 
         if (peer != NULL && (command->header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE) != 0)
         {
-            enet_uint16 sentTime;
+            uint16_t sentTime;
 
             if (!(flags & ENET_PROTOCOL_HEADER_FLAG_SENT_TIME))
             {
@@ -1520,7 +1518,7 @@ static void enet_protocol_send_acknowledgements(ENetHost *host, ENetPeer *peer)
     ENetBuffer *buffer = &host->buffers[host->bufferCount];
     ENetAcknowledgement *acknowledgement;
     ENetListIterator currentAcknowledgement;
-    enet_uint16 reliableSequenceNumber;
+    uint16_t reliableSequenceNumber;
 
     currentAcknowledgement = enet_list_begin(&peer->acknowledgements);
 
@@ -1637,7 +1635,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
     ENetOutgoingCommand *outgoingCommand;
     ENetListIterator currentCommand, currentSendReliableCommand;
     ENetChannel *channel = NULL;
-    enet_uint16 reliableWindow = 0;
+    uint16_t reliableWindow = 0;
     size_t commandSize;
     int windowWrap = 0, canPing = 1;
 
@@ -1700,7 +1698,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
 
             if (outgoingCommand->packet != NULL)
             {
-                enet_uint32 windowSize = (peer->packetThrottle * peer->windowSize) / ENET_PEER_PACKET_THROTTLE_SCALE;
+                uint32_t windowSize = (peer->packetThrottle * peer->windowSize) / ENET_PEER_PACKET_THROTTLE_SCALE;
 
                 if (peer->reliableDataInTransit + outgoingCommand->fragmentLength > ENET_MAX(windowSize, peer->mtu))
                 {
@@ -1717,8 +1715,8 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
         if (command >= &host->commands[sizeof(host->commands) / sizeof(ENetProtocol)] ||
             buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
             peer->mtu - host->packetSize < commandSize ||
-            (outgoingCommand->packet != NULL && (enet_uint16)(peer->mtu - host->packetSize) <
-                                                    (enet_uint16)(commandSize + outgoingCommand->fragmentLength)))
+            (outgoingCommand->packet != NULL &&
+             (uint16_t)(peer->mtu - host->packetSize) < (uint16_t)(commandSize + outgoingCommand->fragmentLength)))
         {
             peer->flags |= ENET_PEER_FLAG_CONTINUE_SENDING;
 
@@ -1763,8 +1761,8 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
 
                 if (peer->packetThrottleCounter > peer->packetThrottle)
                 {
-                    enet_uint16 reliableSequenceNumber = outgoingCommand->reliableSequenceNumber,
-                                unreliableSequenceNumber = outgoingCommand->unreliableSequenceNumber;
+                    uint16_t reliableSequenceNumber = outgoingCommand->reliableSequenceNumber,
+                             unreliableSequenceNumber = outgoingCommand->unreliableSequenceNumber;
                     for (;;)
                     {
                         --outgoingCommand->packet->referenceCount;
@@ -1845,7 +1843,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
 
 static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event, int checkForTimeouts)
 {
-    enet_uint8 headerData[sizeof(ENetProtocolHeader) + sizeof(enet_uint32)];
+    uint8_t headerData[sizeof(ENetProtocolHeader) + sizeof(uint32_t)];
     ENetProtocolHeader *header = (ENetProtocolHeader *)headerData;
     int sentLength = 0;
     size_t shouldCompress = 0;
@@ -1913,8 +1911,7 @@ static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event
                          ENET_PEER_PACKET_LOSS_INTERVAL &&
                      currentPeer->packetsSent > 0)
             {
-                enet_uint32 packetLoss =
-                    currentPeer->packetsLost * ENET_PEER_PACKET_LOSS_SCALE / currentPeer->packetsSent;
+                uint32_t packetLoss = currentPeer->packetsLost * ENET_PEER_PACKET_LOSS_SCALE / currentPeer->packetsSent;
 
 #ifdef ENET_DEBUG
                 printf("peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u outgoing, %u/%u "
@@ -1978,9 +1975,9 @@ static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event
             header->peerID = ENET_HOST_TO_NET_16(currentPeer->outgoingPeerID | host->headerFlags);
             if (host->checksum != NULL)
             {
-                enet_uint32 *checksum = (enet_uint32 *)&headerData[host->buffers->dataLength];
+                uint32_t *checksum = (uint32_t *)&headerData[host->buffers->dataLength];
                 *checksum = currentPeer->outgoingPeerID < ENET_PROTOCOL_MAXIMUM_PEER_ID ? currentPeer->connectID : 0;
-                host->buffers->dataLength += sizeof(enet_uint32);
+                host->buffers->dataLength += sizeof(uint32_t);
                 *checksum = host->checksum(host->buffers, host->bufferCount);
             }
 
@@ -2066,9 +2063,9 @@ int enet_host_check_events(ENetHost *host, ENetEvent *event)
     @remarks enet_host_service should be called fairly regularly for adequate performance
     @ingroup host
 */
-int enet_host_service(ENetHost *host, ENetEvent *event, enet_uint32 timeout)
+int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
 {
-    enet_uint32 waitCondition;
+    uint32_t waitCondition;
 
     if (event != NULL)
     {

@@ -9,16 +9,16 @@
 typedef struct _ENetSymbol
 {
     /* binary indexed tree of symbols */
-    enet_uint8 value;
-    enet_uint8 count;
-    enet_uint16 under;
-    enet_uint16 left, right;
+    uint8_t value;
+    uint8_t count;
+    uint16_t under;
+    uint16_t left, right;
 
     /* context defined by this symbol */
-    enet_uint16 symbols;
-    enet_uint16 escapes;
-    enet_uint16 total;
-    enet_uint16 parent;
+    uint16_t symbols;
+    uint16_t escapes;
+    uint16_t total;
+    uint16_t parent;
 } ENetSymbol;
 
 /* adaptation constants tuned aggressively for small packet sizes rather than large file compression */
@@ -89,9 +89,9 @@ void enet_range_coder_destroy(void *context)
         (context)->symbols = 0;                                                                                        \
     }
 
-static enet_uint16 enet_symbol_rescale(ENetSymbol *symbol)
+static uint16_t enet_symbol_rescale(ENetSymbol *symbol)
 {
-    enet_uint16 total = 0;
+    uint16_t total = 0;
     for (;;)
     {
         symbol->count -= symbol->count >> 1;
@@ -248,7 +248,7 @@ static const ENetSymbol emptyContext = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     ENET_CONTEXT_WALK(context, {                                                                                       \
         if (node->value != value_)                                                                                     \
         {                                                                                                              \
-            enet_uint16 parentCount = rangeCoder->symbols[node->parent].count + minimum;                               \
+            uint16_t parentCount = rangeCoder->symbols[node->parent].count + minimum;                                  \
             if (node->value < value_)                                                                                  \
                 under -= parentCount;                                                                                  \
             total -= parentCount;                                                                                      \
@@ -257,14 +257,14 @@ static const ENetSymbol emptyContext = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
 
 size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
-                                 enet_uint8 *outData, size_t outLimit)
+                                 uint8_t *outData, size_t outLimit)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
-    enet_uint8 *outStart = outData, *outEnd = &outData[outLimit];
-    const enet_uint8 *inData, *inEnd;
-    enet_uint32 encodeLow = 0, encodeRange = ~0;
+    uint8_t *outStart = outData, *outEnd = &outData[outLimit];
+    const uint8_t *inData, *inEnd;
+    uint32_t encodeLow = 0, encodeRange = ~0;
     ENetSymbol *root;
-    enet_uint16 predicted = 0;
+    uint16_t predicted = 0;
     size_t order = 0, nextSymbol = 0;
 
     if (rangeCoder == NULL || inBufferCount <= 0 || inLimit <= 0)
@@ -272,7 +272,7 @@ size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, siz
         return 0;
     }
 
-    inData = (const enet_uint8 *)inBuffers->data;
+    inData = (const uint8_t *)inBuffers->data;
     inEnd = &inData[inBuffers->dataLength];
     inBuffers++;
     inBufferCount--;
@@ -285,15 +285,15 @@ size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, siz
 #ifdef ENET_CONTEXT_EXCLUSION
         const ENetSymbol *childContext = &emptyContext;
 #endif
-        enet_uint8 value;
-        enet_uint16 count, under, *parent = &predicted, total;
+        uint8_t value;
+        uint16_t count, under, *parent = &predicted, total;
         if (inData >= inEnd)
         {
             if (inBufferCount <= 0)
             {
                 break;
             }
-            inData = (const enet_uint8 *)inBuffers->data;
+            inData = (const uint8_t *)inBuffers->data;
             inEnd = &inData[inBuffers->dataLength];
             inBuffers++;
             inBufferCount--;
@@ -423,8 +423,7 @@ size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, siz
             ENetSymbol *node = (context) + (context)->symbols;                                                         \
             for (;;)                                                                                                   \
             {                                                                                                          \
-                enet_uint16 after = under_ + node->under + (node->value + 1) * minimum,                                \
-                            before = node->count + minimum;                                                            \
+                uint16_t after = under_ + node->under + (node->value + 1) * minimum, before = node->count + minimum;   \
                 visitNode;                                                                                             \
                 if (code >= after)                                                                                     \
                 {                                                                                                      \
@@ -490,13 +489,13 @@ size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, siz
 #ifdef ENET_CONTEXT_EXCLUSION
 typedef struct _ENetExclude
 {
-    enet_uint8 value;
-    enet_uint16 under;
+    uint8_t value;
+    uint16_t under;
 } ENetExclude;
 
 #define ENET_CONTEXT_DECODE_EXCLUDE(context, total, minimum)                                                           \
     {                                                                                                                  \
-        enet_uint16 under = 0;                                                                                         \
+        uint16_t under = 0;                                                                                            \
         nextExclude = excludes;                                                                                        \
         ENET_CONTEXT_WALK(context, {                                                                                   \
             under += rangeCoder->symbols[node->parent].count + minimum;                                                \
@@ -545,15 +544,15 @@ typedef struct _ENetExclude
 
 #define ENET_CONTEXT_NOT_EXCLUDED(value_, after, before)
 
-size_t enet_range_coder_decompress(void *context, const enet_uint8 *inData, size_t inLimit, enet_uint8 *outData,
+size_t enet_range_coder_decompress(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData,
                                    size_t outLimit)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
-    enet_uint8 *outStart = outData, *outEnd = &outData[outLimit];
-    const enet_uint8 *inEnd = &inData[inLimit];
-    enet_uint32 decodeLow = 0, decodeCode = 0, decodeRange = ~0;
+    uint8_t *outStart = outData, *outEnd = &outData[outLimit];
+    const uint8_t *inEnd = &inData[inLimit];
+    uint32_t decodeLow = 0, decodeCode = 0, decodeRange = ~0;
     ENetSymbol *root;
-    enet_uint16 predicted = 0;
+    uint16_t predicted = 0;
     size_t order = 0, nextSymbol = 0;
 #ifdef ENET_CONTEXT_EXCLUSION
     ENetExclude excludes[256];
@@ -575,8 +574,8 @@ size_t enet_range_coder_decompress(void *context, const enet_uint8 *inData, size
 #ifdef ENET_CONTEXT_EXCLUSION
         const ENetSymbol *childContext = &emptyContext;
 #endif
-        enet_uint8 value = 0;
-        enet_uint16 code, under, count, bottom, *parent = &predicted, total;
+        uint8_t value = 0;
+        uint16_t code, under, count, bottom, *parent = &predicted, total;
 
         for (subcontext = &rangeCoder->symbols[predicted]; subcontext != root;
 #ifdef ENET_CONTEXT_EXCLUSION

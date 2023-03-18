@@ -10,7 +10,7 @@
 #include <mmsystem.h>
 #include <ws2ipdef.h>
 
-static enet_uint32 timeBase = 0;
+static uint32_t timeBase = 0;
 
 int enet_initialize(void)
 {
@@ -41,24 +41,24 @@ void enet_deinitialize(void)
     WSACleanup();
 }
 
-enet_uint32 enet_host_random_seed(void)
+uint32_t enet_host_random_seed(void)
 {
-    return (enet_uint32)timeGetTime();
+    return (uint32_t)timeGetTime();
 }
 
-enet_uint32 enet_time_get(void)
+uint32_t enet_time_get(void)
 {
-    return (enet_uint32)timeGetTime() - timeBase;
+    return (uint32_t)timeGetTime() - timeBase;
 }
 
-void enet_time_set(enet_uint32 newTimeBase)
+void enet_time_set(uint32_t newTimeBase)
 {
-    timeBase = (enet_uint32)timeGetTime() - newTimeBase;
+    timeBase = (uint32_t)timeGetTime() - newTimeBase;
 }
 
 int enet_address_set_host_ip(ENetAddress *address, const char *name)
 {
-    enet_uint8 vals[4] = {0, 0, 0, 0};
+    uint8_t vals[4] = {0, 0, 0, 0};
     int i;
 
     for (i = 0; i < 4; ++i)
@@ -71,7 +71,7 @@ int enet_address_set_host_ip(ENetAddress *address, const char *name)
             {
                 return -1;
             }
-            vals[i] = (enet_uint8)val;
+            vals[i] = (uint8_t)val;
         }
 
         if (*next != (i < 3 ? '.' : '\0'))
@@ -81,7 +81,7 @@ int enet_address_set_host_ip(ENetAddress *address, const char *name)
         name = next + 1;
     }
 
-    memcpy(&address->host, vals, sizeof(enet_uint32));
+    memcpy(&address->host, vals, sizeof(uint32_t));
     return 0;
 }
 
@@ -95,7 +95,7 @@ int enet_address_set_host(ENetAddress *address, const char *name)
         return enet_address_set_host_ip(address, name);
     }
 
-    address->host = *(enet_uint32 *)hostEntry->h_addr_list[0];
+    address->host = *(uint32_t *)hostEntry->h_addr_list[0];
 
     return 0;
 }
@@ -176,7 +176,7 @@ int enet_socket_get_address(ENetSocket socket, ENetAddress *address)
         return -1;
     }
 
-    address->host = (enet_uint32)sin.sin_addr.s_addr;
+    address->host = (uint32_t)sin.sin_addr.s_addr;
     address->port = ENET_NET_TO_HOST_16(sin.sin_port);
 
     return 0;
@@ -297,7 +297,7 @@ ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address)
 
     if (address != NULL)
     {
-        address->host = (enet_uint32)sin.sin_addr.s_addr;
+        address->host = (uint32_t)sin.sin_addr.s_addr;
         address->port = ENET_NET_TO_HOST_16(sin.sin_port);
     }
 
@@ -373,14 +373,14 @@ int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buf
 
     if (address != NULL)
     {
-        address->host = (enet_uint32)sin.sin_addr.s_addr;
+        address->host = (uint32_t)sin.sin_addr.s_addr;
         address->port = ENET_NET_TO_HOST_16(sin.sin_port);
     }
 
     return (int)recvLength;
 }
 
-int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, enet_uint32 timeout)
+int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, uint32_t timeout)
 {
     struct timeval timeVal;
 
@@ -390,7 +390,7 @@ int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSock
     return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
 }
 
-int enet_socket_wait(ENetSocket socket, enet_uint32 *condition, enet_uint32 timeout)
+int enet_socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout)
 {
     fd_set readSet, writeSet;
     struct timeval timeVal;
