@@ -6,34 +6,63 @@
 
 #include <stdlib.h>
 
-struct ENetListNode
+namespace ENet
 {
-    ENetListNode *next;
-    ENetListNode *previous;
+
+struct ListNode
+{
+    ListNode *next;
+    ListNode *previous;
 };
 
-using ENetListIterator = ENetListNode *;
+using ListIterator = ListNode *;
 
-struct ENetList
+struct List
 {
-    ENetListNode sentinel;
+    ListNode sentinel;
 };
 
-extern void enet_list_clear(ENetList *list);
+extern void list_clear(List *list);
 
-extern ENetListIterator enet_list_insert(ENetListIterator position, void *data);
-extern void *enet_list_remove(ENetListIterator position);
-extern ENetListIterator enet_list_move(ENetListIterator position, void *dataFirst, void *dataLast);
+extern ListIterator list_insert(ListIterator position, void *data);
+extern void *list_remove(ListIterator position);
+extern ListIterator list_move(ListIterator position, void *dataFirst, void *dataLast);
 
-extern size_t enet_list_size(ENetList *list);
+extern size_t list_size(List *list);
 
-#define enet_list_begin(list) ((list)->sentinel.next)
-#define enet_list_end(list) (&(list)->sentinel)
+inline ListIterator list_begin(List *list)
+{
+    return (list)->sentinel.next;
+}
 
-#define enet_list_empty(list) (enet_list_begin(list) == enet_list_end(list))
+inline ListIterator list_end(List *list)
+{
+    return &(list)->sentinel;
+}
 
-#define enet_list_next(iterator) ((iterator)->next)
-#define enet_list_previous(iterator) ((iterator)->previous)
+inline bool list_empty(List *list)
+{
+    return list_begin(list) == list_end(list);
+}
 
-#define enet_list_front(list) ((void *)(list)->sentinel.next)
-#define enet_list_back(list) ((void *)(list)->sentinel.previous)
+inline ListIterator list_next(ListIterator iterator)
+{
+    return iterator->next;
+}
+
+inline ListIterator list_previous(ListIterator iterator)
+{
+    return iterator->previous;
+}
+
+inline void *list_front(List *list)
+{
+    return ((void *)(list)->sentinel.next);
+}
+
+inline void *list_back(List *list)
+{
+    return ((void *)(list)->sentinel.previous);
+}
+
+} // namespace ENet

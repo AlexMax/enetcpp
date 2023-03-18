@@ -107,7 +107,7 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
 
     host->intercept = NULL;
 
-    enet_list_clear(&host->dispatchQueue);
+    ENet::list_clear(&host->dispatchQueue);
 
     for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer)
     {
@@ -116,11 +116,11 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
         currentPeer->outgoingSessionID = currentPeer->incomingSessionID = 0xFF;
         currentPeer->data = NULL;
 
-        enet_list_clear(&currentPeer->acknowledgements);
-        enet_list_clear(&currentPeer->sentReliableCommands);
-        enet_list_clear(&currentPeer->outgoingCommands);
-        enet_list_clear(&currentPeer->outgoingSendReliableCommands);
-        enet_list_clear(&currentPeer->dispatchedCommands);
+        ENet::list_clear(&currentPeer->acknowledgements);
+        ENet::list_clear(&currentPeer->sentReliableCommands);
+        ENet::list_clear(&currentPeer->outgoingCommands);
+        ENet::list_clear(&currentPeer->outgoingSendReliableCommands);
+        ENet::list_clear(&currentPeer->dispatchedCommands);
 
         enet_peer_reset(currentPeer);
     }
@@ -226,8 +226,8 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
         channel->incomingReliableSequenceNumber = 0;
         channel->incomingUnreliableSequenceNumber = 0;
 
-        enet_list_clear(&channel->incomingReliableCommands);
-        enet_list_clear(&channel->incomingUnreliableCommands);
+        ENet::list_clear(&channel->incomingReliableCommands);
+        ENet::list_clear(&channel->incomingUnreliableCommands);
 
         channel->usedReliableWindows = 0;
         memset(channel->reliableWindows, 0, sizeof(channel->reliableWindows));

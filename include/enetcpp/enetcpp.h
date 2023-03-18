@@ -153,14 +153,14 @@ struct ENetPacket
 
 struct ENetAcknowledgement
 {
-    ENetListNode acknowledgementList;
+    ENet::ListNode acknowledgementList;
     uint32_t sentTime;
     ENetProtocol command;
 };
 
 struct ENetOutgoingCommand
 {
-    ENetListNode outgoingCommandList;
+    ENet::ListNode outgoingCommandList;
     uint16_t reliableSequenceNumber;
     uint16_t unreliableSequenceNumber;
     uint32_t sentTime;
@@ -175,7 +175,7 @@ struct ENetOutgoingCommand
 
 struct ENetIncomingCommand
 {
-    ENetListNode incomingCommandList;
+    ENet::ListNode incomingCommandList;
     uint16_t reliableSequenceNumber;
     uint16_t unreliableSequenceNumber;
     ENetProtocol command;
@@ -242,8 +242,8 @@ struct ENetChannel
     uint16_t reliableWindows[ENET_PEER_RELIABLE_WINDOWS];
     uint16_t incomingReliableSequenceNumber;
     uint16_t incomingUnreliableSequenceNumber;
-    ENetList incomingReliableCommands;
-    ENetList incomingUnreliableCommands;
+    ENet::List incomingReliableCommands;
+    ENet::List incomingUnreliableCommands;
 };
 
 enum ENetPeerFlag
@@ -259,7 +259,7 @@ enum ENetPeerFlag
  */
 struct ENetPeer
 {
-    ENetListNode dispatchList;
+    ENet::ListNode dispatchList;
     ENetHost *host;
     uint16_t outgoingPeerID;
     uint16_t incomingPeerID;
@@ -309,11 +309,11 @@ struct ENetPeer
     uint32_t windowSize;
     uint32_t reliableDataInTransit;
     uint16_t outgoingReliableSequenceNumber;
-    ENetList acknowledgements;
-    ENetList sentReliableCommands;
-    ENetList outgoingSendReliableCommands;
-    ENetList outgoingCommands;
-    ENetList dispatchedCommands;
+    ENet::List acknowledgements;
+    ENet::List sentReliableCommands;
+    ENet::List outgoingSendReliableCommands;
+    ENet::List outgoingCommands;
+    ENet::List dispatchedCommands;
     uint16_t flags;
     uint16_t reserved;
     uint16_t incomingUnsequencedGroup;
@@ -378,7 +378,7 @@ struct ENetHost
     size_t peerCount;    /**< number of peers allocated for this host */
     size_t channelLimit; /**< maximum number of channels allowed for connected peers */
     uint32_t serviceTime;
-    ENetList dispatchQueue;
+    ENet::List dispatchQueue;
     uint32_t totalQueued;
     size_t packetSize;
     uint16_t headerFlags;
