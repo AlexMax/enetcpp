@@ -58,3 +58,6 @@ target_link_libraries(enetcpp)
 if(WIN32)
     target_link_libraries(enetcpp PUBLIC winmm ws2_32)
 endif()
+
+add_executable(test "${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp")
+target_link_libraries(test PUBLIC enetcpp)
