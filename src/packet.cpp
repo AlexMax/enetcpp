@@ -2,8 +2,8 @@
  @file  packet.c
  @brief ENet packet management functions
 */
+
 #include <string.h>
-#define ENET_BUILDING_LIB 1
 #include "enetcpp/enetcpp.h"
 
 /** @defgroup Packet ENet packet functions

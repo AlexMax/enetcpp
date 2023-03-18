@@ -452,6 +452,50 @@ struct ENetEvent
     ENetPacket *packet; /**< packet associated with the event, if appropriate */
 };
 
+namespace ENet
+{
+
+/**
+ * @brief Struct that holds platform-specific functions.
+ *
+ * @detail When writing your own platform abstraction, create a "final" struct
+ *         that subclasses this one, provide concrete implementations for all
+ *         methods, and implement ENet::Platform::Get() to return a reference
+ *         to a static instance of your platform struct.
+ */
+struct Platform
+{
+    virtual int initialize() = 0;
+    virtual void deinitialize() = 0;
+    virtual uint32_t time_get() = 0;
+    virtual void time_set(uint32_t newTimeBase) = 0;
+    virtual ENetSocket socket_create(ENetSocketType type) = 0;
+    virtual int socket_bind(ENetSocket socket, const ENetAddress *address) = 0;
+    virtual int socket_get_address(ENetSocket socket, ENetAddress *address) = 0;
+    virtual uint32_t host_random_seed() = 0;
+    virtual int socket_listen(ENetSocket socket, int backlog) = 0;
+    virtual ENetSocket socket_accept(ENetSocket socket, ENetAddress *address) = 0;
+    virtual int socket_connect(ENetSocket socket, const ENetAddress *address) = 0;
+    virtual int socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
+                            size_t bufferCount) = 0;
+    virtual int socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) = 0;
+    virtual int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) = 0;
+    virtual int socket_set_option(ENetSocket socket, ENetSocketOption option, int value) = 0;
+    virtual int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) = 0;
+    virtual int socket_shutdown(ENetSocket socket, ENetSocketShutdown how) = 0;
+    virtual void socket_destroy(ENetSocket socket) = 0;
+    virtual int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
+                                 uint32_t timeout) = 0;
+    virtual int address_set_host_ip(ENetAddress *address, const char *hostName) = 0;
+    virtual int address_set_host(ENetAddress *address, const char *hostName) = 0;
+    virtual int address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength) = 0;
+    virtual int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength) = 0;
+    // TODO
+    static Platform &Get();
+};
+
+} // namespace ENet
+
 /** @defgroup global ENet global functions
     @{
 */
@@ -496,6 +540,7 @@ ENET_API ENetVersion enet_linked_version();
   unless otherwise set.
   */
 ENET_API uint32_t enet_time_get();
+
 /**
   Sets the current wall-time in milliseconds.
   */

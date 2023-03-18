@@ -3,7 +3,6 @@
  @brief ENet peer management functions
 */
 #include <string.h>
-#define ENET_BUILDING_LIB 1
 #include "enetcpp/enetcpp.h"
 
 /** @defgroup peer ENet peer functions

@@ -30,6 +30,7 @@ set(ENETCPP_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/list.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/packet.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/peer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/platform.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/protocol.cpp")
 
 # Add sources and headers based on platform.
