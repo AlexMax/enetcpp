@@ -12,7 +12,7 @@
 
 static uint32_t timeBase = 0;
 
-int enet_initialize(void)
+int enet_initialize()
 {
     WORD versionRequested = MAKEWORD(1, 1);
     WSADATA wsaData;
@@ -34,19 +34,19 @@ int enet_initialize(void)
     return 0;
 }
 
-void enet_deinitialize(void)
+void enet_deinitialize()
 {
     timeEndPeriod(1);
 
     WSACleanup();
 }
 
-uint32_t enet_host_random_seed(void)
+uint32_t enet_host_random_seed()
 {
     return (uint32_t)timeGetTime();
 }
 
-uint32_t enet_time_get(void)
+uint32_t enet_time_get()
 {
     return (uint32_t)timeGetTime() - timeBase;
 }

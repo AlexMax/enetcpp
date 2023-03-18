@@ -33,7 +33,7 @@ int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks *ini
     return enet_initialize();
 }
 
-ENetVersion enet_linked_version(void)
+ENetVersion enet_linked_version()
 {
     return ENET_VERSION;
 }

@@ -45,7 +45,7 @@ struct ENetRangeCoder
     ENetSymbol symbols[4096];
 };
 
-void *enet_range_coder_create(void)
+void *enet_range_coder_create()
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)enet_malloc(sizeof(ENetRangeCoder));
     if (rangeCoder == NULL)
@@ -701,10 +701,6 @@ size_t enet_range_coder_decompress(void *context, const uint8_t *inData, size_t 
     @{
 */
 
-/** Sets the packet compressor the host should use to the default range coder.
-    @param host host to enable the range coder for
-    @returns 0 on success, < 0 on failure
-*/
 int enet_host_compress_with_range_coder(ENetHost *host)
 {
     ENetCompressor compressor;
