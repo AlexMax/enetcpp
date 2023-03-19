@@ -446,7 +446,7 @@ void enet_peer_disconnect_now(ENetPeer *peer, uint32_t data)
 
         enet_peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
 
-        enet_host_flush(peer->host);
+        ENet::host_flush(peer->host);
     }
 
     enet_peer_reset(peer);
@@ -487,7 +487,7 @@ void enet_peer_disconnect(ENetPeer *peer, uint32_t data)
     }
     else
     {
-        enet_host_flush(peer->host);
+        ENet::host_flush(peer->host);
         enet_peer_reset(peer);
     }
 }

@@ -659,8 +659,6 @@ ENET_API ENetHost *host_create(const ENetAddress *address, size_t peerCount, siz
 */
 ENET_API void host_destroy(ENetHost *host);
 
-} // namespace ENet
-
 /** Initiates a connection to a foreign host.
     @param host host seeking the connection
     @param address destination for the connection
@@ -670,7 +668,7 @@ ENET_API void host_destroy(ENetHost *host);
     @remarks The peer returned will have not completed the connection until enet_host_service()
     notifies of an ENET_EVENT_TYPE_CONNECT event for the peer.
 */
-ENET_API ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, uint32_t data);
+ENET_API ENetPeer *host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, uint32_t data);
 
 /** Checks for any queued events on the host and dispatches one if available.
 
@@ -681,7 +679,7 @@ ENET_API ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address,
     @retval < 0 on failure
     @ingroup host
 */
-ENET_API int enet_host_check_events(ENetHost *host, ENetEvent *event);
+ENET_API int host_check_events(ENetHost *host, ENetEvent *event);
 
 /** Waits for events on the host specified and shuttles packets between
     the host and its peers.
@@ -696,7 +694,7 @@ ENET_API int enet_host_check_events(ENetHost *host, ENetEvent *event);
     @remarks enet_host_service should be called fairly regularly for adequate performance
     @ingroup host
 */
-ENET_API int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout);
+ENET_API int host_service(ENetHost *host, ENetEvent *event, uint32_t timeout);
 
 /** Sends any queued packets on the host specified to its designated peers.
 
@@ -705,33 +703,33 @@ ENET_API int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeou
    call to enet_host_service().
     @ingroup host
 */
-ENET_API void enet_host_flush(ENetHost *host);
+ENET_API void host_flush(ENetHost *host);
 
 /** Queues a packet to be sent to all peers associated with the host.
     @param host host on which to broadcast the packet
     @param channelID channel on which to broadcast
     @param packet packet to broadcast
 */
-ENET_API void enet_host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet);
+ENET_API void host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet);
 
 /** Sets the packet compressor the host should use to compress and decompress packets.
     @param host host to enable or disable compression for
     @param compressor callbacks for for the packet compressor; if NULL, then compression is disabled
 */
-ENET_API void enet_host_compress(ENetHost *host, const ENetCompressor *compressor);
+ENET_API void host_compress(ENetHost *host, const ENetCompressor *compressor);
 
 /** Sets the packet compressor the host should use to the default range coder.
     @param host host to enable the range coder for
     @returns 0 on success, < 0 on failure
 */
-ENET_API int enet_host_compress_with_range_coder(ENetHost *host);
+ENET_API int host_compress_with_range_coder(ENetHost *host);
 
 /** Limits the maximum allowed channels of future incoming connections.
     @param host host to limit
     @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to
    ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
 */
-ENET_API void enet_host_channel_limit(ENetHost *host, size_t channelLimit);
+ENET_API void host_channel_limit(ENetHost *host, size_t channelLimit);
 
 /** Adjusts the bandwidth limits of a host.
     @param host host to adjust
@@ -740,10 +738,8 @@ ENET_API void enet_host_channel_limit(ENetHost *host, size_t channelLimit);
     @remarks the incoming and outgoing bandwidth parameters are identical in function to those
     specified in enet_host_create().
 */
-ENET_API void enet_host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API void host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
-namespace ENet
-{
 extern void host_bandwidth_throttle(ENetHost *host);
 extern uint32_t host_random_seed();
 extern uint32_t host_random(ENetHost *host);

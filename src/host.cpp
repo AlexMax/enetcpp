@@ -162,7 +162,7 @@ uint32_t ENet::host_random(ENetHost *host)
     return n ^ (n >> 14);
 }
 
-ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, uint32_t data)
+ENetPeer *ENet::host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, uint32_t data)
 {
     ENetPeer *currentPeer;
     ENetChannel *channel;
@@ -254,7 +254,7 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
     return currentPeer;
 }
 
-void enet_host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
+void ENet::host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
 {
     ENetPeer *currentPeer;
 
@@ -274,7 +274,7 @@ void enet_host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
     }
 }
 
-void enet_host_compress(ENetHost *host, const ENetCompressor *compressor)
+void ENet::host_compress(ENetHost *host, const ENetCompressor *compressor)
 {
     if (host->compressor.context != NULL && host->compressor.destroy)
     {
@@ -291,7 +291,7 @@ void enet_host_compress(ENetHost *host, const ENetCompressor *compressor)
     }
 }
 
-void enet_host_channel_limit(ENetHost *host, size_t channelLimit)
+void ENet::host_channel_limit(ENetHost *host, size_t channelLimit)
 {
     if (!channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT)
     {
@@ -305,7 +305,7 @@ void enet_host_channel_limit(ENetHost *host, size_t channelLimit)
     host->channelLimit = channelLimit;
 }
 
-void enet_host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
+void ENet::host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
     host->incomingBandwidth = incomingBandwidth;
     host->outgoingBandwidth = outgoingBandwidth;

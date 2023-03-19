@@ -39,7 +39,7 @@ typedef struct
 void host_server(ENetHost *server)
 {
     ENetEvent event;
-    while (enet_host_service(server, &event, 2) > 0)
+    while (ENet::host_service(server, &event, 2) > 0)
     {
         switch (event.type)
         {
@@ -100,7 +100,7 @@ int main()
     {
         ENet::address_set_host(&address, "127.0.0.1");
         clients[i].host = ENet::host_create(NULL, 1, 2, 0, 0);
-        clients[i].peer = enet_host_connect(clients[i].host, &address, 2, 0);
+        clients[i].peer = ENet::host_connect(clients[i].host, &address, 2, 0);
         if (clients[i].peer == NULL)
         {
             printf("coundlnt connect\n");
@@ -118,7 +118,7 @@ int main()
         ENetEvent event;
         for (i = 0; i < MAX_CLIENTS; ++i)
         {
-            enet_host_service(clients[i].host, &event, 0);
+            ENet::host_service(clients[i].host, &event, 0);
         }
 
         counter--;

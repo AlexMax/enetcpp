@@ -701,7 +701,7 @@ size_t enet_range_coder_decompress(void *context, const uint8_t *inData, size_t 
     @{
 */
 
-int enet_host_compress_with_range_coder(ENetHost *host)
+int ENet::host_compress_with_range_coder(ENetHost *host)
 {
     ENetCompressor compressor;
     memset(&compressor, 0, sizeof(compressor));
@@ -713,7 +713,7 @@ int enet_host_compress_with_range_coder(ENetHost *host)
     compressor.compress = enet_range_coder_compress;
     compressor.decompress = enet_range_coder_decompress;
     compressor.destroy = enet_range_coder_destroy;
-    enet_host_compress(host, &compressor);
+    ENet::host_compress(host, &compressor);
     return 0;
 }
 

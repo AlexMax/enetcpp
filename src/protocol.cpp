@@ -2026,21 +2026,14 @@ static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event
     return 0;
 }
 
-/** Sends any queued packets on the host specified to its designated peers.
-
-    @param host   host to flush
-    @remarks this function need only be used in circumstances where one wishes to send queued packets earlier than in a
-   call to enet_host_service().
-    @ingroup host
-*/
-void enet_host_flush(ENetHost *host)
+void ENet::host_flush(ENetHost *host)
 {
     host->serviceTime = ENet::time_get();
 
     enet_protocol_send_outgoing_commands(host, NULL, 0);
 }
 
-int enet_host_check_events(ENetHost *host, ENetEvent *event)
+int ENet::host_check_events(ENetHost *host, ENetEvent *event)
 {
     if (event == NULL)
     {
@@ -2054,7 +2047,7 @@ int enet_host_check_events(ENetHost *host, ENetEvent *event)
     return enet_protocol_dispatch_incoming_commands(host, event);
 }
 
-int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
+int ENet::host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
 {
     uint32_t waitCondition;
 
