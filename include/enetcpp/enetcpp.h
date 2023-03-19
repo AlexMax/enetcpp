@@ -18,17 +18,35 @@
 #include "enetcpp/list.h"
 #include "enetcpp/callbacks.h"
 
-#define ENET_VERSION_MAJOR 1
-#define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 17
-#define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
-#define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
-#define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
-#define ENET_VERSION_GET_PATCH(version) ((version)&0xFF)
-#define ENET_VERSION ENET_VERSION_CREATE(ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH)
-
 namespace ENet
 {
+
+constexpr uint32_t VERSION_MAJOR = 1;
+constexpr uint32_t VERSION_MINOR = 3;
+constexpr uint32_t VERSION_PATCH = 17;
+
+constexpr uint32_t VERSION_CREATE(uint32_t major, uint32_t minor, uint32_t patch)
+{
+    return (((major) << 16) | ((minor) << 8) | (patch));
+}
+
+constexpr uint32_t VERSION_GET_MAJOR(uint32_t version)
+{
+    return (((version) >> 16) & 0xFF);
+}
+
+constexpr uint32_t VERSION_GET_MINOR(uint32_t version)
+{
+    return (((version) >> 8) & 0xFF);
+}
+
+constexpr uint32_t VERSION_GET_PATCH(uint32_t version)
+{
+    return ((version)&0xFF);
+}
+
+constexpr uint32_t VERSION = VERSION_CREATE(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+
 using Version = uint32_t;
 
 struct Host;
@@ -610,8 +628,8 @@ ENET_API int address_get_host(const Address *address, char *hostName, size_t nam
 /** @} */
 
 /** Creates a packet that may be sent to a peer.
-    @param data         initial contents of the packet's data; the packet's data will remain uninitialized if data is
-   NULL.
+    @param data         initial contents of the packet's data; the packet's data will remain uninitialized if data
+   is NULL.
     @param dataLength   size of the data allocated for this packet
     @param flags        flags for this packet as described for the ENetPacket structure.
     @returns the packet on success, NULL on failure
@@ -634,14 +652,15 @@ ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
 
 /** Creates a host for communicating to peers.
 
-    @param address   the address at which other peers may connect to this host.  If NULL, then no peers may connect to
-   the host.
+    @param address   the address at which other peers may connect to this host.  If NULL, then no peers may connect
+   to the host.
     @param peerCount the maximum number of peers that should be allocated for the host.
     @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to
    ENet::PROTOCOL_MAXIMUM_CHANNEL_COUNT
     @param incomingBandwidth downstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited
    bandwidth.
-    @param outgoingBandwidth upstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited bandwidth.
+    @param outgoingBandwidth upstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited
+   bandwidth.
 
     @returns the host on success and NULL on failure
 
@@ -698,8 +717,8 @@ ENET_API int host_service(Host *host, Event *event, uint32_t timeout);
 /** Sends any queued packets on the host specified to its designated peers.
 
     @param host   host to flush
-    @remarks this function need only be used in circumstances where one wishes to send queued packets earlier than in a
-   call to enet_host_service().
+    @remarks this function need only be used in circumstances where one wishes to send queued packets earlier than
+   in a call to enet_host_service().
     @ingroup host
 */
 ENET_API void host_flush(Host *host);
