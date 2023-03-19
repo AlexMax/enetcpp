@@ -187,20 +187,18 @@ struct IncomingCommand
     Packet *packet;
 };
 
-} // namespace ENet
-
-enum ENetPeerState
+enum PeerState
 {
-    ENET_PEER_STATE_DISCONNECTED = 0,
-    ENET_PEER_STATE_CONNECTING = 1,
-    ENET_PEER_STATE_ACKNOWLEDGING_CONNECT = 2,
-    ENET_PEER_STATE_CONNECTION_PENDING = 3,
-    ENET_PEER_STATE_CONNECTION_SUCCEEDED = 4,
-    ENET_PEER_STATE_CONNECTED = 5,
-    ENET_PEER_STATE_DISCONNECT_LATER = 6,
-    ENET_PEER_STATE_DISCONNECTING = 7,
-    ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT = 8,
-    ENET_PEER_STATE_ZOMBIE = 9
+    PEER_STATE_DISCONNECTED = 0,
+    PEER_STATE_CONNECTING = 1,
+    PEER_STATE_ACKNOWLEDGING_CONNECT = 2,
+    PEER_STATE_CONNECTION_PENDING = 3,
+    PEER_STATE_CONNECTION_SUCCEEDED = 4,
+    PEER_STATE_CONNECTED = 5,
+    PEER_STATE_DISCONNECT_LATER = 6,
+    PEER_STATE_DISCONNECTING = 7,
+    PEER_STATE_ACKNOWLEDGING_DISCONNECT = 8,
+    PEER_STATE_ZOMBIE = 9
 };
 
 #ifndef ENET_BUFFER_MAXIMUM
@@ -209,60 +207,52 @@ enum ENetPeerState
 
 enum
 {
-    ENET_HOST_RECEIVE_BUFFER_SIZE = 256 * 1024,
-    ENET_HOST_SEND_BUFFER_SIZE = 256 * 1024,
-    ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL = 1000,
-    ENET_HOST_DEFAULT_MTU = 1400,
-    ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE = 32 * 1024 * 1024,
-    ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
+    HOST_RECEIVE_BUFFER_SIZE = 256 * 1024,
+    HOST_SEND_BUFFER_SIZE = 256 * 1024,
+    HOST_BANDWIDTH_THROTTLE_INTERVAL = 1000,
+    HOST_DEFAULT_MTU = 1400,
+    HOST_DEFAULT_MAXIMUM_PACKET_SIZE = 32 * 1024 * 1024,
+    HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
 
-    ENET_PEER_DEFAULT_ROUND_TRIP_TIME = 500,
-    ENET_PEER_DEFAULT_PACKET_THROTTLE = 32,
-    ENET_PEER_PACKET_THROTTLE_SCALE = 32,
-    ENET_PEER_PACKET_THROTTLE_COUNTER = 7,
-    ENET_PEER_PACKET_THROTTLE_ACCELERATION = 2,
-    ENET_PEER_PACKET_THROTTLE_DECELERATION = 2,
-    ENET_PEER_PACKET_THROTTLE_INTERVAL = 5000,
-    ENET_PEER_PACKET_LOSS_SCALE = (1 << 16),
-    ENET_PEER_PACKET_LOSS_INTERVAL = 10000,
-    ENET_PEER_WINDOW_SIZE_SCALE = 64 * 1024,
-    ENET_PEER_TIMEOUT_LIMIT = 32,
-    ENET_PEER_TIMEOUT_MINIMUM = 5000,
-    ENET_PEER_TIMEOUT_MAXIMUM = 30000,
-    ENET_PEER_PING_INTERVAL = 500,
-    ENET_PEER_UNSEQUENCED_WINDOWS = 64,
-    ENET_PEER_UNSEQUENCED_WINDOW_SIZE = 1024,
-    ENET_PEER_FREE_UNSEQUENCED_WINDOWS = 32,
-    ENET_PEER_RELIABLE_WINDOWS = 16,
-    ENET_PEER_RELIABLE_WINDOW_SIZE = 0x1000,
-    ENET_PEER_FREE_RELIABLE_WINDOWS = 8
+    PEER_DEFAULT_ROUND_TRIP_TIME = 500,
+    PEER_DEFAULT_PACKET_THROTTLE = 32,
+    PEER_PACKET_THROTTLE_SCALE = 32,
+    PEER_PACKET_THROTTLE_COUNTER = 7,
+    PEER_PACKET_THROTTLE_ACCELERATION = 2,
+    PEER_PACKET_THROTTLE_DECELERATION = 2,
+    PEER_PACKET_THROTTLE_INTERVAL = 5000,
+    PEER_PACKET_LOSS_SCALE = (1 << 16),
+    PEER_PACKET_LOSS_INTERVAL = 10000,
+    PEER_WINDOW_SIZE_SCALE = 64 * 1024,
+    PEER_TIMEOUT_LIMIT = 32,
+    PEER_TIMEOUT_MINIMUM = 5000,
+    PEER_TIMEOUT_MAXIMUM = 30000,
+    PEER_PING_INTERVAL = 500,
+    PEER_UNSEQUENCED_WINDOWS = 64,
+    PEER_UNSEQUENCED_WINDOW_SIZE = 1024,
+    PEER_FREE_UNSEQUENCED_WINDOWS = 32,
+    PEER_RELIABLE_WINDOWS = 16,
+    PEER_RELIABLE_WINDOW_SIZE = 0x1000,
+    PEER_FREE_RELIABLE_WINDOWS = 8
 };
-
-namespace ENet
-{
 
 struct Channel
 {
     uint16_t outgoingReliableSequenceNumber;
     uint16_t outgoingUnreliableSequenceNumber;
     uint16_t usedReliableWindows;
-    uint16_t reliableWindows[ENET_PEER_RELIABLE_WINDOWS];
+    uint16_t reliableWindows[PEER_RELIABLE_WINDOWS];
     uint16_t incomingReliableSequenceNumber;
     uint16_t incomingUnreliableSequenceNumber;
     List incomingReliableCommands;
     List incomingUnreliableCommands;
 };
 
-} // namespace ENet
-
-enum ENetPeerFlag
+enum PeerFlag
 {
-    ENET_PEER_FLAG_NEEDS_DISPATCH = (1 << 0),
-    ENET_PEER_FLAG_CONTINUE_SENDING = (1 << 1)
+    PEER_FLAG_NEEDS_DISPATCH = (1 << 0),
+    PEER_FLAG_CONTINUE_SENDING = (1 << 1)
 };
-
-namespace ENet
-{
 
 /**
  * An ENet peer which data packets may be sent or received from.
@@ -280,7 +270,7 @@ struct Peer
     uint8_t incomingSessionID;
     Address address; /**< Internet address of the peer */
     void *data;      /**< Application private data, may be freely modified */
-    ENetPeerState state;
+    PeerState state;
     Channel *channels;
     size_t channelCount;        /**< Number of channels allocated for communication with peer */
     uint32_t incomingBandwidth; /**< Downstream bandwidth of the client in bytes/second */
@@ -330,7 +320,7 @@ struct Peer
     uint16_t reserved;
     uint16_t incomingUnsequencedGroup;
     uint16_t outgoingUnsequencedGroup;
-    uint32_t unsequencedWindow[ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32];
+    uint32_t unsequencedWindow[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
     uint32_t eventData;
     size_t totalWaitingData;
 };
@@ -808,9 +798,9 @@ ENET_API void peer_ping_interval(Peer *peer, uint32_t pingInterval);
     of the current timeout limit value.
 
     @param peer the peer to adjust
-    @param timeoutLimit the timeout limit; defaults to ENET_PEER_TIMEOUT_LIMIT if 0
-    @param timeoutMinimum the timeout minimum; defaults to ENET_PEER_TIMEOUT_MINIMUM if 0
-    @param timeoutMaximum the timeout maximum; defaults to ENET_PEER_TIMEOUT_MAXIMUM if 0
+    @param timeoutLimit the timeout limit; defaults to ENet::PEER_TIMEOUT_LIMIT if 0
+    @param timeoutMinimum the timeout minimum; defaults to ENet::PEER_TIMEOUT_MINIMUM if 0
+    @param timeoutMaximum the timeout maximum; defaults to ENet::PEER_TIMEOUT_MAXIMUM if 0
 */
 ENET_API void peer_timeout(Peer *peer, uint32_t timeoutLimit, uint32_t timeoutMinimum, uint32_t timeoutMaximum);
 

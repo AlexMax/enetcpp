@@ -31,11 +31,11 @@ size_t ENet::protocol_command_size(uint8_t commandNumber)
     return commandSizes[commandNumber & ENet::PROTOCOL_COMMAND_MASK];
 }
 
-static void enet_protocol_change_state(ENet::Host *host, ENet::Peer *peer, ENetPeerState state)
+static void enet_protocol_change_state(ENet::Host *host, ENet::Peer *peer, ENet::PeerState state)
 {
     (void)host;
 
-    if (state == ENET_PEER_STATE_CONNECTED || state == ENET_PEER_STATE_DISCONNECT_LATER)
+    if (state == ENet::PEER_STATE_CONNECTED || state == ENet::PEER_STATE_DISCONNECT_LATER)
     {
         ENet::peer_on_connect(peer);
     }
@@ -47,15 +47,15 @@ static void enet_protocol_change_state(ENet::Host *host, ENet::Peer *peer, ENetP
     peer->state = state;
 }
 
-static void enet_protocol_dispatch_state(ENet::Host *host, ENet::Peer *peer, ENetPeerState state)
+static void enet_protocol_dispatch_state(ENet::Host *host, ENet::Peer *peer, ENet::PeerState state)
 {
     enet_protocol_change_state(host, peer, state);
 
-    if (!(peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH))
+    if (!(peer->flags & ENet::PEER_FLAG_NEEDS_DISPATCH))
     {
         ENet::list_insert(ENet::list_end(&host->dispatchQueue), &peer->dispatchList);
 
-        peer->flags |= ENET_PEER_FLAG_NEEDS_DISPATCH;
+        peer->flags |= ENet::PEER_FLAG_NEEDS_DISPATCH;
     }
 }
 
@@ -65,13 +65,13 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
     {
         ENet::Peer *peer = (ENet::Peer *)ENet::list_remove(ENet::list_begin(&host->dispatchQueue));
 
-        peer->flags &= ~ENET_PEER_FLAG_NEEDS_DISPATCH;
+        peer->flags &= ~ENet::PEER_FLAG_NEEDS_DISPATCH;
 
         switch (peer->state)
         {
-        case ENET_PEER_STATE_CONNECTION_PENDING:
-        case ENET_PEER_STATE_CONNECTION_SUCCEEDED:
-            enet_protocol_change_state(host, peer, ENET_PEER_STATE_CONNECTED);
+        case ENet::PEER_STATE_CONNECTION_PENDING:
+        case ENet::PEER_STATE_CONNECTION_SUCCEEDED:
+            enet_protocol_change_state(host, peer, ENet::PEER_STATE_CONNECTED);
 
             event->type = ENet::EVENT_TYPE_CONNECT;
             event->peer = peer;
@@ -79,7 +79,7 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
 
             return 1;
 
-        case ENET_PEER_STATE_ZOMBIE:
+        case ENet::PEER_STATE_ZOMBIE:
             host->recalculateBandwidthLimits = 1;
 
             event->type = ENet::EVENT_TYPE_DISCONNECT;
@@ -90,7 +90,7 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
 
             return 1;
 
-        case ENET_PEER_STATE_CONNECTED:
+        case ENet::PEER_STATE_CONNECTED:
             if (ENet::list_empty(&peer->dispatchedCommands))
             {
                 continue;
@@ -107,7 +107,7 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
 
             if (!ENet::list_empty(&peer->dispatchedCommands))
             {
-                peer->flags |= ENET_PEER_FLAG_NEEDS_DISPATCH;
+                peer->flags |= ENet::PEER_FLAG_NEEDS_DISPATCH;
 
                 ENet::list_insert(ENet::list_end(&host->dispatchQueue), &peer->dispatchList);
             }
@@ -128,7 +128,7 @@ static void enet_protocol_notify_connect(ENet::Host *host, ENet::Peer *peer, ENe
 
     if (event != NULL)
     {
-        enet_protocol_change_state(host, peer, ENET_PEER_STATE_CONNECTED);
+        enet_protocol_change_state(host, peer, ENet::PEER_STATE_CONNECTED);
 
         event->type = ENet::EVENT_TYPE_CONNECT;
         event->peer = peer;
@@ -137,19 +137,19 @@ static void enet_protocol_notify_connect(ENet::Host *host, ENet::Peer *peer, ENe
     else
     {
         enet_protocol_dispatch_state(host, peer,
-                                     peer->state == ENET_PEER_STATE_CONNECTING ? ENET_PEER_STATE_CONNECTION_SUCCEEDED
-                                                                               : ENET_PEER_STATE_CONNECTION_PENDING);
+                                     peer->state == ENet::PEER_STATE_CONNECTING ? ENet::PEER_STATE_CONNECTION_SUCCEEDED
+                                                                                : ENet::PEER_STATE_CONNECTION_PENDING);
     }
 }
 
 static void enet_protocol_notify_disconnect(ENet::Host *host, ENet::Peer *peer, ENet::Event *event)
 {
-    if (peer->state >= ENET_PEER_STATE_CONNECTION_PENDING)
+    if (peer->state >= ENet::PEER_STATE_CONNECTION_PENDING)
     {
         host->recalculateBandwidthLimits = 1;
     }
 
-    if (peer->state != ENET_PEER_STATE_CONNECTING && peer->state < ENET_PEER_STATE_CONNECTION_SUCCEEDED)
+    if (peer->state != ENet::PEER_STATE_CONNECTING && peer->state < ENet::PEER_STATE_CONNECTION_SUCCEEDED)
     {
         ENet::peer_reset(peer);
     }
@@ -165,7 +165,7 @@ static void enet_protocol_notify_disconnect(ENet::Host *host, ENet::Peer *peer, 
     {
         peer->eventData = 0;
 
-        enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+        enet_protocol_dispatch_state(host, peer, ENet::PEER_STATE_ZOMBIE);
     }
 }
 
@@ -199,7 +199,7 @@ static void enet_protocol_remove_sent_unreliable_commands(ENet::Peer *peer, ENet
         ENet::enet_free(outgoingCommand);
     } while (!ENet::list_empty(sentUnreliableCommands));
 
-    if (peer->state == ENET_PEER_STATE_DISCONNECT_LATER && !ENet::peer_has_outgoing_commands(peer))
+    if (peer->state == ENet::PEER_STATE_DISCONNECT_LATER && !ENet::peer_has_outgoing_commands(peer))
     {
         ENet::peer_disconnect(peer, peer->eventData);
     }
@@ -279,7 +279,7 @@ static ENet::ProtocolCommand enet_protocol_remove_sent_reliable_command(ENet::Pe
     if (channelID < peer->channelCount)
     {
         ENet::Channel *channel = &peer->channels[channelID];
-        uint16_t reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+        uint16_t reliableWindow = reliableSequenceNumber / ENet::PEER_RELIABLE_WINDOW_SIZE;
         if (channel->reliableWindows[reliableWindow] > 0)
         {
             --channel->reliableWindows[reliableWindow];
@@ -345,14 +345,14 @@ static ENet::Peer *enet_protocol_handle_connect(ENet::Host *host, ENet::Protocol
 
     for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer)
     {
-        if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED)
+        if (currentPeer->state == ENet::PEER_STATE_DISCONNECTED)
         {
             if (peer == NULL)
             {
                 peer = currentPeer;
             }
         }
-        else if (currentPeer->state != ENET_PEER_STATE_CONNECTING &&
+        else if (currentPeer->state != ENet::PEER_STATE_CONNECTING &&
                  currentPeer->address.host == host->receivedAddress.host)
         {
             if (currentPeer->address.port == host->receivedAddress.port &&
@@ -380,7 +380,7 @@ static ENet::Peer *enet_protocol_handle_connect(ENet::Host *host, ENet::Protocol
         return NULL;
     }
     peer->channelCount = channelCount;
-    peer->state = ENET_PEER_STATE_ACKNOWLEDGING_CONNECT;
+    peer->state = ENet::PEER_STATE_ACKNOWLEDGING_CONNECT;
     peer->connectID = command->connect.connectID;
     peer->address = host->receivedAddress;
     peer->outgoingPeerID = ENET_NET_TO_HOST_16(command->connect.outgoingPeerID);
@@ -449,12 +449,12 @@ static ENet::Peer *enet_protocol_handle_connect(ENet::Host *host, ENet::Protocol
     }
     else if (host->outgoingBandwidth == 0 || peer->incomingBandwidth == 0)
     {
-        peer->windowSize = (ENET_MAX(host->outgoingBandwidth, peer->incomingBandwidth) / ENET_PEER_WINDOW_SIZE_SCALE) *
+        peer->windowSize = (ENET_MAX(host->outgoingBandwidth, peer->incomingBandwidth) / ENet::PEER_WINDOW_SIZE_SCALE) *
                            ENet::PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
     else
     {
-        peer->windowSize = (ENET_MIN(host->outgoingBandwidth, peer->incomingBandwidth) / ENET_PEER_WINDOW_SIZE_SCALE) *
+        peer->windowSize = (ENET_MIN(host->outgoingBandwidth, peer->incomingBandwidth) / ENet::PEER_WINDOW_SIZE_SCALE) *
                            ENet::PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
 
@@ -473,7 +473,7 @@ static ENet::Peer *enet_protocol_handle_connect(ENet::Host *host, ENet::Protocol
     }
     else
     {
-        windowSize = (host->incomingBandwidth / ENET_PEER_WINDOW_SIZE_SCALE) * ENet::PROTOCOL_MINIMUM_WINDOW_SIZE;
+        windowSize = (host->incomingBandwidth / ENet::PEER_WINDOW_SIZE_SCALE) * ENet::PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
 
     if (windowSize > ENET_NET_TO_HOST_32(command->connect.windowSize))
@@ -516,7 +516,7 @@ static int enet_protocol_handle_send_reliable(ENet::Host *host, ENet::Peer *peer
     size_t dataLength;
 
     if (command->header.channelID >= peer->channelCount ||
-        (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
+        (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER))
     {
         return -1;
     }
@@ -545,7 +545,7 @@ static int enet_protocol_handle_send_unsequenced(ENet::Host *host, ENet::Peer *p
     size_t dataLength;
 
     if (command->header.channelID >= peer->channelCount ||
-        (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
+        (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER))
     {
         return -1;
     }
@@ -559,7 +559,7 @@ static int enet_protocol_handle_send_unsequenced(ENet::Host *host, ENet::Peer *p
     }
 
     unsequencedGroup = ENET_NET_TO_HOST_16(command->sendUnsequenced.unsequencedGroup);
-    index = unsequencedGroup % ENET_PEER_UNSEQUENCED_WINDOW_SIZE;
+    index = unsequencedGroup % ENet::PEER_UNSEQUENCED_WINDOW_SIZE;
 
     if (unsequencedGroup < peer->incomingUnsequencedGroup)
     {
@@ -567,7 +567,7 @@ static int enet_protocol_handle_send_unsequenced(ENet::Host *host, ENet::Peer *p
     }
 
     if (unsequencedGroup >= (uint32_t)peer->incomingUnsequencedGroup +
-                                ENET_PEER_FREE_UNSEQUENCED_WINDOWS * ENET_PEER_UNSEQUENCED_WINDOW_SIZE)
+                                ENet::PEER_FREE_UNSEQUENCED_WINDOWS * ENet::PEER_UNSEQUENCED_WINDOW_SIZE)
     {
         return 0;
     }
@@ -603,7 +603,7 @@ static int enet_protocol_handle_send_unreliable(ENet::Host *host, ENet::Peer *pe
     size_t dataLength;
 
     if (command->header.channelID >= peer->channelCount ||
-        (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
+        (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER))
     {
         return -1;
     }
@@ -635,7 +635,7 @@ static int enet_protocol_handle_send_fragment(ENet::Host *host, ENet::Peer *peer
     ENet::IncomingCommand *startCommand = NULL;
 
     if (command->header.channelID >= peer->channelCount ||
-        (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
+        (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER))
     {
         return -1;
     }
@@ -650,15 +650,15 @@ static int enet_protocol_handle_send_fragment(ENet::Host *host, ENet::Peer *peer
 
     channel = &peer->channels[command->header.channelID];
     startSequenceNumber = ENET_NET_TO_HOST_16(command->sendFragment.startSequenceNumber);
-    startWindow = startSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-    currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+    startWindow = startSequenceNumber / ENet::PEER_RELIABLE_WINDOW_SIZE;
+    currentWindow = channel->incomingReliableSequenceNumber / ENet::PEER_RELIABLE_WINDOW_SIZE;
 
     if (startSequenceNumber < channel->incomingReliableSequenceNumber)
     {
-        startWindow += ENET_PEER_RELIABLE_WINDOWS;
+        startWindow += ENet::PEER_RELIABLE_WINDOWS;
     }
 
-    if (startWindow < currentWindow || startWindow >= currentWindow + ENET_PEER_FREE_RELIABLE_WINDOWS - 1)
+    if (startWindow < currentWindow || startWindow >= currentWindow + ENet::PEER_FREE_RELIABLE_WINDOWS - 1)
     {
         return 0;
     }
@@ -760,7 +760,7 @@ static int enet_protocol_handle_send_unreliable_fragment(ENet::Host *host, ENet:
     ENet::IncomingCommand *startCommand = NULL;
 
     if (command->header.channelID >= peer->channelCount ||
-        (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER))
+        (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER))
     {
         return -1;
     }
@@ -777,15 +777,15 @@ static int enet_protocol_handle_send_unreliable_fragment(ENet::Host *host, ENet:
     reliableSequenceNumber = command->header.reliableSequenceNumber;
     startSequenceNumber = ENET_NET_TO_HOST_16(command->sendFragment.startSequenceNumber);
 
-    reliableWindow = reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
-    currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+    reliableWindow = reliableSequenceNumber / ENet::PEER_RELIABLE_WINDOW_SIZE;
+    currentWindow = channel->incomingReliableSequenceNumber / ENet::PEER_RELIABLE_WINDOW_SIZE;
 
     if (reliableSequenceNumber < channel->incomingReliableSequenceNumber)
     {
-        reliableWindow += ENET_PEER_RELIABLE_WINDOWS;
+        reliableWindow += ENet::PEER_RELIABLE_WINDOWS;
     }
 
-    if (reliableWindow < currentWindow || reliableWindow >= currentWindow + ENET_PEER_FREE_RELIABLE_WINDOWS - 1)
+    if (reliableWindow < currentWindow || reliableWindow >= currentWindow + ENet::PEER_FREE_RELIABLE_WINDOWS - 1)
     {
         return 0;
     }
@@ -893,7 +893,7 @@ static int enet_protocol_handle_ping(ENet::Host *host, ENet::Peer *peer, const E
     (void)host;
     (void)command;
 
-    if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
+    if (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER)
     {
         return -1;
     }
@@ -903,7 +903,7 @@ static int enet_protocol_handle_ping(ENet::Host *host, ENet::Peer *peer, const E
 
 static int enet_protocol_handle_bandwidth_limit(ENet::Host *host, ENet::Peer *peer, const ENet::Protocol *command)
 {
-    if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
+    if (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER)
     {
         return -1;
     }
@@ -927,12 +927,12 @@ static int enet_protocol_handle_bandwidth_limit(ENet::Host *host, ENet::Peer *pe
     }
     else if (peer->incomingBandwidth == 0 || host->outgoingBandwidth == 0)
     {
-        peer->windowSize = (ENET_MAX(peer->incomingBandwidth, host->outgoingBandwidth) / ENET_PEER_WINDOW_SIZE_SCALE) *
+        peer->windowSize = (ENET_MAX(peer->incomingBandwidth, host->outgoingBandwidth) / ENet::PEER_WINDOW_SIZE_SCALE) *
                            ENet::PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
     else
     {
-        peer->windowSize = (ENET_MIN(peer->incomingBandwidth, host->outgoingBandwidth) / ENET_PEER_WINDOW_SIZE_SCALE) *
+        peer->windowSize = (ENET_MIN(peer->incomingBandwidth, host->outgoingBandwidth) / ENet::PEER_WINDOW_SIZE_SCALE) *
                            ENet::PROTOCOL_MINIMUM_WINDOW_SIZE;
     }
 
@@ -952,7 +952,7 @@ static int enet_protocol_handle_throttle_configure(ENet::Host *host, ENet::Peer 
 {
     (void)host;
 
-    if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
+    if (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER)
     {
         return -1;
     }
@@ -966,22 +966,22 @@ static int enet_protocol_handle_throttle_configure(ENet::Host *host, ENet::Peer 
 
 static int enet_protocol_handle_disconnect(ENet::Host *host, ENet::Peer *peer, const ENet::Protocol *command)
 {
-    if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE ||
-        peer->state == ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT)
+    if (peer->state == ENet::PEER_STATE_DISCONNECTED || peer->state == ENet::PEER_STATE_ZOMBIE ||
+        peer->state == ENet::PEER_STATE_ACKNOWLEDGING_DISCONNECT)
     {
         return 0;
     }
 
     ENet::peer_reset_queues(peer);
 
-    if (peer->state == ENET_PEER_STATE_CONNECTION_SUCCEEDED || peer->state == ENET_PEER_STATE_DISCONNECTING ||
-        peer->state == ENET_PEER_STATE_CONNECTING)
+    if (peer->state == ENet::PEER_STATE_CONNECTION_SUCCEEDED || peer->state == ENet::PEER_STATE_DISCONNECTING ||
+        peer->state == ENet::PEER_STATE_CONNECTING)
     {
-        enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+        enet_protocol_dispatch_state(host, peer, ENet::PEER_STATE_ZOMBIE);
     }
-    else if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
+    else if (peer->state != ENet::PEER_STATE_CONNECTED && peer->state != ENet::PEER_STATE_DISCONNECT_LATER)
     {
-        if (peer->state == ENET_PEER_STATE_CONNECTION_PENDING)
+        if (peer->state == ENet::PEER_STATE_CONNECTION_PENDING)
         {
             host->recalculateBandwidthLimits = 1;
         }
@@ -990,14 +990,14 @@ static int enet_protocol_handle_disconnect(ENet::Host *host, ENet::Peer *peer, c
     }
     else if (command->header.command & ENet::PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
     {
-        enet_protocol_change_state(host, peer, ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT);
+        enet_protocol_change_state(host, peer, ENet::PEER_STATE_ACKNOWLEDGING_DISCONNECT);
     }
     else
     {
-        enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+        enet_protocol_dispatch_state(host, peer, ENet::PEER_STATE_ZOMBIE);
     }
 
-    if (peer->state != ENET_PEER_STATE_DISCONNECTED)
+    if (peer->state != ENet::PEER_STATE_DISCONNECTED)
     {
         peer->eventData = ENET_NET_TO_HOST_32(command->disconnect.data);
     }
@@ -1011,7 +1011,7 @@ static int enet_protocol_handle_acknowledge(ENet::Host *host, ENet::Event *event
     uint32_t roundTripTime, receivedSentTime, receivedReliableSequenceNumber;
     ENet::ProtocolCommand commandNumber;
 
-    if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE)
+    if (peer->state == ENet::PEER_STATE_DISCONNECTED || peer->state == ENet::PEER_STATE_ZOMBIE)
     {
         return 0;
     }
@@ -1086,7 +1086,7 @@ static int enet_protocol_handle_acknowledge(ENet::Host *host, ENet::Event *event
 
     switch (peer->state)
     {
-    case ENET_PEER_STATE_ACKNOWLEDGING_CONNECT:
+    case ENet::PEER_STATE_ACKNOWLEDGING_CONNECT:
         if (commandNumber != ENet::PROTOCOL_COMMAND_VERIFY_CONNECT)
         {
             return -1;
@@ -1095,7 +1095,7 @@ static int enet_protocol_handle_acknowledge(ENet::Host *host, ENet::Event *event
         enet_protocol_notify_connect(host, peer, event);
         break;
 
-    case ENET_PEER_STATE_DISCONNECTING:
+    case ENet::PEER_STATE_DISCONNECTING:
         if (commandNumber != ENet::PROTOCOL_COMMAND_DISCONNECT)
         {
             return -1;
@@ -1104,7 +1104,7 @@ static int enet_protocol_handle_acknowledge(ENet::Host *host, ENet::Event *event
         enet_protocol_notify_disconnect(host, peer, event);
         break;
 
-    case ENET_PEER_STATE_DISCONNECT_LATER:
+    case ENet::PEER_STATE_DISCONNECT_LATER:
         if (!ENet::peer_has_outgoing_commands(peer))
         {
             ENet::peer_disconnect(peer, peer->eventData);
@@ -1124,7 +1124,7 @@ static int enet_protocol_handle_verify_connect(ENet::Host *host, ENet::Event *ev
     uint32_t mtu, windowSize;
     size_t channelCount;
 
-    if (peer->state != ENET_PEER_STATE_CONNECTING)
+    if (peer->state != ENet::PEER_STATE_CONNECTING)
     {
         return 0;
     }
@@ -1139,7 +1139,7 @@ static int enet_protocol_handle_verify_connect(ENet::Host *host, ENet::Event *ev
     {
         peer->eventData = 0;
 
-        enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+        enet_protocol_dispatch_state(host, peer, ENet::PEER_STATE_ZOMBIE);
 
         return -1;
     }
@@ -1236,7 +1236,7 @@ static int enet_protocol_handle_incoming_commands(ENet::Host *host, ENet::Event 
     {
         peer = &host->peers[peerID];
 
-        if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE ||
+        if (peer->state == ENet::PEER_STATE_DISCONNECTED || peer->state == ENet::PEER_STATE_ZOMBIE ||
             ((host->receivedAddress.host != peer->address.host || host->receivedAddress.port != peer->address.port) &&
              peer->address.host != ENet::HOST_BROADCAST) ||
             (peer->outgoingPeerID < ENet::PROTOCOL_MAXIMUM_PEER_ID && sessionID != peer->incomingSessionID))
@@ -1433,13 +1433,13 @@ static int enet_protocol_handle_incoming_commands(ENet::Host *host, ENet::Event 
 
             switch (peer->state)
             {
-            case ENET_PEER_STATE_DISCONNECTING:
-            case ENET_PEER_STATE_ACKNOWLEDGING_CONNECT:
-            case ENET_PEER_STATE_DISCONNECTED:
-            case ENET_PEER_STATE_ZOMBIE:
+            case ENet::PEER_STATE_DISCONNECTING:
+            case ENet::PEER_STATE_ACKNOWLEDGING_CONNECT:
+            case ENet::PEER_STATE_DISCONNECTED:
+            case ENet::PEER_STATE_ZOMBIE:
                 break;
 
-            case ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT:
+            case ENet::PEER_STATE_ACKNOWLEDGING_DISCONNECT:
                 if ((command->header.command & ENet::PROTOCOL_COMMAND_MASK) == ENet::PROTOCOL_COMMAND_DISCONNECT)
                 {
                     ENet::peer_queue_acknowledgement(peer, command, sentTime);
@@ -1544,7 +1544,7 @@ static void enet_protocol_send_acknowledgements(ENet::Host *host, ENet::Peer *pe
             buffer >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
             peer->mtu - host->packetSize < sizeof(ENet::ProtocolAcknowledge))
         {
-            peer->flags |= ENET_PEER_FLAG_CONTINUE_SENDING;
+            peer->flags |= ENet::PEER_FLAG_CONTINUE_SENDING;
 
             break;
         }
@@ -1569,7 +1569,7 @@ static void enet_protocol_send_acknowledgements(ENet::Host *host, ENet::Peer *pe
         if ((acknowledgement->command.header.command & ENet::PROTOCOL_COMMAND_MASK) ==
             ENet::PROTOCOL_COMMAND_DISCONNECT)
         {
-            enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+            enet_protocol_dispatch_state(host, peer, ENet::PEER_STATE_ZOMBIE);
         }
 
         ENet::list_remove(&acknowledgement->acknowledgementList);
@@ -1690,7 +1690,7 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
             channel = outgoingCommand->command.header.channelID < peer->channelCount
                           ? &peer->channels[outgoingCommand->command.header.channelID]
                           : NULL;
-            reliableWindow = outgoingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
+            reliableWindow = outgoingCommand->reliableSequenceNumber / ENet::PEER_RELIABLE_WINDOW_SIZE;
             if (channel != NULL)
             {
                 if (windowWrap)
@@ -1698,13 +1698,13 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
                     continue;
                 }
                 else if (outgoingCommand->sendAttempts < 1 &&
-                         !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) &&
-                         (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) %
-                                                   ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE ||
+                         !(outgoingCommand->reliableSequenceNumber % ENet::PEER_RELIABLE_WINDOW_SIZE) &&
+                         (channel->reliableWindows[(reliableWindow + ENet::PEER_RELIABLE_WINDOWS - 1) %
+                                                   ENet::PEER_RELIABLE_WINDOWS] >= ENet::PEER_RELIABLE_WINDOW_SIZE ||
                           channel->usedReliableWindows &
-                              ((((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) << reliableWindow) |
-                               (((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) >>
-                                (ENET_PEER_RELIABLE_WINDOWS - reliableWindow)))))
+                              ((((1 << (ENet::PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) << reliableWindow) |
+                               (((1 << (ENet::PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) >>
+                                (ENet::PEER_RELIABLE_WINDOWS - reliableWindow)))))
                 {
                     windowWrap = 1;
                     currentSendReliableCommand = ENet::list_end(&peer->outgoingSendReliableCommands);
@@ -1715,7 +1715,7 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
 
             if (outgoingCommand->packet != NULL)
             {
-                uint32_t windowSize = (peer->packetThrottle * peer->windowSize) / ENET_PEER_PACKET_THROTTLE_SCALE;
+                uint32_t windowSize = (peer->packetThrottle * peer->windowSize) / ENet::PEER_PACKET_THROTTLE_SCALE;
 
                 if (peer->reliableDataInTransit + outgoingCommand->fragmentLength > ENET_MAX(windowSize, peer->mtu))
                 {
@@ -1735,7 +1735,7 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
             (outgoingCommand->packet != NULL &&
              (uint16_t)(peer->mtu - host->packetSize) < (uint16_t)(commandSize + outgoingCommand->fragmentLength)))
         {
-            peer->flags |= ENET_PEER_FLAG_CONTINUE_SENDING;
+            peer->flags |= ENet::PEER_FLAG_CONTINUE_SENDING;
 
             break;
         }
@@ -1773,8 +1773,8 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
         {
             if (outgoingCommand->packet != NULL && outgoingCommand->fragmentOffset == 0)
             {
-                peer->packetThrottleCounter += ENET_PEER_PACKET_THROTTLE_COUNTER;
-                peer->packetThrottleCounter %= ENET_PEER_PACKET_THROTTLE_SCALE;
+                peer->packetThrottleCounter += ENet::PEER_PACKET_THROTTLE_COUNTER;
+                peer->packetThrottleCounter %= ENet::PEER_PACKET_THROTTLE_SCALE;
 
                 if (peer->packetThrottleCounter > peer->packetThrottle)
                 {
@@ -1849,7 +1849,7 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
     host->commandCount = command - host->commands;
     host->bufferCount = buffer - host->buffers;
 
-    if (peer->state == ENET_PEER_STATE_DISCONNECT_LATER && !ENet::peer_has_outgoing_commands(peer) &&
+    if (peer->state == ENet::PEER_STATE_DISCONNECT_LATER && !ENet::peer_has_outgoing_commands(peer) &&
         ENet::list_empty(sentUnreliableCommands))
     {
         ENet::peer_disconnect(peer, peer->eventData);
@@ -1872,13 +1872,13 @@ static int enet_protocol_send_outgoing_commands(ENet::Host *host, ENet::Event *e
     {
         for (ENet::Peer *currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer)
         {
-            if (currentPeer->state == ENET_PEER_STATE_DISCONNECTED || currentPeer->state == ENET_PEER_STATE_ZOMBIE ||
-                (sendPass > 0 && !(currentPeer->flags & ENET_PEER_FLAG_CONTINUE_SENDING)))
+            if (currentPeer->state == ENet::PEER_STATE_DISCONNECTED || currentPeer->state == ENet::PEER_STATE_ZOMBIE ||
+                (sendPass > 0 && !(currentPeer->flags & ENet::PEER_FLAG_CONTINUE_SENDING)))
             {
                 continue;
             }
 
-            currentPeer->flags &= ~ENET_PEER_FLAG_CONTINUE_SENDING;
+            currentPeer->flags &= ~ENet::PEER_FLAG_CONTINUE_SENDING;
 
             host->headerFlags = 0;
             host->commandCount = 0;
@@ -1925,17 +1925,18 @@ static int enet_protocol_send_outgoing_commands(ENet::Host *host, ENet::Event *e
                 currentPeer->packetLossEpoch = host->serviceTime;
             }
             else if (ENET_TIME_DIFFERENCE(host->serviceTime, currentPeer->packetLossEpoch) >=
-                         ENET_PEER_PACKET_LOSS_INTERVAL &&
+                         ENet::PEER_PACKET_LOSS_INTERVAL &&
                      currentPeer->packetsSent > 0)
             {
-                uint32_t packetLoss = currentPeer->packetsLost * ENET_PEER_PACKET_LOSS_SCALE / currentPeer->packetsSent;
+                uint32_t packetLoss =
+                    currentPeer->packetsLost * ENet::PEER_PACKET_LOSS_SCALE / currentPeer->packetsSent;
 
 #ifdef ENET_DEBUG
                 printf("peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u outgoing, %u/%u "
                        "incoming\n",
-                       currentPeer->incomingPeerID, currentPeer->packetLoss / (float)ENET_PEER_PACKET_LOSS_SCALE,
-                       currentPeer->packetLossVariance / (float)ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime,
-                       currentPeer->roundTripTimeVariance,
+                       currentPeer->incomingPeerID, currentPeer->packetLoss / (float)ENet::PEER_PACKET_LOSS_SCALE,
+                       currentPeer->packetLossVariance / (float)ENet::PEER_PACKET_LOSS_SCALE,
+                       currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
                        currentPeer->packetThrottle / (float)ENET_PEER_PACKET_THROTTLE_SCALE,
                        enet_list_size(&currentPeer->outgoingCommands) +
                            enet_list_size(&currentPeer->outgoingSendReliableCommands),
@@ -2020,7 +2021,7 @@ static int enet_protocol_send_outgoing_commands(ENet::Host *host, ENet::Event *e
             host->totalSentPackets++;
 
         nextPeer:
-            if (currentPeer->flags & ENET_PEER_FLAG_CONTINUE_SENDING)
+            if (currentPeer->flags & ENet::PEER_FLAG_CONTINUE_SENDING)
             {
                 continueSending = sendPass + 1;
             }
@@ -2085,7 +2086,7 @@ int ENet::host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout)
     do
     {
         if (ENET_TIME_DIFFERENCE(host->serviceTime, host->bandwidthThrottleEpoch) >=
-            ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL)
+            ENet::HOST_BANDWIDTH_THROTTLE_INTERVAL)
         {
             ENet::host_bandwidth_throttle(host);
         }
