@@ -204,7 +204,7 @@ enum ENetPeerState
 };
 
 #ifndef ENET_BUFFER_MAXIMUM
-#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
+#define ENET_BUFFER_MAXIMUM (1 + 2 * ENet::PROTOCOL_MAXIMUM_PACKET_COMMANDS)
 #endif
 
 enum
@@ -394,13 +394,13 @@ struct Host
     uint32_t totalQueued;
     size_t packetSize;
     uint16_t headerFlags;
-    Protocol commands[ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    Protocol commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     size_t commandCount;
     ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
     size_t bufferCount;
     ChecksumCallback checksum; /**< callback the user can set to enable packet checksums for this host */
     Compressor compressor;
-    uint8_t packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
+    uint8_t packetData[2][PROTOCOL_MAXIMUM_MTU];
     Address receivedAddress;
     uint8_t *receivedData;
     size_t receivedDataLength;
@@ -653,7 +653,7 @@ ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
    the host.
     @param peerCount the maximum number of peers that should be allocated for the host.
     @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to
-   ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
+   ENet::PROTOCOL_MAXIMUM_CHANNEL_COUNT
     @param incomingBandwidth downstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited
    bandwidth.
     @param outgoingBandwidth upstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited bandwidth.
@@ -741,7 +741,7 @@ ENET_API int host_compress_with_range_coder(Host *host);
 /** Limits the maximum allowed channels of future incoming connections.
     @param host host to limit
     @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to
-   ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
+   ENet::PROTOCOL_MAXIMUM_CHANNEL_COUNT
 */
 ENET_API void host_channel_limit(Host *host, size_t channelLimit);
 
