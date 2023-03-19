@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 
 include(CheckCXXCompilerFlag)
+include(CheckFunctionExists)
+include(CheckStructHasMember)
+include(CheckTypeSize)
 
 # Check all passed flags and assign them to the target if found.
 function(target_cxx_compiler_flags)
@@ -11,6 +14,32 @@ function(target_cxx_compiler_flags)
             target_compile_options(${ARGV0} PUBLIC ${_FLAG})
         endif()
     endforeach()
+endfunction()
+
+# Check all passed functions and assign them to the target if found.
+function(target_check_function_exists)
+    cmake_parse_arguments(PARSE_ARGV 1 _ARGS "" "" "PUBLIC")
+    foreach(_FUNC ${_ARGS_PUBLIC})
+        check_function_exists(${_FUNC} "ENETCPP_PUBLIC_${_FUNC}")
+        if(${ENETCPP_PUBLIC_${_FUNC}})
+            string(TOUPPER "HAS_${_FUNC}" _VAR)
+            target_compile_definitions(${ARGV0} PUBLIC ${_VAR})
+        endif()
+    endforeach()
+endfunction()
+
+function(target_check_enetcpp)
+    check_struct_has_member("struct msghdr" "msg_flags" "sys/types.h;sys/socket.h" HAS_MSGHDR_FLAGS LANGUAGE CXX)
+    if(HAS_MSGHDR_FLAGS)
+        target_compile_definitions(${ARGV0} PUBLIC HAS_MSGHDR_FLAGS)
+    endif()
+
+    set(CMAKE_EXTRA_INCLUDE_FILES "sys/types.h" "sys/socket.h")
+    check_type_size("socklen_t" HAS_SOCKLEN_T BUILTIN_TYPES_ONLY LANGUAGE CXX)
+    unset(CMAKE_EXTRA_INCLUDE_FILES)
+    if(HAS_SOCKLEN_T)
+        target_compile_definitions(${ARGV0} PUBLIC HAS_SOCKLEN_T)
+    endif()
 endfunction()
 
 project(enetcpp LANGUAGES CXX)
@@ -54,6 +83,9 @@ else()
     # GCC and Clang
     target_cxx_compiler_flags(enetcpp PUBLIC -Wall -Wextra -Wmost -Wc++14-compat)
 endif()
+target_check_function_exists(enetcpp PUBLIC
+    fcntl poll getaddrinfo getnameinfo gethostbyname_r gethostbyaddr_r inet_pton inet_ntop)
+target_check_enetcpp(enetcpp PUBLIC)
 target_include_directories(enetcpp PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 target_link_libraries(enetcpp)
 if(WIN32)

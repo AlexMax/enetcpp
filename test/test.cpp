@@ -1,7 +1,7 @@
 // The MIT License (MIT)
 //
 // Copyright (c) 2002-2016 Lee Salzman
-// Copyright (c) 2017-2022 Vladyslav Hrytsenko, Dominik Madarász
+// Copyright (c) 2017-2022 Vladyslav Hrytsenko, Dominik Madarï¿½sz
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -81,7 +81,7 @@ int main()
     int i = 0;
     ENetHost *server;
     Client clients[MAX_CLIENTS];
-    ENetAddress address = {0};
+    ENetAddress address = {0, 0};
 
     address.host = ENET_HOST_ANY; /* Bind the server to the default localhost. */
     address.port = 7777;          /* Bind the server to port 7777. */
