@@ -14,7 +14,7 @@ ENet::Host *ENet::host_create(const ENetAddress *address, size_t peerCount, size
                               uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
     ENet::Host *host;
-    ENetPeer *currentPeer;
+    ENet::Peer *currentPeer;
 
     if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID)
     {
@@ -28,14 +28,14 @@ ENet::Host *ENet::host_create(const ENetAddress *address, size_t peerCount, size
     }
     memset(host, 0, sizeof(ENet::Host));
 
-    host->peers = (ENetPeer *)ENet::enet_malloc(peerCount * sizeof(ENetPeer));
+    host->peers = (ENet::Peer *)ENet::enet_malloc(peerCount * sizeof(ENet::Peer));
     if (host->peers == NULL)
     {
         ENet::enet_free(host);
 
         return NULL;
     }
-    memset(host->peers, 0, peerCount * sizeof(ENetPeer));
+    memset(host->peers, 0, peerCount * sizeof(ENet::Peer));
 
     host->socket = ENet::socket_create(ENET_SOCKET_TYPE_DATAGRAM);
     if (host->socket == ENET_SOCKET_NULL || (address != NULL && ENet::socket_bind(host->socket, address) < 0))
@@ -130,7 +130,7 @@ ENet::Host *ENet::host_create(const ENetAddress *address, size_t peerCount, size
 
 void ENet::host_destroy(ENet::Host *host)
 {
-    ENetPeer *currentPeer;
+    ENet::Peer *currentPeer;
 
     if (host == NULL)
     {
@@ -162,10 +162,10 @@ uint32_t ENet::host_random(ENet::Host *host)
     return n ^ (n >> 14);
 }
 
-ENetPeer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_t channelCount, uint32_t data)
+ENet::Peer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_t channelCount, uint32_t data)
 {
-    ENetPeer *currentPeer;
-    ENetChannel *channel;
+    ENet::Peer *currentPeer;
+    ENet::Channel *channel;
     ENet::Protocol command;
 
     if (channelCount < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT)
@@ -190,7 +190,7 @@ ENetPeer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_
         return NULL;
     }
 
-    currentPeer->channels = (ENetChannel *)ENet::enet_malloc(channelCount * sizeof(ENetChannel));
+    currentPeer->channels = (ENet::Channel *)ENet::enet_malloc(channelCount * sizeof(ENet::Channel));
     if (currentPeer->channels == NULL)
     {
         return NULL;
@@ -256,7 +256,7 @@ ENetPeer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_
 
 void ENet::host_broadcast(ENet::Host *host, uint8_t channelID, ENet::Packet *packet)
 {
-    ENetPeer *currentPeer;
+    ENet::Peer *currentPeer;
 
     for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer)
     {
@@ -318,7 +318,7 @@ void ENet::host_bandwidth_throttle(ENet::Host *host)
              peersRemaining = (uint32_t)host->connectedPeers, dataTotal = ~0, bandwidth = ~0, throttle = 0,
              bandwidthLimit = 0;
     int needsAdjustment = host->bandwidthLimitedPeers > 0 ? 1 : 0;
-    ENetPeer *peer;
+    ENet::Peer *peer;
     ENet::Protocol command;
 
     if (elapsedTime < ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL)

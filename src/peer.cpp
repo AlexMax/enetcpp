@@ -9,7 +9,7 @@
     @{
 */
 
-void ENet::peer_throttle_configure(ENetPeer *peer, uint32_t interval, uint32_t acceleration, uint32_t deceleration)
+void ENet::peer_throttle_configure(ENet::Peer *peer, uint32_t interval, uint32_t acceleration, uint32_t deceleration)
 {
     ENet::Protocol command;
 
@@ -27,7 +27,7 @@ void ENet::peer_throttle_configure(ENetPeer *peer, uint32_t interval, uint32_t a
     ENet::peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
 }
 
-int ENet::peer_throttle(ENetPeer *peer, uint32_t rtt)
+int ENet::peer_throttle(ENet::Peer *peer, uint32_t rtt)
 {
     if (peer->lastRoundTripTime <= peer->lastRoundTripTimeVariance)
     {
@@ -61,9 +61,9 @@ int ENet::peer_throttle(ENetPeer *peer, uint32_t rtt)
     return 0;
 }
 
-int ENet::peer_send(ENetPeer *peer, uint8_t channelID, ENet::Packet *packet)
+int ENet::peer_send(ENet::Peer *peer, uint8_t channelID, ENet::Packet *packet)
 {
-    ENetChannel *channel;
+    ENet::Channel *channel;
     ENet::Protocol command;
     size_t fragmentLength;
 
@@ -183,7 +183,7 @@ int ENet::peer_send(ENetPeer *peer, uint8_t channelID, ENet::Packet *packet)
     return 0;
 }
 
-ENet::Packet *ENet::peer_receive(ENetPeer *peer, uint8_t *channelID)
+ENet::Packet *ENet::peer_receive(ENet::Peer *peer, uint8_t *channelID)
 {
     ENet::IncomingCommand *incomingCommand;
     ENet::Packet *packet;
@@ -282,9 +282,9 @@ static void enet_peer_reset_incoming_commands(ENet::List *queue)
     enet_peer_remove_incoming_commands(queue, ENet::list_begin(queue), ENet::list_end(queue), NULL);
 }
 
-void ENet::peer_reset_queues(ENetPeer *peer)
+void ENet::peer_reset_queues(ENet::Peer *peer)
 {
-    ENetChannel *channel;
+    ENet::Channel *channel;
 
     if (peer->flags & ENET_PEER_FLAG_NEEDS_DISPATCH)
     {
@@ -318,7 +318,7 @@ void ENet::peer_reset_queues(ENetPeer *peer)
     peer->channelCount = 0;
 }
 
-void ENet::peer_on_connect(ENetPeer *peer)
+void ENet::peer_on_connect(ENet::Peer *peer)
 {
     if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
     {
@@ -331,7 +331,7 @@ void ENet::peer_on_connect(ENetPeer *peer)
     }
 }
 
-void ENet::peer_on_disconnect(ENetPeer *peer)
+void ENet::peer_on_disconnect(ENet::Peer *peer)
 {
     if (peer->state == ENET_PEER_STATE_CONNECTED || peer->state == ENET_PEER_STATE_DISCONNECT_LATER)
     {
@@ -344,7 +344,7 @@ void ENet::peer_on_disconnect(ENetPeer *peer)
     }
 }
 
-void ENet::peer_reset(ENetPeer *peer)
+void ENet::peer_reset(ENet::Peer *peer)
 {
     ENet::peer_on_disconnect(peer);
 
@@ -400,7 +400,7 @@ void ENet::peer_reset(ENetPeer *peer)
     ENet::peer_reset_queues(peer);
 }
 
-void ENet::peer_ping(ENetPeer *peer)
+void ENet::peer_ping(ENet::Peer *peer)
 {
     ENet::Protocol command;
 
@@ -415,19 +415,19 @@ void ENet::peer_ping(ENetPeer *peer)
     ENet::peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
 }
 
-void ENet::peer_ping_interval(ENetPeer *peer, uint32_t pingInterval)
+void ENet::peer_ping_interval(ENet::Peer *peer, uint32_t pingInterval)
 {
     peer->pingInterval = pingInterval ? pingInterval : ENET_PEER_PING_INTERVAL;
 }
 
-void ENet::peer_timeout(ENetPeer *peer, uint32_t timeoutLimit, uint32_t timeoutMinimum, uint32_t timeoutMaximum)
+void ENet::peer_timeout(ENet::Peer *peer, uint32_t timeoutLimit, uint32_t timeoutMinimum, uint32_t timeoutMaximum)
 {
     peer->timeoutLimit = timeoutLimit ? timeoutLimit : ENET_PEER_TIMEOUT_LIMIT;
     peer->timeoutMinimum = timeoutMinimum ? timeoutMinimum : ENET_PEER_TIMEOUT_MINIMUM;
     peer->timeoutMaximum = timeoutMaximum ? timeoutMaximum : ENET_PEER_TIMEOUT_MAXIMUM;
 }
 
-void ENet::peer_disconnect_now(ENetPeer *peer, uint32_t data)
+void ENet::peer_disconnect_now(ENet::Peer *peer, uint32_t data)
 {
     ENet::Protocol command;
 
@@ -452,7 +452,7 @@ void ENet::peer_disconnect_now(ENetPeer *peer, uint32_t data)
     ENet::peer_reset(peer);
 }
 
-void ENet::peer_disconnect(ENetPeer *peer, uint32_t data)
+void ENet::peer_disconnect(ENet::Peer *peer, uint32_t data)
 {
     ENet::Protocol command;
 
@@ -492,7 +492,7 @@ void ENet::peer_disconnect(ENetPeer *peer, uint32_t data)
     }
 }
 
-int ENet::peer_has_outgoing_commands(ENetPeer *peer)
+int ENet::peer_has_outgoing_commands(ENet::Peer *peer)
 {
     if (ENet::list_empty(&peer->outgoingCommands) && ENet::list_empty(&peer->outgoingSendReliableCommands) &&
         ENet::list_empty(&peer->sentReliableCommands))
@@ -503,7 +503,7 @@ int ENet::peer_has_outgoing_commands(ENetPeer *peer)
     return 1;
 }
 
-void ENet::peer_disconnect_later(ENetPeer *peer, uint32_t data)
+void ENet::peer_disconnect_later(ENet::Peer *peer, uint32_t data)
 {
     if ((peer->state == ENET_PEER_STATE_CONNECTED || peer->state == ENET_PEER_STATE_DISCONNECT_LATER) &&
         ENet::peer_has_outgoing_commands(peer))
@@ -517,14 +517,14 @@ void ENet::peer_disconnect_later(ENetPeer *peer, uint32_t data)
     }
 }
 
-ENet::Acknowledgement *ENet::peer_queue_acknowledgement(ENetPeer *peer, const ENet::Protocol *command,
+ENet::Acknowledgement *ENet::peer_queue_acknowledgement(ENet::Peer *peer, const ENet::Protocol *command,
                                                         uint16_t sentTime)
 {
     ENet::Acknowledgement *acknowledgement;
 
     if (command->header.channelID < peer->channelCount)
     {
-        ENetChannel *channel = &peer->channels[command->header.channelID];
+        ENet::Channel *channel = &peer->channels[command->header.channelID];
         uint16_t reliableWindow = command->header.reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE,
                  currentWindow = channel->incomingReliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
@@ -556,7 +556,7 @@ ENet::Acknowledgement *ENet::peer_queue_acknowledgement(ENetPeer *peer, const EN
     return acknowledgement;
 }
 
-void ENet::peer_setup_outgoing_command(ENetPeer *peer, ENet::OutgoingCommand *outgoingCommand)
+void ENet::peer_setup_outgoing_command(ENet::Peer *peer, ENet::OutgoingCommand *outgoingCommand)
 {
     peer->outgoingDataTotal +=
         ENet::protocol_command_size(outgoingCommand->command.header.command) + outgoingCommand->fragmentLength;
@@ -570,7 +570,7 @@ void ENet::peer_setup_outgoing_command(ENetPeer *peer, ENet::OutgoingCommand *ou
     }
     else
     {
-        ENetChannel *channel = &peer->channels[outgoingCommand->command.header.channelID];
+        ENet::Channel *channel = &peer->channels[outgoingCommand->command.header.channelID];
 
         if (outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE)
         {
@@ -632,7 +632,7 @@ void ENet::peer_setup_outgoing_command(ENetPeer *peer, ENet::OutgoingCommand *ou
     }
 }
 
-ENet::OutgoingCommand *ENet::peer_queue_outgoing_command(ENetPeer *peer, const ENet::Protocol *command,
+ENet::OutgoingCommand *ENet::peer_queue_outgoing_command(ENet::Peer *peer, const ENet::Protocol *command,
                                                          ENet::Packet *packet, uint32_t offset, uint16_t length)
 {
     ENet::OutgoingCommand *outgoingCommand = (ENet::OutgoingCommand *)ENet::enet_malloc(sizeof(ENet::OutgoingCommand));
@@ -655,7 +655,7 @@ ENet::OutgoingCommand *ENet::peer_queue_outgoing_command(ENetPeer *peer, const E
     return outgoingCommand;
 }
 
-void ENet::peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChannel *channel,
+void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Channel *channel,
                                                       ENet::IncomingCommand *queuedCommand)
 {
     ENet::ListIterator droppedCommand, startCommand, currentCommand;
@@ -750,7 +750,7 @@ void ENet::peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChanne
                                        queuedCommand);
 }
 
-void ENet::peer_dispatch_incoming_reliable_commands(ENetPeer *peer, ENetChannel *channel,
+void ENet::peer_dispatch_incoming_reliable_commands(ENet::Peer *peer, ENet::Channel *channel,
                                                     ENet::IncomingCommand *queuedCommand)
 {
     ENet::ListIterator currentCommand;
@@ -798,13 +798,13 @@ void ENet::peer_dispatch_incoming_reliable_commands(ENetPeer *peer, ENetChannel 
     }
 }
 
-ENet::IncomingCommand *ENet::peer_queue_incoming_command(ENetPeer *peer, const ENet::Protocol *command,
+ENet::IncomingCommand *ENet::peer_queue_incoming_command(ENet::Peer *peer, const ENet::Protocol *command,
                                                          const void *data, size_t dataLength, uint32_t flags,
                                                          uint32_t fragmentCount)
 {
     static ENet::IncomingCommand dummyCommand;
 
-    ENetChannel *channel = &peer->channels[command->header.channelID];
+    ENet::Channel *channel = &peer->channels[command->header.channelID];
     uint32_t unreliableSequenceNumber = 0, reliableSequenceNumber = 0;
     uint16_t reliableWindow, currentWindow;
     ENet::IncomingCommand *incomingCommand;

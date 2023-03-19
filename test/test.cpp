@@ -33,7 +33,7 @@
 struct Client
 {
     ENet::Host *host;
-    ENetPeer *peer;
+    ENet::Peer *peer;
 };
 
 void host_server(ENet::Host *server)

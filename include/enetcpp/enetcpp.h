@@ -119,10 +119,10 @@ enum ENetPacketFlag
     ENET_PACKET_FLAG_SENT = (1 << 8)
 };
 
-using ENetPacketFreeCallback = void(ENET_CALLBACK *)(ENet::Packet *);
-
 namespace ENet
 {
+
+using PacketFreeCallback = void(ENET_CALLBACK *)(Packet *);
 
 /**
  * ENet packet structure.
@@ -149,12 +149,12 @@ namespace ENet
  */
 struct Packet
 {
-    size_t referenceCount;               /**< internal use only */
-    uint32_t flags;                      /**< bitwise-or of ENetPacketFlag constants */
-    uint8_t *data;                       /**< allocated data for packet */
-    size_t dataLength;                   /**< length of data */
-    ENetPacketFreeCallback freeCallback; /**< function to be called when the packet is no longer in use */
-    void *userData;                      /**< application private data, may be freely modified */
+    size_t referenceCount;           /**< internal use only */
+    uint32_t flags;                  /**< bitwise-or of ENetPacketFlag constants */
+    uint8_t *data;                   /**< allocated data for packet */
+    size_t dataLength;               /**< length of data */
+    PacketFreeCallback freeCallback; /**< function to be called when the packet is no longer in use */
+    void *userData;                  /**< application private data, may be freely modified */
 };
 
 struct Acknowledgement
@@ -242,7 +242,10 @@ enum
     ENET_PEER_FREE_RELIABLE_WINDOWS = 8
 };
 
-struct ENetChannel
+namespace ENet
+{
+
+struct Channel
 {
     uint16_t outgoingReliableSequenceNumber;
     uint16_t outgoingUnreliableSequenceNumber;
@@ -250,9 +253,11 @@ struct ENetChannel
     uint16_t reliableWindows[ENET_PEER_RELIABLE_WINDOWS];
     uint16_t incomingReliableSequenceNumber;
     uint16_t incomingUnreliableSequenceNumber;
-    ENet::List incomingReliableCommands;
-    ENet::List incomingUnreliableCommands;
+    List incomingReliableCommands;
+    List incomingUnreliableCommands;
 };
+
+} // namespace ENet
 
 enum ENetPeerFlag
 {
@@ -260,15 +265,18 @@ enum ENetPeerFlag
     ENET_PEER_FLAG_CONTINUE_SENDING = (1 << 1)
 };
 
+namespace ENet
+{
+
 /**
  * An ENet peer which data packets may be sent or received from.
  *
  * No fields should be modified unless otherwise specified.
  */
-struct ENetPeer
+struct Peer
 {
-    ENet::ListNode dispatchList;
-    ENet::Host *host;
+    ListNode dispatchList;
+    Host *host;
     uint16_t outgoingPeerID;
     uint16_t incomingPeerID;
     uint32_t connectID;
@@ -277,7 +285,7 @@ struct ENetPeer
     ENetAddress address; /**< Internet address of the peer */
     void *data;          /**< Application private data, may be freely modified */
     ENetPeerState state;
-    ENetChannel *channels;
+    Channel *channels;
     size_t channelCount;        /**< Number of channels allocated for communication with peer */
     uint32_t incomingBandwidth; /**< Downstream bandwidth of the client in bytes/second */
     uint32_t outgoingBandwidth; /**< Upstream bandwidth of the client in bytes/second */
@@ -331,9 +339,6 @@ struct ENetPeer
     size_t totalWaitingData;
 };
 
-namespace ENet
-{
-
 /** An ENet packet compressor for compressing UDP packets before socket sends or receives.
  */
 struct Compressor
@@ -385,7 +390,7 @@ struct Host
     uint32_t mtu;
     uint32_t randomSeed;
     int recalculateBandwidthLimits;
-    ENetPeer *peers;     /**< array of peers allocated for this host */
+    Peer *peers;         /**< array of peers allocated for this host */
     size_t peerCount;    /**< number of peers allocated for this host */
     size_t channelLimit; /**< maximum number of channels allowed for connected peers */
     uint32_t serviceTime;
@@ -462,7 +467,7 @@ namespace ENet
 struct Event
 {
     ENetEventType type; /**< type of the event */
-    ENetPeer *peer;     /**< peer that generated a connect, disconnect or receive event */
+    Peer *peer;         /**< peer that generated a connect, disconnect or receive event */
     uint8_t channelID;  /**< channel on the peer that generated the event, if appropriate */
     uint32_t data;      /**< data associated with the event, if appropriate */
     Packet *packet;     /**< packet associated with the event, if appropriate */
@@ -681,7 +686,7 @@ ENET_API void host_destroy(Host *host);
     @remarks The peer returned will have not completed the connection until enet_host_service()
     notifies of an ENET_EVENT_TYPE_CONNECT event for the peer.
 */
-ENET_API ENetPeer *host_connect(Host *host, const ENetAddress *address, size_t channelCount, uint32_t data);
+ENET_API Peer *host_connect(Host *host, const ENetAddress *address, size_t channelCount, uint32_t data);
 
 /** Checks for any queued events on the host and dispatches one if available.
 
@@ -771,23 +776,23 @@ extern uint32_t host_random(Host *host);
     @retval 0 on success
     @retval < 0 on failure
 */
-ENET_API int peer_send(ENetPeer *peer, uint8_t channelID, Packet *packet);
+ENET_API int peer_send(Peer *peer, uint8_t channelID, Packet *packet);
 
 /** Attempts to dequeue any incoming queued packet.
     @param peer peer to dequeue packets from
     @param channelID holds the channel ID of the channel the packet was received on success
     @returns a pointer to the packet, or NULL if there are no available incoming queued packets
 */
-ENET_API Packet *peer_receive(ENetPeer *peer, uint8_t *channelID);
+ENET_API Packet *peer_receive(Peer *peer, uint8_t *channelID);
 
 /** Sends a ping request to a peer.
     @param peer destination for the ping request
     @remarks ping requests factor into the mean round trip time as designated by the
-    roundTripTime field in the ENetPeer structure.  ENet automatically pings all connected
+    roundTripTime field in the Peer structure.  ENet automatically pings all connected
     peers at regular intervals, however, this function may be called to ensure more
     frequent ping requests.
 */
-ENET_API void peer_ping(ENetPeer *peer);
+ENET_API void peer_ping(Peer *peer);
 
 /** Sets the interval at which pings will be sent to a peer.
 
@@ -798,7 +803,7 @@ ENET_API void peer_ping(ENetPeer *peer);
     @param peer the peer to adjust
     @param pingInterval the interval at which to send pings; defaults to ENET_PEER_PING_INTERVAL if 0
 */
-ENET_API void peer_ping_interval(ENetPeer *peer, uint32_t pingInterval);
+ENET_API void peer_ping_interval(Peer *peer, uint32_t pingInterval);
 
 /** Sets the timeout parameters for a peer.
 
@@ -816,14 +821,14 @@ ENET_API void peer_ping_interval(ENetPeer *peer, uint32_t pingInterval);
     @param timeoutMinimum the timeout minimum; defaults to ENET_PEER_TIMEOUT_MINIMUM if 0
     @param timeoutMaximum the timeout maximum; defaults to ENET_PEER_TIMEOUT_MAXIMUM if 0
 */
-ENET_API void peer_timeout(ENetPeer *peer, uint32_t timeoutLimit, uint32_t timeoutMinimum, uint32_t timeoutMaximum);
+ENET_API void peer_timeout(Peer *peer, uint32_t timeoutLimit, uint32_t timeoutMinimum, uint32_t timeoutMaximum);
 
 /** Forcefully disconnects a peer.
     @param peer peer to forcefully disconnect
     @remarks The foreign host represented by the peer is not notified of the disconnection and will timeout
     on its connection to the local host.
 */
-ENET_API void peer_reset(ENetPeer *peer);
+ENET_API void peer_reset(Peer *peer);
 
 /** Request a disconnection from a peer.
     @param peer peer to request a disconnection
@@ -831,7 +836,7 @@ ENET_API void peer_reset(ENetPeer *peer);
     @remarks An ENET_EVENT_DISCONNECT event will be generated by enet_host_service()
     once the disconnection is complete.
 */
-ENET_API void peer_disconnect(ENetPeer *peer, uint32_t data);
+ENET_API void peer_disconnect(Peer *peer, uint32_t data);
 
 /** Force an immediate disconnection from a peer.
     @param peer peer to disconnect
@@ -840,7 +845,7 @@ ENET_API void peer_disconnect(ENetPeer *peer, uint32_t data);
     guaranteed to receive the disconnect notification, and is reset immediately upon
     return from this function.
 */
-ENET_API void peer_disconnect_now(ENetPeer *peer, uint32_t data);
+ENET_API void peer_disconnect_now(Peer *peer, uint32_t data);
 
 /** Request a disconnection from a peer, but only after all queued outgoing packets are sent.
     @param peer peer to request a disconnection
@@ -848,7 +853,7 @@ ENET_API void peer_disconnect_now(ENetPeer *peer, uint32_t data);
     @remarks An ENET_EVENT_DISCONNECT event will be generated by enet_host_service()
     once the disconnection is complete.
 */
-ENET_API void peer_disconnect_later(ENetPeer *peer, uint32_t data);
+ENET_API void peer_disconnect_later(Peer *peer, uint32_t data);
 
 /** Configures throttle parameter for a peer.
 
@@ -880,23 +885,21 @@ ENET_API void peer_disconnect_later(ENetPeer *peer, uint32_t data);
     @param acceleration rate at which to increase the throttle probability as mean RTT declines
     @param deceleration rate at which to decrease the throttle probability as mean RTT increases
 */
-ENET_API void peer_throttle_configure(ENetPeer *peer, uint32_t interval, uint32_t acceleration, uint32_t deceleration);
+ENET_API void peer_throttle_configure(Peer *peer, uint32_t interval, uint32_t acceleration, uint32_t deceleration);
 
-extern int peer_throttle(ENetPeer *peer, uint32_t rtt);
-extern void peer_reset_queues(ENetPeer *peer);
-extern int peer_has_outgoing_commands(ENetPeer *peer);
-extern void peer_setup_outgoing_command(ENetPeer *peer, OutgoingCommand *outgoingCommand);
-extern OutgoingCommand *peer_queue_outgoing_command(ENetPeer *peer, const Protocol *command, Packet *packet,
+extern int peer_throttle(Peer *peer, uint32_t rtt);
+extern void peer_reset_queues(Peer *peer);
+extern int peer_has_outgoing_commands(Peer *peer);
+extern void peer_setup_outgoing_command(Peer *peer, OutgoingCommand *outgoingCommand);
+extern OutgoingCommand *peer_queue_outgoing_command(Peer *peer, const Protocol *command, Packet *packet,
                                                     uint32_t offset, uint16_t length);
-extern IncomingCommand *peer_queue_incoming_command(ENetPeer *peer, const Protocol *command, const void *data,
+extern IncomingCommand *peer_queue_incoming_command(Peer *peer, const Protocol *command, const void *data,
                                                     size_t dataLength, uint32_t flags, uint32_t fragmentCount);
-extern Acknowledgement *peer_queue_acknowledgement(ENetPeer *peer, const Protocol *command, uint16_t sentTime);
-extern void peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChannel *channel,
-                                                       IncomingCommand *queuedCommand);
-extern void peer_dispatch_incoming_reliable_commands(ENetPeer *peer, ENetChannel *channel,
-                                                     IncomingCommand *queuedCommand);
-extern void peer_on_connect(ENetPeer *peer);
-extern void peer_on_disconnect(ENetPeer *peer);
+extern Acknowledgement *peer_queue_acknowledgement(Peer *peer, const Protocol *command, uint16_t sentTime);
+extern void peer_dispatch_incoming_unreliable_commands(Peer *peer, Channel *channel, IncomingCommand *queuedCommand);
+extern void peer_dispatch_incoming_reliable_commands(Peer *peer, Channel *channel, IncomingCommand *queuedCommand);
+extern void peer_on_connect(Peer *peer);
+extern void peer_on_disconnect(Peer *peer);
 
 ENET_API void *range_coder_create();
 ENET_API void range_coder_destroy(void *context);
