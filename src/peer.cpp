@@ -117,14 +117,14 @@ int enet_peer_send(ENetPeer *peer, uint8_t channelID, ENetPacket *packet)
                 fragmentLength = packet->dataLength - fragmentOffset;
             }
 
-            fragment = (ENetOutgoingCommand *)enet_malloc(sizeof(ENetOutgoingCommand));
+            fragment = (ENetOutgoingCommand *)ENet::enet_malloc(sizeof(ENetOutgoingCommand));
             if (fragment == NULL)
             {
                 while (!ENet::list_empty(&fragments))
                 {
                     fragment = (ENetOutgoingCommand *)ENet::list_remove(ENet::list_begin(&fragments));
 
-                    enet_free(fragment);
+                    ENet::enet_free(fragment);
                 }
 
                 return -1;
@@ -206,10 +206,10 @@ ENetPacket *enet_peer_receive(ENetPeer *peer, uint8_t *channelID)
 
     if (incomingCommand->fragments != NULL)
     {
-        enet_free(incomingCommand->fragments);
+        ENet::enet_free(incomingCommand->fragments);
     }
 
-    enet_free(incomingCommand);
+    ENet::enet_free(incomingCommand);
 
     peer->totalWaitingData -= packet->dataLength;
 
@@ -234,7 +234,7 @@ static void enet_peer_reset_outgoing_commands(ENet::List *queue)
             }
         }
 
-        enet_free(outgoingCommand);
+        ENet::enet_free(outgoingCommand);
     }
 }
 
@@ -270,10 +270,10 @@ static void enet_peer_remove_incoming_commands(ENet::List *queue, ENet::ListIter
 
         if (incomingCommand->fragments != NULL)
         {
-            enet_free(incomingCommand->fragments);
+            ENet::enet_free(incomingCommand->fragments);
         }
 
-        enet_free(incomingCommand);
+        ENet::enet_free(incomingCommand);
     }
 }
 
@@ -295,7 +295,7 @@ void enet_peer_reset_queues(ENetPeer *peer)
 
     while (!ENet::list_empty(&peer->acknowledgements))
     {
-        enet_free(ENet::list_remove(ENet::list_begin(&peer->acknowledgements)));
+        ENet::enet_free(ENet::list_remove(ENet::list_begin(&peer->acknowledgements)));
     }
 
     enet_peer_reset_outgoing_commands(&peer->sentReliableCommands);
@@ -311,7 +311,7 @@ void enet_peer_reset_queues(ENetPeer *peer)
             enet_peer_reset_incoming_commands(&channel->incomingUnreliableCommands);
         }
 
-        enet_free(peer->channels);
+        ENet::enet_free(peer->channels);
     }
 
     peer->channels = NULL;
@@ -539,7 +539,7 @@ ENetAcknowledgement *enet_peer_queue_acknowledgement(ENetPeer *peer, const ENetP
         }
     }
 
-    acknowledgement = (ENetAcknowledgement *)enet_malloc(sizeof(ENetAcknowledgement));
+    acknowledgement = (ENetAcknowledgement *)ENet::enet_malloc(sizeof(ENetAcknowledgement));
     if (acknowledgement == NULL)
     {
         return NULL;
@@ -634,7 +634,7 @@ void enet_peer_setup_outgoing_command(ENetPeer *peer, ENetOutgoingCommand *outgo
 ENetOutgoingCommand *enet_peer_queue_outgoing_command(ENetPeer *peer, const ENetProtocol *command, ENetPacket *packet,
                                                       uint32_t offset, uint16_t length)
 {
-    ENetOutgoingCommand *outgoingCommand = (ENetOutgoingCommand *)enet_malloc(sizeof(ENetOutgoingCommand));
+    ENetOutgoingCommand *outgoingCommand = (ENetOutgoingCommand *)ENet::enet_malloc(sizeof(ENetOutgoingCommand));
     if (outgoingCommand == NULL)
     {
         return NULL;
@@ -944,7 +944,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
         goto notifyError;
     }
 
-    incomingCommand = (ENetIncomingCommand *)enet_malloc(sizeof(ENetIncomingCommand));
+    incomingCommand = (ENetIncomingCommand *)ENet::enet_malloc(sizeof(ENetIncomingCommand));
     if (incomingCommand == NULL)
     {
         goto notifyError;
@@ -962,11 +962,11 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
     {
         if (fragmentCount <= ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
         {
-            incomingCommand->fragments = (uint32_t *)enet_malloc((fragmentCount + 31) / 32 * sizeof(uint32_t));
+            incomingCommand->fragments = (uint32_t *)ENet::enet_malloc((fragmentCount + 31) / 32 * sizeof(uint32_t));
         }
         if (incomingCommand->fragments == NULL)
         {
-            enet_free(incomingCommand);
+            ENet::enet_free(incomingCommand);
 
             goto notifyError;
         }

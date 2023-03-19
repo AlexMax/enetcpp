@@ -505,8 +505,6 @@ struct Platform
 */
 ENET_API int initialize();
 
-} // namespace ENet
-
 /**
   Initializes ENet globally and supplies user-overridden callbacks. Must be called prior to using any functions in
   ENet. Do not use enet_initialize() if you use this variant. Make sure the ENetCallbacks structure is zeroed out so
@@ -517,10 +515,7 @@ ENET_API int initialize();
   @param inits user-overridden callbacks where any NULL callbacks will use ENet's defaults
   @returns 0 on success, < 0 on failure
 */
-ENET_API int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits);
-
-namespace ENet
-{
+ENET_API int initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits);
 
 /**
   Shuts down ENet globally.  Should be called when a program that has
@@ -528,18 +523,13 @@ namespace ENet
 */
 ENET_API void deinitialize();
 
-} // namespace ENet
-
 /**
   Gives the linked version of the ENet library.
   @returns the version number
 */
-ENET_API ENetVersion enet_linked_version();
+ENET_API ENetVersion linked_version();
 
 /** @} */
-
-namespace ENet
-{
 
 /** @defgroup private ENet private implementation functions */
 
@@ -752,14 +742,12 @@ ENET_API void enet_host_channel_limit(ENetHost *host, size_t channelLimit);
 */
 ENET_API void enet_host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
-extern void enet_host_bandwidth_throttle(ENetHost *host);
-
 namespace ENet
 {
+extern void host_bandwidth_throttle(ENetHost *host);
 extern uint32_t host_random_seed();
-}
-
-extern uint32_t enet_host_random(ENetHost *host);
+extern uint32_t host_random(ENetHost *host);
+} // namespace ENet
 
 /** Queues a packet to be sent.
 

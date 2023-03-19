@@ -21,17 +21,17 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
         return NULL;
     }
 
-    host = (ENetHost *)enet_malloc(sizeof(ENetHost));
+    host = (ENetHost *)ENet::enet_malloc(sizeof(ENetHost));
     if (host == NULL)
     {
         return NULL;
     }
     memset(host, 0, sizeof(ENetHost));
 
-    host->peers = (ENetPeer *)enet_malloc(peerCount * sizeof(ENetPeer));
+    host->peers = (ENetPeer *)ENet::enet_malloc(peerCount * sizeof(ENetPeer));
     if (host->peers == NULL)
     {
-        enet_free(host);
+        ENet::enet_free(host);
 
         return NULL;
     }
@@ -45,8 +45,8 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
             ENet::socket_destroy(host->socket);
         }
 
-        enet_free(host->peers);
-        enet_free(host);
+        ENet::enet_free(host->peers);
+        ENet::enet_free(host);
 
         return NULL;
     }
@@ -149,11 +149,11 @@ void enet_host_destroy(ENetHost *host)
         (*host->compressor.destroy)(host->compressor.context);
     }
 
-    enet_free(host->peers);
-    enet_free(host);
+    ENet::enet_free(host->peers);
+    ENet::enet_free(host);
 }
 
-uint32_t enet_host_random(ENetHost *host)
+uint32_t ENet::host_random(ENetHost *host)
 {
     /* Mulberry32 by Tommy Ettinger */
     uint32_t n = (host->randomSeed += 0x6D2B79F5U);
@@ -190,7 +190,7 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
         return NULL;
     }
 
-    currentPeer->channels = (ENetChannel *)enet_malloc(channelCount * sizeof(ENetChannel));
+    currentPeer->channels = (ENetChannel *)ENet::enet_malloc(channelCount * sizeof(ENetChannel));
     if (currentPeer->channels == NULL)
     {
         return NULL;
@@ -198,7 +198,7 @@ ENetPeer *enet_host_connect(ENetHost *host, const ENetAddress *address, size_t c
     currentPeer->channelCount = channelCount;
     currentPeer->state = ENET_PEER_STATE_CONNECTING;
     currentPeer->address = *address;
-    currentPeer->connectID = enet_host_random(host);
+    currentPeer->connectID = ENet::host_random(host);
 
     if (host->outgoingBandwidth == 0)
     {
@@ -312,7 +312,7 @@ void enet_host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint3
     host->recalculateBandwidthLimits = 1;
 }
 
-void enet_host_bandwidth_throttle(ENetHost *host)
+void ENet::host_bandwidth_throttle(ENetHost *host)
 {
     uint32_t timeCurrent = ENet::time_get(), elapsedTime = timeCurrent - host->bandwidthThrottleEpoch,
              peersRemaining = (uint32_t)host->connectedPeers, dataTotal = ~0, bandwidth = ~0, throttle = 0,

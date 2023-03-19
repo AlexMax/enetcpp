@@ -196,7 +196,7 @@ static void enet_protocol_remove_sent_unreliable_commands(ENetPeer *peer, ENet::
             }
         }
 
-        enet_free(outgoingCommand);
+        ENet::enet_free(outgoingCommand);
     } while (!ENet::list_empty(sentUnreliableCommands));
 
     if (peer->state == ENET_PEER_STATE_DISCONNECT_LATER && !enet_peer_has_outgoing_commands(peer))
@@ -309,7 +309,7 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *
         }
     }
 
-    enet_free(outgoingCommand);
+    ENet::enet_free(outgoingCommand);
 
     if (ENet::list_empty(&peer->sentReliableCommands))
     {
@@ -372,7 +372,7 @@ static ENetPeer *enet_protocol_handle_connect(ENetHost *host, ENetProtocolHeader
     {
         channelCount = host->channelLimit;
     }
-    peer->channels = (ENetChannel *)enet_malloc(channelCount * sizeof(ENetChannel));
+    peer->channels = (ENetChannel *)ENet::enet_malloc(channelCount * sizeof(ENetChannel));
     if (peer->channels == NULL)
     {
         return NULL;
@@ -1569,7 +1569,7 @@ static void enet_protocol_send_acknowledgements(ENetHost *host, ENetPeer *peer)
         }
 
         ENet::list_remove(&acknowledgement->acknowledgementList);
-        enet_free(acknowledgement);
+        ENet::enet_free(acknowledgement);
 
         ++command;
         ++buffer;
@@ -1786,7 +1786,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
                         }
 
                         ENet::list_remove(&outgoingCommand->outgoingCommandList);
-                        enet_free(outgoingCommand);
+                        ENet::enet_free(outgoingCommand);
 
                         if (currentCommand == ENet::list_end(&peer->outgoingCommands))
                         {
@@ -1833,7 +1833,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
         }
         else if (!(outgoingCommand->command.header.command & ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE))
         {
-            enet_free(outgoingCommand);
+            ENet::enet_free(outgoingCommand);
         }
 
         ++peer->packetsSent;
@@ -2090,7 +2090,7 @@ int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
         if (ENET_TIME_DIFFERENCE(host->serviceTime, host->bandwidthThrottleEpoch) >=
             ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL)
         {
-            enet_host_bandwidth_throttle(host);
+            ENet::host_bandwidth_throttle(host);
         }
 
         switch (enet_protocol_send_outgoing_commands(host, event, 1))

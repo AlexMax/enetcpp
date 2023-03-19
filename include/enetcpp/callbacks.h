@@ -17,7 +17,12 @@ struct ENetCallbacks
     @{
     @ingroup private
 */
-extern void *enet_malloc(size_t);
-extern void enet_free(void *);
+namespace ENet
+{
+
+extern void *enet_malloc(size_t size);
+extern void enet_free(void *memory);
+
+} // namespace ENet
 
 /** @} */

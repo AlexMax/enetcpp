@@ -47,7 +47,7 @@ struct ENetRangeCoder
 
 void *enet_range_coder_create()
 {
-    ENetRangeCoder *rangeCoder = (ENetRangeCoder *)enet_malloc(sizeof(ENetRangeCoder));
+    ENetRangeCoder *rangeCoder = (ENetRangeCoder *)ENet::enet_malloc(sizeof(ENetRangeCoder));
     if (rangeCoder == NULL)
     {
         return NULL;
@@ -64,7 +64,7 @@ void enet_range_coder_destroy(void *context)
         return;
     }
 
-    enet_free(rangeCoder);
+    ENet::enet_free(rangeCoder);
 }
 
 #define ENET_SYMBOL_CREATE(symbol, value_, count_)                                                                     \

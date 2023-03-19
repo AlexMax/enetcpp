@@ -12,7 +12,7 @@
 
 ENetPacket *enet_packet_create(const void *data, size_t dataLength, uint32_t flags)
 {
-    ENetPacket *packet = (ENetPacket *)enet_malloc(sizeof(ENetPacket));
+    ENetPacket *packet = (ENetPacket *)ENet::enet_malloc(sizeof(ENetPacket));
     if (packet == NULL)
     {
         return NULL;
@@ -28,10 +28,10 @@ ENetPacket *enet_packet_create(const void *data, size_t dataLength, uint32_t fla
     }
     else
     {
-        packet->data = (uint8_t *)enet_malloc(dataLength);
+        packet->data = (uint8_t *)ENet::enet_malloc(dataLength);
         if (packet->data == NULL)
         {
-            enet_free(packet);
+            ENet::enet_free(packet);
             return NULL;
         }
 
@@ -63,9 +63,9 @@ void enet_packet_destroy(ENetPacket *packet)
     }
     if (!(packet->flags & ENET_PACKET_FLAG_NO_ALLOCATE) && packet->data != NULL)
     {
-        enet_free(packet->data);
+        ENet::enet_free(packet->data);
     }
-    enet_free(packet);
+    ENet::enet_free(packet);
 }
 
 int enet_packet_resize(ENetPacket *packet, size_t dataLength)
@@ -79,14 +79,14 @@ int enet_packet_resize(ENetPacket *packet, size_t dataLength)
         return 0;
     }
 
-    newData = (uint8_t *)enet_malloc(dataLength);
+    newData = (uint8_t *)ENet::enet_malloc(dataLength);
     if (newData == NULL)
     {
         return -1;
     }
 
     memcpy(newData, packet->data, packet->dataLength);
-    enet_free(packet->data);
+    ENet::enet_free(packet->data);
 
     packet->data = newData;
     packet->dataLength = dataLength;
