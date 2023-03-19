@@ -166,7 +166,7 @@ ENetPeer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_
 {
     ENetPeer *currentPeer;
     ENetChannel *channel;
-    ENetProtocol command;
+    ENet::Protocol command;
 
     if (channelCount < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT)
     {
@@ -319,7 +319,7 @@ void ENet::host_bandwidth_throttle(ENet::Host *host)
              bandwidthLimit = 0;
     int needsAdjustment = host->bandwidthLimitedPeers > 0 ? 1 : 0;
     ENetPeer *peer;
-    ENetProtocol command;
+    ENet::Protocol command;
 
     if (elapsedTime < ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL)
     {

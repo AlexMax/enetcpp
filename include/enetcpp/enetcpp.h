@@ -157,18 +157,16 @@ struct Packet
     void *userData;                      /**< application private data, may be freely modified */
 };
 
-} // namespace ENet
-
-struct ENetAcknowledgement
+struct Acknowledgement
 {
-    ENet::ListNode acknowledgementList;
+    ListNode acknowledgementList;
     uint32_t sentTime;
-    ENetProtocol command;
+    Protocol command;
 };
 
-struct ENetOutgoingCommand
+struct OutgoingCommand
 {
-    ENet::ListNode outgoingCommandList;
+    ListNode outgoingCommandList;
     uint16_t reliableSequenceNumber;
     uint16_t unreliableSequenceNumber;
     uint32_t sentTime;
@@ -177,21 +175,23 @@ struct ENetOutgoingCommand
     uint32_t fragmentOffset;
     uint16_t fragmentLength;
     uint16_t sendAttempts;
-    ENetProtocol command;
-    ENet::Packet *packet;
+    Protocol command;
+    Packet *packet;
 };
 
-struct ENetIncomingCommand
+struct IncomingCommand
 {
-    ENet::ListNode incomingCommandList;
+    ListNode incomingCommandList;
     uint16_t reliableSequenceNumber;
     uint16_t unreliableSequenceNumber;
-    ENetProtocol command;
+    Protocol command;
     uint32_t fragmentCount;
     uint32_t fragmentsRemaining;
     uint32_t *fragments;
-    ENet::Packet *packet;
+    Packet *packet;
 };
+
+} // namespace ENet
 
 enum ENetPeerState
 {
@@ -393,7 +393,7 @@ struct Host
     uint32_t totalQueued;
     size_t packetSize;
     uint16_t headerFlags;
-    ENetProtocol commands[ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+    Protocol commands[ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     size_t commandCount;
     ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
     size_t bufferCount;
@@ -885,16 +885,16 @@ ENET_API void peer_throttle_configure(ENetPeer *peer, uint32_t interval, uint32_
 extern int peer_throttle(ENetPeer *peer, uint32_t rtt);
 extern void peer_reset_queues(ENetPeer *peer);
 extern int peer_has_outgoing_commands(ENetPeer *peer);
-extern void peer_setup_outgoing_command(ENetPeer *peer, ENetOutgoingCommand *outgoingCommand);
-extern ENetOutgoingCommand *peer_queue_outgoing_command(ENetPeer *peer, const ENetProtocol *command, Packet *packet,
-                                                        uint32_t offset, uint16_t length);
-extern ENetIncomingCommand *peer_queue_incoming_command(ENetPeer *peer, const ENetProtocol *command, const void *data,
-                                                        size_t dataLength, uint32_t flags, uint32_t fragmentCount);
-extern ENetAcknowledgement *peer_queue_acknowledgement(ENetPeer *peer, const ENetProtocol *command, uint16_t sentTime);
+extern void peer_setup_outgoing_command(ENetPeer *peer, OutgoingCommand *outgoingCommand);
+extern OutgoingCommand *peer_queue_outgoing_command(ENetPeer *peer, const Protocol *command, Packet *packet,
+                                                    uint32_t offset, uint16_t length);
+extern IncomingCommand *peer_queue_incoming_command(ENetPeer *peer, const Protocol *command, const void *data,
+                                                    size_t dataLength, uint32_t flags, uint32_t fragmentCount);
+extern Acknowledgement *peer_queue_acknowledgement(ENetPeer *peer, const Protocol *command, uint16_t sentTime);
 extern void peer_dispatch_incoming_unreliable_commands(ENetPeer *peer, ENetChannel *channel,
-                                                       ENetIncomingCommand *queuedCommand);
+                                                       IncomingCommand *queuedCommand);
 extern void peer_dispatch_incoming_reliable_commands(ENetPeer *peer, ENetChannel *channel,
-                                                     ENetIncomingCommand *queuedCommand);
+                                                     IncomingCommand *queuedCommand);
 extern void peer_on_connect(ENetPeer *peer);
 extern void peer_on_disconnect(ENetPeer *peer);
 

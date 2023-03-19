@@ -30,11 +30,11 @@
 #include "enetcpp/enetcpp.h"
 #include <stdio.h>
 
-typedef struct
+struct Client
 {
     ENet::Host *host;
     ENetPeer *peer;
-} Client;
+};
 
 void host_server(ENet::Host *server)
 {

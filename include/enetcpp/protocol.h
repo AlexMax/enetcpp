@@ -171,7 +171,10 @@ struct ENetProtocolSendFragment
     uint32_t fragmentOffset;
 } ENET_PACKED;
 
-union ENetProtocol {
+namespace ENet
+{
+
+union Protocol {
     ENetProtocolCommandHeader header;
     ENetProtocolAcknowledge acknowledge;
     ENetProtocolConnect connect;
@@ -185,6 +188,8 @@ union ENetProtocol {
     ENetProtocolBandwidthLimit bandwidthLimit;
     ENetProtocolThrottleConfigure throttleConfigure;
 } ENET_PACKED;
+
+} // namespace ENet
 
 #ifdef _MSC_VER
 #pragma pack(pop)
