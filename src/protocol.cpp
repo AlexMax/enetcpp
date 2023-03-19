@@ -190,7 +190,7 @@ static void enet_protocol_remove_sent_unreliable_commands(ENet::Peer *peer, ENet
 
             if (outgoingCommand->packet->referenceCount == 0)
             {
-                outgoingCommand->packet->flags |= ENET_PACKET_FLAG_SENT;
+                outgoingCommand->packet->flags |= ENet::PACKET_FLAG_SENT;
 
                 ENet::packet_destroy(outgoingCommand->packet);
             }
@@ -304,7 +304,7 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENet::Peer
 
         if (outgoingCommand->packet->referenceCount == 0)
         {
-            outgoingCommand->packet->flags |= ENET_PACKET_FLAG_SENT;
+            outgoingCommand->packet->flags |= ENet::PACKET_FLAG_SENT;
 
             ENet::packet_destroy(outgoingCommand->packet);
         }
@@ -529,7 +529,7 @@ static int enet_protocol_handle_send_reliable(ENet::Host *host, ENet::Peer *peer
     }
 
     if (ENet::peer_queue_incoming_command(peer, command, (const uint8_t *)command + sizeof(ENetProtocolSendReliable),
-                                          dataLength, ENET_PACKET_FLAG_RELIABLE, 0) == NULL)
+                                          dataLength, ENet::PACKET_FLAG_RELIABLE, 0) == NULL)
     {
         return -1;
     }
@@ -585,7 +585,7 @@ static int enet_protocol_handle_send_unsequenced(ENet::Host *host, ENet::Peer *p
     }
 
     if (ENet::peer_queue_incoming_command(peer, command, (const uint8_t *)command + sizeof(ENetProtocolSendUnsequenced),
-                                          dataLength, ENET_PACKET_FLAG_UNSEQUENCED, 0) == NULL)
+                                          dataLength, ENet::PACKET_FLAG_UNSEQUENCED, 0) == NULL)
     {
         return -1;
     }
@@ -717,7 +717,7 @@ static int enet_protocol_handle_send_fragment(ENet::Host *host, ENet::Peer *peer
         hostCommand.header.reliableSequenceNumber = startSequenceNumber;
 
         startCommand = ENet::peer_queue_incoming_command(peer, &hostCommand, NULL, totalLength,
-                                                         ENET_PACKET_FLAG_RELIABLE, fragmentCount);
+                                                         ENet::PACKET_FLAG_RELIABLE, fragmentCount);
         if (startCommand == NULL)
         {
             return -1;
@@ -856,7 +856,7 @@ static int enet_protocol_handle_send_unreliable_fragment(ENet::Host *host, ENet:
     if (startCommand == NULL)
     {
         startCommand = ENet::peer_queue_incoming_command(peer, command, NULL, totalLength,
-                                                         ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT, fragmentCount);
+                                                         ENet::PACKET_FLAG_UNRELIABLE_FRAGMENT, fragmentCount);
         if (startCommand == NULL)
         {
             return -1;

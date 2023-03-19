@@ -91,6 +91,9 @@ struct ENetAddress
     uint16_t port;
 };
 
+namespace ENet
+{
+
 /**
  * Packet flag bit constants.
  *
@@ -100,27 +103,24 @@ struct ENetAddress
 
    @sa ENetPacket
 */
-enum ENetPacketFlag
+enum PacketFlag
 {
     /** packet must be received by the target peer and resend attempts should be
      * made until the packet is delivered */
-    ENET_PACKET_FLAG_RELIABLE = (1 << 0),
+    PACKET_FLAG_RELIABLE = (1 << 0),
     /** packet will not be sequenced with other packets
      * not supported for reliable packets
      */
-    ENET_PACKET_FLAG_UNSEQUENCED = (1 << 1),
+    PACKET_FLAG_UNSEQUENCED = (1 << 1),
     /** packet will not allocate data, and user must supply it instead */
-    ENET_PACKET_FLAG_NO_ALLOCATE = (1 << 2),
+    PACKET_FLAG_NO_ALLOCATE = (1 << 2),
     /** packet will be fragmented using unreliable (instead of reliable) sends
      * if it exceeds the MTU */
-    ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT = (1 << 3),
+    PACKET_FLAG_UNRELIABLE_FRAGMENT = (1 << 3),
 
     /** whether the packet has been sent from all queues it has been entered into */
-    ENET_PACKET_FLAG_SENT = (1 << 8)
+    PACKET_FLAG_SENT = (1 << 8)
 };
-
-namespace ENet
-{
 
 using PacketFreeCallback = void(ENET_CALLBACK *)(Packet *);
 
@@ -325,11 +325,11 @@ struct Peer
     uint32_t windowSize;
     uint32_t reliableDataInTransit;
     uint16_t outgoingReliableSequenceNumber;
-    ENet::List acknowledgements;
-    ENet::List sentReliableCommands;
-    ENet::List outgoingSendReliableCommands;
-    ENet::List outgoingCommands;
-    ENet::List dispatchedCommands;
+    List acknowledgements;
+    List sentReliableCommands;
+    List outgoingSendReliableCommands;
+    List outgoingCommands;
+    List dispatchedCommands;
     uint16_t flags;
     uint16_t reserved;
     uint16_t incomingUnsequencedGroup;

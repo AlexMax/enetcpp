@@ -94,8 +94,8 @@ int ENet::peer_send(ENet::Peer *peer, uint8_t channelID, ENet::Packet *packet)
             return -1;
         }
 
-        if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT)) ==
-                ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT &&
+        if ((packet->flags & (ENet::PACKET_FLAG_RELIABLE | ENet::PACKET_FLAG_UNRELIABLE_FRAGMENT)) ==
+                ENet::PACKET_FLAG_UNRELIABLE_FRAGMENT &&
             channel->outgoingUnreliableSequenceNumber < 0xFFFF)
         {
             commandNumber = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT;
@@ -159,12 +159,12 @@ int ENet::peer_send(ENet::Peer *peer, uint8_t channelID, ENet::Packet *packet)
 
     command.header.channelID = channelID;
 
-    if ((packet->flags & (ENET_PACKET_FLAG_RELIABLE | ENET_PACKET_FLAG_UNSEQUENCED)) == ENET_PACKET_FLAG_UNSEQUENCED)
+    if ((packet->flags & (ENet::PACKET_FLAG_RELIABLE | ENet::PACKET_FLAG_UNSEQUENCED)) == ENet::PACKET_FLAG_UNSEQUENCED)
     {
         command.header.command = ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED | ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED;
         command.sendUnsequenced.dataLength = ENET_HOST_TO_NET_16(packet->dataLength);
     }
-    else if (packet->flags & ENET_PACKET_FLAG_RELIABLE || channel->outgoingUnreliableSequenceNumber >= 0xFFFF)
+    else if (packet->flags & ENet::PACKET_FLAG_RELIABLE || channel->outgoingUnreliableSequenceNumber >= 0xFFFF)
     {
         command.header.command = ENET_PROTOCOL_COMMAND_SEND_RELIABLE | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
         command.sendReliable.dataLength = ENET_HOST_TO_NET_16(packet->dataLength);
