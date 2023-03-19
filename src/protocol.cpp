@@ -31,7 +31,7 @@ size_t ENet::protocol_command_size(uint8_t commandNumber)
     return commandSizes[commandNumber & ENET_PROTOCOL_COMMAND_MASK];
 }
 
-static void enet_protocol_change_state(ENetHost *host, ENetPeer *peer, ENetPeerState state)
+static void enet_protocol_change_state(ENet::Host *host, ENetPeer *peer, ENetPeerState state)
 {
     (void)host;
 
@@ -47,7 +47,7 @@ static void enet_protocol_change_state(ENetHost *host, ENetPeer *peer, ENetPeerS
     peer->state = state;
 }
 
-static void enet_protocol_dispatch_state(ENetHost *host, ENetPeer *peer, ENetPeerState state)
+static void enet_protocol_dispatch_state(ENet::Host *host, ENetPeer *peer, ENetPeerState state)
 {
     enet_protocol_change_state(host, peer, state);
 
@@ -59,7 +59,7 @@ static void enet_protocol_dispatch_state(ENetHost *host, ENetPeer *peer, ENetPee
     }
 }
 
-static int enet_protocol_dispatch_incoming_commands(ENetHost *host, ENetEvent *event)
+static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Event *event)
 {
     while (!ENet::list_empty(&host->dispatchQueue))
     {
@@ -122,7 +122,7 @@ static int enet_protocol_dispatch_incoming_commands(ENetHost *host, ENetEvent *e
     return 0;
 }
 
-static void enet_protocol_notify_connect(ENetHost *host, ENetPeer *peer, ENetEvent *event)
+static void enet_protocol_notify_connect(ENet::Host *host, ENetPeer *peer, ENet::Event *event)
 {
     host->recalculateBandwidthLimits = 1;
 
@@ -142,7 +142,7 @@ static void enet_protocol_notify_connect(ENetHost *host, ENetPeer *peer, ENetEve
     }
 }
 
-static void enet_protocol_notify_disconnect(ENetHost *host, ENetPeer *peer, ENetEvent *event)
+static void enet_protocol_notify_disconnect(ENet::Host *host, ENetPeer *peer, ENet::Event *event)
 {
     if (peer->state >= ENET_PEER_STATE_CONNECTION_PENDING)
     {
@@ -323,7 +323,7 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *
     return commandNumber;
 }
 
-static ENetPeer *enet_protocol_handle_connect(ENetHost *host, ENetProtocolHeader *header, ENetProtocol *command)
+static ENetPeer *enet_protocol_handle_connect(ENet::Host *host, ENetProtocolHeader *header, ENetProtocol *command)
 {
     (void)header;
 
@@ -508,7 +508,7 @@ static ENetPeer *enet_protocol_handle_connect(ENetHost *host, ENetProtocolHeader
     return peer;
 }
 
-static int enet_protocol_handle_send_reliable(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
+static int enet_protocol_handle_send_reliable(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command,
                                               uint8_t **currentData)
 {
     size_t dataLength;
@@ -536,7 +536,7 @@ static int enet_protocol_handle_send_reliable(ENetHost *host, ENetPeer *peer, co
     return 0;
 }
 
-static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
+static int enet_protocol_handle_send_unsequenced(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command,
                                                  uint8_t **currentData)
 {
     uint32_t unsequencedGroup, index;
@@ -594,7 +594,7 @@ static int enet_protocol_handle_send_unsequenced(ENetHost *host, ENetPeer *peer,
     return 0;
 }
 
-static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
+static int enet_protocol_handle_send_unreliable(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command,
                                                 uint8_t **currentData)
 {
     size_t dataLength;
@@ -622,7 +622,7 @@ static int enet_protocol_handle_send_unreliable(ENetHost *host, ENetPeer *peer, 
     return 0;
 }
 
-static int enet_protocol_handle_send_fragment(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
+static int enet_protocol_handle_send_fragment(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command,
                                               uint8_t **currentData)
 {
     uint32_t fragmentNumber, fragmentCount, fragmentOffset, fragmentLength, startSequenceNumber, totalLength;
@@ -746,7 +746,7 @@ static int enet_protocol_handle_send_fragment(ENetHost *host, ENetPeer *peer, co
     return 0;
 }
 
-static int enet_protocol_handle_send_unreliable_fragment(ENetHost *host, ENetPeer *peer, const ENetProtocol *command,
+static int enet_protocol_handle_send_unreliable_fragment(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command,
                                                          uint8_t **currentData)
 {
     uint32_t fragmentNumber, fragmentCount, fragmentOffset, fragmentLength, reliableSequenceNumber, startSequenceNumber,
@@ -885,7 +885,7 @@ static int enet_protocol_handle_send_unreliable_fragment(ENetHost *host, ENetPee
     return 0;
 }
 
-static int enet_protocol_handle_ping(ENetHost *host, ENetPeer *peer, const ENetProtocol *command)
+static int enet_protocol_handle_ping(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command)
 {
     (void)host;
     (void)command;
@@ -898,7 +898,7 @@ static int enet_protocol_handle_ping(ENetHost *host, ENetPeer *peer, const ENetP
     return 0;
 }
 
-static int enet_protocol_handle_bandwidth_limit(ENetHost *host, ENetPeer *peer, const ENetProtocol *command)
+static int enet_protocol_handle_bandwidth_limit(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command)
 {
     if (peer->state != ENET_PEER_STATE_CONNECTED && peer->state != ENET_PEER_STATE_DISCONNECT_LATER)
     {
@@ -945,7 +945,7 @@ static int enet_protocol_handle_bandwidth_limit(ENetHost *host, ENetPeer *peer, 
     return 0;
 }
 
-static int enet_protocol_handle_throttle_configure(ENetHost *host, ENetPeer *peer, const ENetProtocol *command)
+static int enet_protocol_handle_throttle_configure(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command)
 {
     (void)host;
 
@@ -961,7 +961,7 @@ static int enet_protocol_handle_throttle_configure(ENetHost *host, ENetPeer *pee
     return 0;
 }
 
-static int enet_protocol_handle_disconnect(ENetHost *host, ENetPeer *peer, const ENetProtocol *command)
+static int enet_protocol_handle_disconnect(ENet::Host *host, ENetPeer *peer, const ENetProtocol *command)
 {
     if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE ||
         peer->state == ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT)
@@ -1002,7 +1002,7 @@ static int enet_protocol_handle_disconnect(ENetHost *host, ENetPeer *peer, const
     return 0;
 }
 
-static int enet_protocol_handle_acknowledge(ENetHost *host, ENetEvent *event, ENetPeer *peer,
+static int enet_protocol_handle_acknowledge(ENet::Host *host, ENet::Event *event, ENetPeer *peer,
                                             const ENetProtocol *command)
 {
     uint32_t roundTripTime, receivedSentTime, receivedReliableSequenceNumber;
@@ -1115,7 +1115,7 @@ static int enet_protocol_handle_acknowledge(ENetHost *host, ENetEvent *event, EN
     return 0;
 }
 
-static int enet_protocol_handle_verify_connect(ENetHost *host, ENetEvent *event, ENetPeer *peer,
+static int enet_protocol_handle_verify_connect(ENet::Host *host, ENet::Event *event, ENetPeer *peer,
                                                const ENetProtocol *command)
 {
     uint32_t mtu, windowSize;
@@ -1192,7 +1192,7 @@ static int enet_protocol_handle_verify_connect(ENetHost *host, ENetEvent *event,
     return 0;
 }
 
-static int enet_protocol_handle_incoming_commands(ENetHost *host, ENetEvent *event)
+static int enet_protocol_handle_incoming_commands(ENet::Host *host, ENet::Event *event)
 {
     ENetProtocolHeader *header;
     ENetProtocol *command;
@@ -1459,7 +1459,7 @@ commandError:
     return 0;
 }
 
-static int enet_protocol_receive_incoming_commands(ENetHost *host, ENetEvent *event)
+static int enet_protocol_receive_incoming_commands(ENet::Host *host, ENet::Event *event)
 {
     int packets;
 
@@ -1525,7 +1525,7 @@ static int enet_protocol_receive_incoming_commands(ENetHost *host, ENetEvent *ev
     return 0;
 }
 
-static void enet_protocol_send_acknowledgements(ENetHost *host, ENetPeer *peer)
+static void enet_protocol_send_acknowledgements(ENet::Host *host, ENetPeer *peer)
 {
     ENetProtocol *command = &host->commands[host->commandCount];
     ENetBuffer *buffer = &host->buffers[host->bufferCount];
@@ -1579,7 +1579,7 @@ static void enet_protocol_send_acknowledgements(ENetHost *host, ENetPeer *peer)
     host->bufferCount = buffer - host->buffers;
 }
 
-static int enet_protocol_check_timeouts(ENetHost *host, ENetPeer *peer, ENetEvent *event)
+static int enet_protocol_check_timeouts(ENet::Host *host, ENetPeer *peer, ENet::Event *event)
 {
     ENetOutgoingCommand *outgoingCommand;
     ENet::ListIterator currentCommand, insertPosition, insertSendReliablePosition;
@@ -1641,7 +1641,7 @@ static int enet_protocol_check_timeouts(ENetHost *host, ENetPeer *peer, ENetEven
     return 0;
 }
 
-static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer, ENet::List *sentUnreliableCommands)
+static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENetPeer *peer, ENet::List *sentUnreliableCommands)
 {
     ENetProtocol *command = &host->commands[host->commandCount];
     ENetBuffer *buffer = &host->buffers[host->bufferCount];
@@ -1854,7 +1854,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
     return canPing;
 }
 
-static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event, int checkForTimeouts)
+static int enet_protocol_send_outgoing_commands(ENet::Host *host, ENet::Event *event, int checkForTimeouts)
 {
     uint8_t headerData[sizeof(ENetProtocolHeader) + sizeof(uint32_t)];
     ENetProtocolHeader *header = (ENetProtocolHeader *)headerData;
@@ -2026,14 +2026,14 @@ static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event
     return 0;
 }
 
-void ENet::host_flush(ENetHost *host)
+void ENet::host_flush(ENet::Host *host)
 {
     host->serviceTime = ENet::time_get();
 
     enet_protocol_send_outgoing_commands(host, NULL, 0);
 }
 
-int ENet::host_check_events(ENetHost *host, ENetEvent *event)
+int ENet::host_check_events(ENet::Host *host, ENet::Event *event)
 {
     if (event == NULL)
     {
@@ -2047,7 +2047,7 @@ int ENet::host_check_events(ENetHost *host, ENetEvent *event)
     return enet_protocol_dispatch_incoming_commands(host, event);
 }
 
-int ENet::host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
+int ENet::host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout)
 {
     uint32_t waitCondition;
 

@@ -10,9 +10,9 @@
     @{
 */
 
-ENetPacket *ENet::packet_create(const void *data, size_t dataLength, uint32_t flags)
+ENet::Packet *ENet::packet_create(const void *data, size_t dataLength, uint32_t flags)
 {
-    ENetPacket *packet = (ENetPacket *)ENet::enet_malloc(sizeof(ENetPacket));
+    ENet::Packet *packet = (ENet::Packet *)ENet::enet_malloc(sizeof(ENet::Packet));
     if (packet == NULL)
     {
         return NULL;
@@ -50,7 +50,7 @@ ENetPacket *ENet::packet_create(const void *data, size_t dataLength, uint32_t fl
     return packet;
 }
 
-void ENet::packet_destroy(ENetPacket *packet)
+void ENet::packet_destroy(ENet::Packet *packet)
 {
     if (packet == NULL)
     {
@@ -68,7 +68,7 @@ void ENet::packet_destroy(ENetPacket *packet)
     ENet::enet_free(packet);
 }
 
-int ENet::packet_resize(ENetPacket *packet, size_t dataLength)
+int ENet::packet_resize(ENet::Packet *packet, size_t dataLength)
 {
     uint8_t *newData;
 

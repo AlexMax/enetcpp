@@ -32,13 +32,13 @@
 
 typedef struct
 {
-    ENetHost *host;
+    ENet::Host *host;
     ENetPeer *peer;
 } Client;
 
-void host_server(ENetHost *server)
+void host_server(ENet::Host *server)
 {
-    ENetEvent event;
+    ENet::Event event;
     while (ENet::host_service(server, &event, 2) > 0)
     {
         switch (event.type)
@@ -79,7 +79,7 @@ int main()
 #define MAX_CLIENTS 32
 
     int i = 0;
-    ENetHost *server;
+    ENet::Host *server;
     Client clients[MAX_CLIENTS];
     ENetAddress address = {0, 0};
 
@@ -115,7 +115,7 @@ int main()
     {
         host_server(server);
 
-        ENetEvent event;
+        ENet::Event event;
         for (i = 0; i < MAX_CLIENTS; ++i)
         {
             ENet::host_service(clients[i].host, &event, 0);

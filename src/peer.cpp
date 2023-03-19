@@ -61,7 +61,7 @@ int ENet::peer_throttle(ENetPeer *peer, uint32_t rtt)
     return 0;
 }
 
-int ENet::peer_send(ENetPeer *peer, uint8_t channelID, ENetPacket *packet)
+int ENet::peer_send(ENetPeer *peer, uint8_t channelID, ENet::Packet *packet)
 {
     ENetChannel *channel;
     ENetProtocol command;
@@ -183,10 +183,10 @@ int ENet::peer_send(ENetPeer *peer, uint8_t channelID, ENetPacket *packet)
     return 0;
 }
 
-ENetPacket *ENet::peer_receive(ENetPeer *peer, uint8_t *channelID)
+ENet::Packet *ENet::peer_receive(ENetPeer *peer, uint8_t *channelID)
 {
     ENetIncomingCommand *incomingCommand;
-    ENetPacket *packet;
+    ENet::Packet *packet;
 
     if (ENet::list_empty(&peer->dispatchedCommands))
     {
@@ -631,8 +631,8 @@ void ENet::peer_setup_outgoing_command(ENetPeer *peer, ENetOutgoingCommand *outg
     }
 }
 
-ENetOutgoingCommand *ENet::peer_queue_outgoing_command(ENetPeer *peer, const ENetProtocol *command, ENetPacket *packet,
-                                                       uint32_t offset, uint16_t length)
+ENetOutgoingCommand *ENet::peer_queue_outgoing_command(ENetPeer *peer, const ENetProtocol *command,
+                                                       ENet::Packet *packet, uint32_t offset, uint16_t length)
 {
     ENetOutgoingCommand *outgoingCommand = (ENetOutgoingCommand *)ENet::enet_malloc(sizeof(ENetOutgoingCommand));
     if (outgoingCommand == NULL)
@@ -807,7 +807,7 @@ ENetIncomingCommand *ENet::peer_queue_incoming_command(ENetPeer *peer, const ENe
     uint16_t reliableWindow, currentWindow;
     ENetIncomingCommand *incomingCommand;
     ENet::ListIterator currentCommand;
-    ENetPacket *packet = NULL;
+    ENet::Packet *packet = NULL;
 
     if (peer->state == ENET_PEER_STATE_DISCONNECT_LATER)
     {

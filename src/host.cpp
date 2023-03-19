@@ -10,10 +10,10 @@
     @{
 */
 
-ENetHost *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
-                            uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
+ENet::Host *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
+                              uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
-    ENetHost *host;
+    ENet::Host *host;
     ENetPeer *currentPeer;
 
     if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID)
@@ -21,12 +21,12 @@ ENetHost *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t
         return NULL;
     }
 
-    host = (ENetHost *)ENet::enet_malloc(sizeof(ENetHost));
+    host = (ENet::Host *)ENet::enet_malloc(sizeof(ENet::Host));
     if (host == NULL)
     {
         return NULL;
     }
-    memset(host, 0, sizeof(ENetHost));
+    memset(host, 0, sizeof(ENet::Host));
 
     host->peers = (ENetPeer *)ENet::enet_malloc(peerCount * sizeof(ENetPeer));
     if (host->peers == NULL)
@@ -128,7 +128,7 @@ ENetHost *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t
     return host;
 }
 
-void ENet::host_destroy(ENetHost *host)
+void ENet::host_destroy(ENet::Host *host)
 {
     ENetPeer *currentPeer;
 
@@ -153,7 +153,7 @@ void ENet::host_destroy(ENetHost *host)
     ENet::enet_free(host);
 }
 
-uint32_t ENet::host_random(ENetHost *host)
+uint32_t ENet::host_random(ENet::Host *host)
 {
     /* Mulberry32 by Tommy Ettinger */
     uint32_t n = (host->randomSeed += 0x6D2B79F5U);
@@ -162,7 +162,7 @@ uint32_t ENet::host_random(ENetHost *host)
     return n ^ (n >> 14);
 }
 
-ENetPeer *ENet::host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, uint32_t data)
+ENetPeer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_t channelCount, uint32_t data)
 {
     ENetPeer *currentPeer;
     ENetChannel *channel;
@@ -254,7 +254,7 @@ ENetPeer *ENet::host_connect(ENetHost *host, const ENetAddress *address, size_t 
     return currentPeer;
 }
 
-void ENet::host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
+void ENet::host_broadcast(ENet::Host *host, uint8_t channelID, ENet::Packet *packet)
 {
     ENetPeer *currentPeer;
 
@@ -274,7 +274,7 @@ void ENet::host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
     }
 }
 
-void ENet::host_compress(ENetHost *host, const ENetCompressor *compressor)
+void ENet::host_compress(ENet::Host *host, const ENetCompressor *compressor)
 {
     if (host->compressor.context != NULL && host->compressor.destroy)
     {
@@ -291,7 +291,7 @@ void ENet::host_compress(ENetHost *host, const ENetCompressor *compressor)
     }
 }
 
-void ENet::host_channel_limit(ENetHost *host, size_t channelLimit)
+void ENet::host_channel_limit(ENet::Host *host, size_t channelLimit)
 {
     if (!channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT)
     {
@@ -305,14 +305,14 @@ void ENet::host_channel_limit(ENetHost *host, size_t channelLimit)
     host->channelLimit = channelLimit;
 }
 
-void ENet::host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
+void ENet::host_bandwidth_limit(ENet::Host *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
     host->incomingBandwidth = incomingBandwidth;
     host->outgoingBandwidth = outgoingBandwidth;
     host->recalculateBandwidthLimits = 1;
 }
 
-void ENet::host_bandwidth_throttle(ENetHost *host)
+void ENet::host_bandwidth_throttle(ENet::Host *host)
 {
     uint32_t timeCurrent = ENet::time_get(), elapsedTime = timeCurrent - host->bandwidthThrottleEpoch,
              peersRemaining = (uint32_t)host->connectedPeers, dataTotal = ~0, bandwidth = ~0, throttle = 0,

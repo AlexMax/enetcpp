@@ -29,9 +29,12 @@
 
 using ENetVersion = uint32_t;
 
-struct ENetHost;
-struct ENetEvent;
-struct ENetPacket;
+namespace ENet
+{
+struct Host;
+struct Event;
+struct Packet;
+} // namespace ENet
 
 enum ENetSocketType
 {
@@ -116,7 +119,10 @@ enum ENetPacketFlag
     ENET_PACKET_FLAG_SENT = (1 << 8)
 };
 
-using ENetPacketFreeCallback = void(ENET_CALLBACK *)(ENetPacket *);
+using ENetPacketFreeCallback = void(ENET_CALLBACK *)(ENet::Packet *);
+
+namespace ENet
+{
 
 /**
  * ENet packet structure.
@@ -141,7 +147,7 @@ using ENetPacketFreeCallback = void(ENET_CALLBACK *)(ENetPacket *);
  *    ENET_PACKET_FLAG_SENT - whether the packet has been sent from all queues it has been entered into
    @sa ENetPacketFlag
  */
-struct ENetPacket
+struct Packet
 {
     size_t referenceCount;               /**< internal use only */
     uint32_t flags;                      /**< bitwise-or of ENetPacketFlag constants */
@@ -150,6 +156,8 @@ struct ENetPacket
     ENetPacketFreeCallback freeCallback; /**< function to be called when the packet is no longer in use */
     void *userData;                      /**< application private data, may be freely modified */
 };
+
+} // namespace ENet
 
 struct ENetAcknowledgement
 {
@@ -170,7 +178,7 @@ struct ENetOutgoingCommand
     uint16_t fragmentLength;
     uint16_t sendAttempts;
     ENetProtocol command;
-    ENetPacket *packet;
+    ENet::Packet *packet;
 };
 
 struct ENetIncomingCommand
@@ -182,7 +190,7 @@ struct ENetIncomingCommand
     uint32_t fragmentCount;
     uint32_t fragmentsRemaining;
     uint32_t *fragments;
-    ENetPacket *packet;
+    ENet::Packet *packet;
 };
 
 enum ENetPeerState
@@ -260,7 +268,7 @@ enum ENetPeerFlag
 struct ENetPeer
 {
     ENet::ListNode dispatchList;
-    ENetHost *host;
+    ENet::Host *host;
     uint16_t outgoingPeerID;
     uint16_t incomingPeerID;
     uint32_t connectID;
@@ -346,7 +354,10 @@ using ENetChecksumCallback = uint32_t(ENET_CALLBACK *)(const ENetBuffer *buffers
 
 /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to
  * propagate an error. */
-using ENetInterceptCallback = int(ENET_CALLBACK *)(ENetHost *host, ENetEvent *event);
+using ENetInterceptCallback = int(ENET_CALLBACK *)(ENet::Host *host, ENet::Event *event);
+
+namespace ENet
+{
 
 /** An ENet host for communicating with peers.
   *
@@ -364,7 +375,7 @@ using ENetInterceptCallback = int(ENET_CALLBACK *)(ENetHost *host, ENetEvent *ev
     @sa enet_host_bandwidth_limit()
     @sa enet_host_bandwidth_throttle()
   */
-struct ENetHost
+struct Host
 {
     ENetSocket socket;
     ENetAddress address;        /**< Internet address of the host */
@@ -407,6 +418,8 @@ struct ENetHost
                                   to be delivered */
 };
 
+} // namespace ENet
+
 /**
  * An ENet event type, as specified in @ref ENetEvent.
  */
@@ -438,22 +451,22 @@ enum ENetEventType
     ENET_EVENT_TYPE_RECEIVE = 3
 };
 
+namespace ENet
+{
+
 /**
  * An ENet event as returned by enet_host_service().
 
    @sa enet_host_service
  */
-struct ENetEvent
+struct Event
 {
     ENetEventType type; /**< type of the event */
     ENetPeer *peer;     /**< peer that generated a connect, disconnect or receive event */
     uint8_t channelID;  /**< channel on the peer that generated the event, if appropriate */
     uint32_t data;      /**< data associated with the event, if appropriate */
-    ENetPacket *packet; /**< packet associated with the event, if appropriate */
+    Packet *packet;     /**< packet associated with the event, if appropriate */
 };
-
-namespace ENet
-{
 
 /**
  * @brief Struct that holds platform-specific functions.
@@ -617,12 +630,12 @@ ENET_API int address_get_host(const ENetAddress *address, char *hostName, size_t
     @param flags        flags for this packet as described for the ENetPacket structure.
     @returns the packet on success, NULL on failure
 */
-ENET_API ENetPacket *packet_create(const void *data, size_t dataLength, uint32_t flags);
+ENET_API Packet *packet_create(const void *data, size_t dataLength, uint32_t flags);
 
 /** Destroys the packet and deallocates its data.
     @param packet packet to be destroyed
 */
-ENET_API void packet_destroy(ENetPacket *packet);
+ENET_API void packet_destroy(Packet *packet);
 
 /** Attempts to resize the data in the packet to length specified in the
     dataLength parameter
@@ -630,7 +643,7 @@ ENET_API void packet_destroy(ENetPacket *packet);
     @param dataLength new size for the packet data
     @returns 0 on success, < 0 on failure
 */
-ENET_API int packet_resize(ENetPacket *packet, size_t dataLength);
+ENET_API int packet_resize(Packet *packet, size_t dataLength);
 ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
 
 /** Creates a host for communicating to peers.
@@ -651,13 +664,13 @@ ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
     the window size of a connection which limits the amount of reliable packets that may be in transit
     at any given time.
 */
-ENET_API ENetHost *host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
-                               uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API ENet::Host *host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
+                                 uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
 /** Destroys the host and all resources associated with it.
     @param host pointer to the host to destroy
 */
-ENET_API void host_destroy(ENetHost *host);
+ENET_API void host_destroy(ENet::Host *host);
 
 /** Initiates a connection to a foreign host.
     @param host host seeking the connection
@@ -668,7 +681,7 @@ ENET_API void host_destroy(ENetHost *host);
     @remarks The peer returned will have not completed the connection until enet_host_service()
     notifies of an ENET_EVENT_TYPE_CONNECT event for the peer.
 */
-ENET_API ENetPeer *host_connect(ENetHost *host, const ENetAddress *address, size_t channelCount, uint32_t data);
+ENET_API ENetPeer *host_connect(Host *host, const ENetAddress *address, size_t channelCount, uint32_t data);
 
 /** Checks for any queued events on the host and dispatches one if available.
 
@@ -679,7 +692,7 @@ ENET_API ENetPeer *host_connect(ENetHost *host, const ENetAddress *address, size
     @retval < 0 on failure
     @ingroup host
 */
-ENET_API int host_check_events(ENetHost *host, ENetEvent *event);
+ENET_API int host_check_events(Host *host, Event *event);
 
 /** Waits for events on the host specified and shuttles packets between
     the host and its peers.
@@ -694,7 +707,7 @@ ENET_API int host_check_events(ENetHost *host, ENetEvent *event);
     @remarks enet_host_service should be called fairly regularly for adequate performance
     @ingroup host
 */
-ENET_API int host_service(ENetHost *host, ENetEvent *event, uint32_t timeout);
+ENET_API int host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout);
 
 /** Sends any queued packets on the host specified to its designated peers.
 
@@ -703,33 +716,33 @@ ENET_API int host_service(ENetHost *host, ENetEvent *event, uint32_t timeout);
    call to enet_host_service().
     @ingroup host
 */
-ENET_API void host_flush(ENetHost *host);
+ENET_API void host_flush(ENet::Host *host);
 
 /** Queues a packet to be sent to all peers associated with the host.
     @param host host on which to broadcast the packet
     @param channelID channel on which to broadcast
     @param packet packet to broadcast
 */
-ENET_API void host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet);
+ENET_API void host_broadcast(ENet::Host *host, uint8_t channelID, Packet *packet);
 
 /** Sets the packet compressor the host should use to compress and decompress packets.
     @param host host to enable or disable compression for
     @param compressor callbacks for for the packet compressor; if NULL, then compression is disabled
 */
-ENET_API void host_compress(ENetHost *host, const ENetCompressor *compressor);
+ENET_API void host_compress(ENet::Host *host, const ENetCompressor *compressor);
 
 /** Sets the packet compressor the host should use to the default range coder.
     @param host host to enable the range coder for
     @returns 0 on success, < 0 on failure
 */
-ENET_API int host_compress_with_range_coder(ENetHost *host);
+ENET_API int host_compress_with_range_coder(ENet::Host *host);
 
 /** Limits the maximum allowed channels of future incoming connections.
     @param host host to limit
     @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to
    ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
 */
-ENET_API void host_channel_limit(ENetHost *host, size_t channelLimit);
+ENET_API void host_channel_limit(ENet::Host *host, size_t channelLimit);
 
 /** Adjusts the bandwidth limits of a host.
     @param host host to adjust
@@ -738,11 +751,11 @@ ENET_API void host_channel_limit(ENetHost *host, size_t channelLimit);
     @remarks the incoming and outgoing bandwidth parameters are identical in function to those
     specified in enet_host_create().
 */
-ENET_API void host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API void host_bandwidth_limit(ENet::Host *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
-extern void host_bandwidth_throttle(ENetHost *host);
+extern void host_bandwidth_throttle(ENet::Host *host);
 extern uint32_t host_random_seed();
-extern uint32_t host_random(ENetHost *host);
+extern uint32_t host_random(ENet::Host *host);
 
 /** Queues a packet to be sent.
 
@@ -758,14 +771,14 @@ extern uint32_t host_random(ENetHost *host);
     @retval 0 on success
     @retval < 0 on failure
 */
-ENET_API int peer_send(ENetPeer *peer, uint8_t channelID, ENetPacket *packet);
+ENET_API int peer_send(ENetPeer *peer, uint8_t channelID, Packet *packet);
 
 /** Attempts to dequeue any incoming queued packet.
     @param peer peer to dequeue packets from
     @param channelID holds the channel ID of the channel the packet was received on success
     @returns a pointer to the packet, or NULL if there are no available incoming queued packets
 */
-ENET_API ENetPacket *peer_receive(ENetPeer *peer, uint8_t *channelID);
+ENET_API Packet *peer_receive(ENetPeer *peer, uint8_t *channelID);
 
 /** Sends a ping request to a peer.
     @param peer destination for the ping request
@@ -873,7 +886,7 @@ extern int peer_throttle(ENetPeer *peer, uint32_t rtt);
 extern void peer_reset_queues(ENetPeer *peer);
 extern int peer_has_outgoing_commands(ENetPeer *peer);
 extern void peer_setup_outgoing_command(ENetPeer *peer, ENetOutgoingCommand *outgoingCommand);
-extern ENetOutgoingCommand *peer_queue_outgoing_command(ENetPeer *peer, const ENetProtocol *command, ENetPacket *packet,
+extern ENetOutgoingCommand *peer_queue_outgoing_command(ENetPeer *peer, const ENetProtocol *command, Packet *packet,
                                                         uint32_t offset, uint16_t length);
 extern ENetIncomingCommand *peer_queue_incoming_command(ENetPeer *peer, const ENetProtocol *command, const void *data,
                                                         size_t dataLength, uint32_t flags, uint32_t fragmentCount);
