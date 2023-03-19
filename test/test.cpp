@@ -70,7 +70,7 @@ void host_server(ENetHost *server)
 
 int main()
 {
-    if (enet_initialize() != 0)
+    if (ENet::initialize() != 0)
     {
         printf("An error occurred while initializing ENet.\n");
         return 1;
@@ -98,7 +98,7 @@ int main()
     printf("starting clients...\n");
     for (i = 0; i < MAX_CLIENTS; ++i)
     {
-        enet_address_set_host(&address, "127.0.0.1");
+        ENet::address_set_host(&address, "127.0.0.1");
         clients[i].host = enet_host_create(NULL, 1, 2, 0, 0);
         clients[i].peer = enet_host_connect(clients[i].host, &address, 2, 0);
         if (clients[i].peer == NULL)
@@ -133,6 +133,6 @@ int main()
     host_server(server);
 
     enet_host_destroy(server);
-    enet_deinitialize();
+    ENet::deinitialize();
     return 0;
 }

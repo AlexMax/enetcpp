@@ -244,7 +244,8 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *
     int wasSent = 1;
 
     for (currentCommand = ENet::list_begin(&peer->sentReliableCommands);
-         currentCommand != ENet::list_end(&peer->sentReliableCommands); currentCommand = ENet::list_next(currentCommand))
+         currentCommand != ENet::list_end(&peer->sentReliableCommands);
+         currentCommand = ENet::list_next(currentCommand))
     {
         outgoingCommand = (ENetOutgoingCommand *)currentCommand;
 
@@ -1470,7 +1471,7 @@ static int enet_protocol_receive_incoming_commands(ENetHost *host, ENetEvent *ev
         buffer.data = host->packetData[0];
         buffer.dataLength = sizeof(host->packetData[0]);
 
-        receivedLength = enet_socket_receive(host->socket, &host->receivedAddress, &buffer, 1);
+        receivedLength = ENet::socket_receive(host->socket, &host->receivedAddress, &buffer, 1);
 
         if (receivedLength < 0)
         {
@@ -2002,7 +2003,7 @@ static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event
 
             currentPeer->lastSendTime = host->serviceTime;
 
-            sentLength = enet_socket_send(host->socket, &currentPeer->address, host->buffers, host->bufferCount);
+            sentLength = ENet::socket_send(host->socket, &currentPeer->address, host->buffers, host->bufferCount);
 
             enet_protocol_remove_sent_unreliable_commands(currentPeer, &sentUnreliableCommands);
 
@@ -2034,7 +2035,7 @@ static int enet_protocol_send_outgoing_commands(ENetHost *host, ENetEvent *event
 */
 void enet_host_flush(ENetHost *host)
 {
-    host->serviceTime = enet_time_get();
+    host->serviceTime = ENet::time_get();
 
     enet_protocol_send_outgoing_commands(host, NULL, 0);
 }
@@ -2080,7 +2081,7 @@ int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
         }
     }
 
-    host->serviceTime = enet_time_get();
+    host->serviceTime = ENet::time_get();
 
     timeout += host->serviceTime;
 
@@ -2166,7 +2167,7 @@ int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
 
         do
         {
-            host->serviceTime = enet_time_get();
+            host->serviceTime = ENet::time_get();
 
             if (ENET_TIME_GREATER_EQUAL(host->serviceTime, timeout))
             {
@@ -2175,13 +2176,13 @@ int enet_host_service(ENetHost *host, ENetEvent *event, uint32_t timeout)
 
             waitCondition = ENET_SOCKET_WAIT_RECEIVE | ENET_SOCKET_WAIT_INTERRUPT;
 
-            if (enet_socket_wait(host->socket, &waitCondition, ENET_TIME_DIFFERENCE(timeout, host->serviceTime)) != 0)
+            if (ENet::socket_wait(host->socket, &waitCondition, ENET_TIME_DIFFERENCE(timeout, host->serviceTime)) != 0)
             {
                 return -1;
             }
         } while (waitCondition & ENET_SOCKET_WAIT_INTERRUPT);
 
-        host->serviceTime = enet_time_get();
+        host->serviceTime = ENet::time_get();
     } while (waitCondition & ENET_SOCKET_WAIT_RECEIVE);
 
     return 0;

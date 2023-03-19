@@ -30,7 +30,7 @@ int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks *ini
         callbacks.no_memory = inits->no_memory;
     }
 
-    return enet_initialize();
+    return ENet::initialize();
 }
 
 ENetVersion enet_linked_version()

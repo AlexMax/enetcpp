@@ -494,8 +494,6 @@ struct Platform
     static Platform &Get();
 };
 
-} // namespace ENet
-
 /** @defgroup global ENet global functions
     @{
 */
@@ -505,7 +503,9 @@ struct Platform
   ENet.
   @returns 0 on success, < 0 on failure
 */
-ENET_API int enet_initialize();
+ENET_API int initialize();
+
+} // namespace ENet
 
 /**
   Initializes ENet globally and supplies user-overridden callbacks. Must be called prior to using any functions in
@@ -519,11 +519,16 @@ ENET_API int enet_initialize();
 */
 ENET_API int enet_initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits);
 
+namespace ENet
+{
+
 /**
   Shuts down ENet globally.  Should be called when a program that has
   initialized ENet exits.
 */
-ENET_API void enet_deinitialize();
+ENET_API void deinitialize();
+
+} // namespace ENet
 
 /**
   Gives the linked version of the ENet library.
@@ -533,38 +538,39 @@ ENET_API ENetVersion enet_linked_version();
 
 /** @} */
 
+namespace ENet
+{
+
 /** @defgroup private ENet private implementation functions */
 
 /**
   Returns the wall-time in milliseconds.  Its initial value is unspecified
   unless otherwise set.
   */
-ENET_API uint32_t enet_time_get();
+ENET_API uint32_t time_get();
 
 /**
   Sets the current wall-time in milliseconds.
   */
-ENET_API void enet_time_set(uint32_t newTimeBase);
+ENET_API void time_set(uint32_t newTimeBase);
 
 /** @defgroup socket ENet socket functions
     @{
 */
-ENET_API ENetSocket enet_socket_create(ENetSocketType type);
-ENET_API int enet_socket_bind(ENetSocket socket, const ENetAddress *address);
-ENET_API int enet_socket_get_address(ENetSocket socket, ENetAddress *address);
-ENET_API int enet_socket_listen(ENetSocket socket, int backlog);
-ENET_API ENetSocket enet_socket_accept(ENetSocket socket, ENetAddress *address);
-ENET_API int enet_socket_connect(ENetSocket socket, const ENetAddress *address);
-ENET_API int enet_socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
-                              size_t bufferCount);
-ENET_API int enet_socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount);
-ENET_API int enet_socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout);
-ENET_API int enet_socket_set_option(ENetSocket socket, ENetSocketOption option, int value);
-ENET_API int enet_socket_get_option(ENetSocket socket, ENetSocketOption option, int *value);
-ENET_API int enet_socket_shutdown(ENetSocket socket, ENetSocketShutdown how);
-ENET_API void enet_socket_destroy(ENetSocket socket);
-ENET_API int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
-                                   uint32_t timeout);
+ENET_API ENetSocket socket_create(ENetSocketType type);
+ENET_API int socket_bind(ENetSocket socket, const ENetAddress *address);
+ENET_API int socket_get_address(ENetSocket socket, ENetAddress *address);
+ENET_API int socket_listen(ENetSocket socket, int backlog);
+ENET_API ENetSocket socket_accept(ENetSocket socket, ENetAddress *address);
+ENET_API int socket_connect(ENetSocket socket, const ENetAddress *address);
+ENET_API int socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount);
+ENET_API int socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount);
+ENET_API int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout);
+ENET_API int socket_set_option(ENetSocket socket, ENetSocketOption option, int value);
+ENET_API int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value);
+ENET_API int socket_shutdown(ENetSocket socket, ENetSocketShutdown how);
+ENET_API void socket_destroy(ENetSocket socket);
+ENET_API int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, uint32_t timeout);
 
 /** @} */
 
@@ -580,7 +586,7 @@ ENET_API int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet,
     @retval < 0 on failure
     @returns the address of the given hostName in address on success
 */
-ENET_API int enet_address_set_host_ip(ENetAddress *address, const char *hostName);
+ENET_API int address_set_host_ip(ENetAddress *address, const char *hostName);
 
 /** Attempts to resolve the host named by the parameter hostName and sets
     the host field in the address parameter if successful.
@@ -590,7 +596,7 @@ ENET_API int enet_address_set_host_ip(ENetAddress *address, const char *hostName
     @retval < 0 on failure
     @returns the address of the given hostName in address on success
 */
-ENET_API int enet_address_set_host(ENetAddress *address, const char *hostName);
+ENET_API int address_set_host(ENetAddress *address, const char *hostName);
 
 /** Gives the printable form of the IP address specified in the address parameter.
     @param address    address printed
@@ -600,7 +606,7 @@ ENET_API int enet_address_set_host(ENetAddress *address, const char *hostName);
     @retval 0 on success
     @retval < 0 on failure
 */
-ENET_API int enet_address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength);
+ENET_API int address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength);
 
 /** Attempts to do a reverse lookup of the host field in the address parameter.
     @param address    address used for reverse lookup
@@ -610,7 +616,9 @@ ENET_API int enet_address_get_host_ip(const ENetAddress *address, char *hostName
     @retval 0 on success
     @retval < 0 on failure
 */
-ENET_API int enet_address_get_host(const ENetAddress *address, char *hostName, size_t nameLength);
+ENET_API int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength);
+
+} // namespace ENet
 
 /** @} */
 
@@ -745,7 +753,12 @@ ENET_API void enet_host_channel_limit(ENetHost *host, size_t channelLimit);
 ENET_API void enet_host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
 extern void enet_host_bandwidth_throttle(ENetHost *host);
-extern uint32_t enet_host_random_seed();
+
+namespace ENet
+{
+extern uint32_t host_random_seed();
+}
+
 extern uint32_t enet_host_random(ENetHost *host);
 
 /** Queues a packet to be sent.

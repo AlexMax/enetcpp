@@ -52,7 +52,9 @@ Platform &Platform::Get()
 
 static uint32_t timeBase = 0;
 
-int Win32Platform::initialize()
+} // namespace ENet
+
+int ENet::Win32Platform::initialize()
 {
     WORD versionRequested = MAKEWORD(1, 1);
     WSADATA wsaData;
@@ -74,29 +76,29 @@ int Win32Platform::initialize()
     return 0;
 }
 
-void Win32Platform::deinitialize()
+void ENet::Win32Platform::deinitialize()
 {
     timeEndPeriod(1);
 
     WSACleanup();
 }
 
-uint32_t Win32Platform::time_get()
+uint32_t ENet::Win32Platform::time_get()
 {
     return (uint32_t)timeGetTime() - timeBase;
 }
 
-void Win32Platform::time_set(uint32_t newTimeBase)
+void ENet::Win32Platform::time_set(uint32_t newTimeBase)
 {
     timeBase = (uint32_t)timeGetTime() - newTimeBase;
 }
 
-uint32_t Win32Platform::host_random_seed()
+uint32_t ENet::Win32Platform::host_random_seed()
 {
     return (uint32_t)timeGetTime();
 }
 
-int Win32Platform::address_set_host_ip(ENetAddress *address, const char *name)
+int ENet::Win32Platform::address_set_host_ip(ENetAddress *address, const char *name)
 {
     uint8_t vals[4] = {0, 0, 0, 0};
     int i;
@@ -125,14 +127,14 @@ int Win32Platform::address_set_host_ip(ENetAddress *address, const char *name)
     return 0;
 }
 
-int Win32Platform::address_set_host(ENetAddress *address, const char *name)
+int ENet::Win32Platform::address_set_host(ENetAddress *address, const char *name)
 {
     struct hostent *hostEntry;
 
     hostEntry = gethostbyname(name);
     if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET)
     {
-        return enet_address_set_host_ip(address, name);
+        return ENet::address_set_host_ip(address, name);
     }
 
     address->host = *(uint32_t *)hostEntry->h_addr_list[0];
@@ -140,7 +142,7 @@ int Win32Platform::address_set_host(ENetAddress *address, const char *name)
     return 0;
 }
 
-int Win32Platform::address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength)
+int ENet::Win32Platform::address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength)
 {
     char *addr = inet_ntoa(*(struct in_addr *)&address->host);
     if (addr == NULL)
@@ -159,7 +161,7 @@ int Win32Platform::address_get_host_ip(const ENetAddress *address, char *name, s
     return 0;
 }
 
-int Win32Platform::address_get_host(const ENetAddress *address, char *name, size_t nameLength)
+int ENet::Win32Platform::address_get_host(const ENetAddress *address, char *name, size_t nameLength)
 {
     struct in_addr in;
     struct hostent *hostEntry;
@@ -169,7 +171,7 @@ int Win32Platform::address_get_host(const ENetAddress *address, char *name, size
     hostEntry = gethostbyaddr((char *)&in, sizeof(struct in_addr), AF_INET);
     if (hostEntry == NULL)
     {
-        return enet_address_get_host_ip(address, name, nameLength);
+        return ENet::address_get_host_ip(address, name, nameLength);
     }
     else
     {
@@ -184,7 +186,7 @@ int Win32Platform::address_get_host(const ENetAddress *address, char *name, size
     return 0;
 }
 
-int Win32Platform::socket_bind(ENetSocket socket, const ENetAddress *address)
+int ENet::Win32Platform::socket_bind(ENetSocket socket, const ENetAddress *address)
 {
     struct sockaddr_in sin;
 
@@ -206,7 +208,7 @@ int Win32Platform::socket_bind(ENetSocket socket, const ENetAddress *address)
     return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)) == SOCKET_ERROR ? -1 : 0;
 }
 
-int Win32Platform::socket_get_address(ENetSocket socket, ENetAddress *address)
+int ENet::Win32Platform::socket_get_address(ENetSocket socket, ENetAddress *address)
 {
     struct sockaddr_in sin;
     int sinLength = sizeof(struct sockaddr_in);
@@ -222,17 +224,17 @@ int Win32Platform::socket_get_address(ENetSocket socket, ENetAddress *address)
     return 0;
 }
 
-int Win32Platform::socket_listen(ENetSocket socket, int backlog)
+int ENet::Win32Platform::socket_listen(ENetSocket socket, int backlog)
 {
     return listen(socket, backlog < 0 ? SOMAXCONN : backlog) == SOCKET_ERROR ? -1 : 0;
 }
 
-ENetSocket Win32Platform::socket_create(ENetSocketType type)
+ENetSocket ENet::Win32Platform::socket_create(ENetSocketType type)
 {
     return socket(PF_INET, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
 
-int Win32Platform::socket_set_option(ENetSocket socket, ENetSocketOption option, int value)
+int ENet::Win32Platform::socket_set_option(ENetSocket socket, ENetSocketOption option, int value)
 {
     int result = SOCKET_ERROR;
     switch (option)
@@ -281,7 +283,7 @@ int Win32Platform::socket_set_option(ENetSocket socket, ENetSocketOption option,
     return result == SOCKET_ERROR ? -1 : 0;
 }
 
-int Win32Platform::socket_get_option(ENetSocket socket, ENetSocketOption option, int *value)
+int ENet::Win32Platform::socket_get_option(ENetSocket socket, ENetSocketOption option, int *value)
 {
     int result = SOCKET_ERROR, len;
     switch (option)
@@ -302,7 +304,7 @@ int Win32Platform::socket_get_option(ENetSocket socket, ENetSocketOption option,
     return result == SOCKET_ERROR ? -1 : 0;
 }
 
-int Win32Platform::socket_connect(ENetSocket socket, const ENetAddress *address)
+int ENet::Win32Platform::socket_connect(ENetSocket socket, const ENetAddress *address)
 {
     struct sockaddr_in sin;
     int result;
@@ -322,7 +324,7 @@ int Win32Platform::socket_connect(ENetSocket socket, const ENetAddress *address)
     return 0;
 }
 
-ENetSocket Win32Platform::socket_accept(ENetSocket socket, ENetAddress *address)
+ENetSocket ENet::Win32Platform::socket_accept(ENetSocket socket, ENetAddress *address)
 {
     SOCKET result;
     struct sockaddr_in sin;
@@ -344,12 +346,12 @@ ENetSocket Win32Platform::socket_accept(ENetSocket socket, ENetAddress *address)
     return result;
 }
 
-int Win32Platform::socket_shutdown(ENetSocket socket, ENetSocketShutdown how)
+int ENet::Win32Platform::socket_shutdown(ENetSocket socket, ENetSocketShutdown how)
 {
     return shutdown(socket, (int)how) == SOCKET_ERROR ? -1 : 0;
 }
 
-void Win32Platform::socket_destroy(ENetSocket socket)
+void ENet::Win32Platform::socket_destroy(ENetSocket socket)
 {
     if (socket != INVALID_SOCKET)
     {
@@ -357,8 +359,8 @@ void Win32Platform::socket_destroy(ENetSocket socket)
     }
 }
 
-int Win32Platform::socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
-                               size_t bufferCount)
+int ENet::Win32Platform::socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
+                                     size_t bufferCount)
 {
     struct sockaddr_in sin;
     DWORD sentLength = 0;
@@ -387,7 +389,8 @@ int Win32Platform::socket_send(ENetSocket socket, const ENetAddress *address, co
     return (int)sentLength;
 }
 
-int Win32Platform::socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount)
+int ENet::Win32Platform::socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers,
+                                        size_t bufferCount)
 {
     INT sinLength = sizeof(struct sockaddr_in);
     DWORD flags = 0, recvLength = 0;
@@ -421,8 +424,8 @@ int Win32Platform::socket_receive(ENetSocket socket, ENetAddress *address, ENetB
     return (int)recvLength;
 }
 
-int Win32Platform::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
-                                    uint32_t timeout)
+int ENet::Win32Platform::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
+                                          uint32_t timeout)
 {
     struct timeval timeVal;
 
@@ -432,7 +435,7 @@ int Win32Platform::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet
     return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
 }
 
-int Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout)
+int ENet::Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout)
 {
     fd_set readSet, writeSet;
     struct timeval timeVal;
@@ -480,5 +483,3 @@ int Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t 
 
     return 0;
 }
-
-} // namespace ENet

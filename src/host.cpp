@@ -37,12 +37,12 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
     }
     memset(host->peers, 0, peerCount * sizeof(ENetPeer));
 
-    host->socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
-    if (host->socket == ENET_SOCKET_NULL || (address != NULL && enet_socket_bind(host->socket, address) < 0))
+    host->socket = ENet::socket_create(ENET_SOCKET_TYPE_DATAGRAM);
+    if (host->socket == ENET_SOCKET_NULL || (address != NULL && ENet::socket_bind(host->socket, address) < 0))
     {
         if (host->socket != ENET_SOCKET_NULL)
         {
-            enet_socket_destroy(host->socket);
+            ENet::socket_destroy(host->socket);
         }
 
         enet_free(host->peers);
@@ -51,12 +51,12 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
         return NULL;
     }
 
-    enet_socket_set_option(host->socket, ENET_SOCKOPT_NONBLOCK, 1);
-    enet_socket_set_option(host->socket, ENET_SOCKOPT_BROADCAST, 1);
-    enet_socket_set_option(host->socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
-    enet_socket_set_option(host->socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
+    ENet::socket_set_option(host->socket, ENET_SOCKOPT_NONBLOCK, 1);
+    ENet::socket_set_option(host->socket, ENET_SOCKOPT_BROADCAST, 1);
+    ENet::socket_set_option(host->socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
+    ENet::socket_set_option(host->socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
 
-    if (address != NULL && enet_socket_get_address(host->socket, &host->address) < 0)
+    if (address != NULL && ENet::socket_get_address(host->socket, &host->address) < 0)
     {
         host->address = *address;
     }
@@ -71,7 +71,7 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
     }
 
     host->randomSeed = (uint32_t)(size_t)host;
-    host->randomSeed += enet_host_random_seed();
+    host->randomSeed += ENet::host_random_seed();
     host->randomSeed = (host->randomSeed << 16) | (host->randomSeed >> 16);
     host->channelLimit = channelLimit;
     host->incomingBandwidth = incomingBandwidth;
@@ -137,7 +137,7 @@ void enet_host_destroy(ENetHost *host)
         return;
     }
 
-    enet_socket_destroy(host->socket);
+    ENet::socket_destroy(host->socket);
 
     for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer)
     {
@@ -314,7 +314,7 @@ void enet_host_bandwidth_limit(ENetHost *host, uint32_t incomingBandwidth, uint3
 
 void enet_host_bandwidth_throttle(ENetHost *host)
 {
-    uint32_t timeCurrent = enet_time_get(), elapsedTime = timeCurrent - host->bandwidthThrottleEpoch,
+    uint32_t timeCurrent = ENet::time_get(), elapsedTime = timeCurrent - host->bandwidthThrottleEpoch,
              peersRemaining = (uint32_t)host->connectedPeers, dataTotal = ~0, bandwidth = ~0, throttle = 0,
              bandwidthLimit = 0;
     int needsAdjustment = host->bandwidthLimitedPeers > 0 ? 1 : 0;
