@@ -35,39 +35,39 @@ struct Host;
 struct Event;
 struct Packet;
 
-enum ENetSocketType
+enum SocketType
 {
-    ENET_SOCKET_TYPE_STREAM = 1,
-    ENET_SOCKET_TYPE_DATAGRAM = 2
+    SOCKET_TYPE_STREAM = 1,
+    SOCKET_TYPE_DATAGRAM = 2
 };
 
-enum ENetSocketWait
+enum SocketWait
 {
-    ENET_SOCKET_WAIT_NONE = 0,
-    ENET_SOCKET_WAIT_SEND = (1 << 0),
-    ENET_SOCKET_WAIT_RECEIVE = (1 << 1),
-    ENET_SOCKET_WAIT_INTERRUPT = (1 << 2)
+    SOCKET_WAIT_NONE = 0,
+    SOCKET_WAIT_SEND = (1 << 0),
+    SOCKET_WAIT_RECEIVE = (1 << 1),
+    SOCKET_WAIT_INTERRUPT = (1 << 2)
 };
 
-enum ENetSocketOption
+enum SocketOption
 {
-    ENET_SOCKOPT_NONBLOCK = 1,
-    ENET_SOCKOPT_BROADCAST = 2,
-    ENET_SOCKOPT_RCVBUF = 3,
-    ENET_SOCKOPT_SNDBUF = 4,
-    ENET_SOCKOPT_REUSEADDR = 5,
-    ENET_SOCKOPT_RCVTIMEO = 6,
-    ENET_SOCKOPT_SNDTIMEO = 7,
-    ENET_SOCKOPT_ERROR = 8,
-    ENET_SOCKOPT_NODELAY = 9,
-    ENET_SOCKOPT_TTL = 10
+    SOCKOPT_NONBLOCK = 1,
+    SOCKOPT_BROADCAST = 2,
+    SOCKOPT_RCVBUF = 3,
+    SOCKOPT_SNDBUF = 4,
+    SOCKOPT_REUSEADDR = 5,
+    SOCKOPT_RCVTIMEO = 6,
+    SOCKOPT_SNDTIMEO = 7,
+    SOCKOPT_ERROR = 8,
+    SOCKOPT_NODELAY = 9,
+    SOCKOPT_TTL = 10
 };
 
-enum ENetSocketShutdown
+enum SocketShutdown
 {
-    ENET_SOCKET_SHUTDOWN_READ = 0,
-    ENET_SOCKET_SHUTDOWN_WRITE = 1,
-    ENET_SOCKET_SHUTDOWN_READ_WRITE = 2
+    SOCKET_SHUTDOWN_READ = 0,
+    SOCKET_SHUTDOWN_WRITE = 1,
+    SOCKET_SHUTDOWN_READ_WRITE = 2
 };
 
 constexpr uint32_t HOST_ANY = 0;
@@ -483,7 +483,7 @@ struct Platform
     virtual void deinitialize() = 0;
     virtual uint32_t time_get() = 0;
     virtual void time_set(uint32_t newTimeBase) = 0;
-    virtual ENetSocket socket_create(ENetSocketType type) = 0;
+    virtual ENetSocket socket_create(SocketType type) = 0;
     virtual int socket_bind(ENetSocket socket, const Address *address) = 0;
     virtual int socket_get_address(ENetSocket socket, Address *address) = 0;
     virtual uint32_t host_random_seed() = 0;
@@ -494,9 +494,9 @@ struct Platform
                             size_t bufferCount) = 0;
     virtual int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount) = 0;
     virtual int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) = 0;
-    virtual int socket_set_option(ENetSocket socket, ENetSocketOption option, int value) = 0;
-    virtual int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) = 0;
-    virtual int socket_shutdown(ENetSocket socket, ENetSocketShutdown how) = 0;
+    virtual int socket_set_option(ENetSocket socket, SocketOption option, int value) = 0;
+    virtual int socket_get_option(ENetSocket socket, SocketOption option, int *value) = 0;
+    virtual int socket_shutdown(ENetSocket socket, SocketShutdown how) = 0;
     virtual void socket_destroy(ENetSocket socket) = 0;
     virtual int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
                                  uint32_t timeout) = 0;
@@ -561,7 +561,7 @@ ENET_API void time_set(uint32_t newTimeBase);
 /** @defgroup socket ENet socket functions
     @{
 */
-ENET_API ENetSocket socket_create(ENetSocketType type);
+ENET_API ENetSocket socket_create(SocketType type);
 ENET_API int socket_bind(ENetSocket socket, const Address *address);
 ENET_API int socket_get_address(ENetSocket socket, Address *address);
 ENET_API int socket_listen(ENetSocket socket, int backlog);
@@ -570,9 +570,9 @@ ENET_API int socket_connect(ENetSocket socket, const Address *address);
 ENET_API int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers, size_t bufferCount);
 ENET_API int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount);
 ENET_API int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout);
-ENET_API int socket_set_option(ENetSocket socket, ENetSocketOption option, int value);
-ENET_API int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value);
-ENET_API int socket_shutdown(ENetSocket socket, ENetSocketShutdown how);
+ENET_API int socket_set_option(ENetSocket socket, SocketOption option, int value);
+ENET_API int socket_get_option(ENetSocket socket, SocketOption option, int *value);
+ENET_API int socket_shutdown(ENetSocket socket, SocketShutdown how);
 ENET_API void socket_destroy(ENetSocket socket);
 ENET_API int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, uint32_t timeout);
 

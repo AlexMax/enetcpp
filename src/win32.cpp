@@ -21,7 +21,7 @@ struct Win32Platform final : public Platform
     void deinitialize() override;
     uint32_t time_get() override;
     void time_set(uint32_t newTimeBase) override;
-    ENetSocket socket_create(ENetSocketType type) override;
+    ENetSocket socket_create(SocketType type) override;
     int socket_bind(ENetSocket socket, const Address *address) override;
     int socket_get_address(ENetSocket socket, Address *address) override;
     int socket_listen(ENetSocket socket, int backlog) override;
@@ -30,9 +30,9 @@ struct Win32Platform final : public Platform
     int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers, size_t bufferCount) override;
     int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount) override;
     int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) override;
-    int socket_set_option(ENetSocket socket, ENetSocketOption option, int value) override;
-    int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) override;
-    int socket_shutdown(ENetSocket socket, ENetSocketShutdown how) override;
+    int socket_set_option(ENetSocket socket, SocketOption option, int value) override;
+    int socket_get_option(ENetSocket socket, SocketOption option, int *value) override;
+    int socket_shutdown(ENetSocket socket, SocketShutdown how) override;
     void socket_destroy(ENetSocket socket) override;
     int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
                          uint32_t timeout) override;
@@ -228,51 +228,51 @@ int ENet::Win32Platform::socket_listen(ENetSocket socket, int backlog)
     return listen(socket, backlog < 0 ? SOMAXCONN : backlog) == SOCKET_ERROR ? -1 : 0;
 }
 
-ENetSocket ENet::Win32Platform::socket_create(ENetSocketType type)
+ENetSocket ENet::Win32Platform::socket_create(SocketType type)
 {
-    return socket(PF_INET, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+    return socket(PF_INET, type == ENet::SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
 
-int ENet::Win32Platform::socket_set_option(ENetSocket socket, ENetSocketOption option, int value)
+int ENet::Win32Platform::socket_set_option(ENetSocket socket, SocketOption option, int value)
 {
     int result = SOCKET_ERROR;
     switch (option)
     {
-    case ENET_SOCKOPT_NONBLOCK: {
+    case ENet::SOCKOPT_NONBLOCK: {
         u_long nonBlocking = (u_long)value;
         result = ioctlsocket(socket, FIONBIO, &nonBlocking);
         break;
     }
 
-    case ENET_SOCKOPT_BROADCAST:
+    case ENet::SOCKOPT_BROADCAST:
         result = setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_REUSEADDR:
+    case ENet::SOCKOPT_REUSEADDR:
         result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_RCVBUF:
+    case ENet::SOCKOPT_RCVBUF:
         result = setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_SNDBUF:
+    case ENet::SOCKOPT_SNDBUF:
         result = setsockopt(socket, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_RCVTIMEO:
+    case ENet::SOCKOPT_RCVTIMEO:
         result = setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_SNDTIMEO:
+    case ENet::SOCKOPT_SNDTIMEO:
         result = setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_NODELAY:
+    case ENet::SOCKOPT_NODELAY:
         result = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_TTL:
+    case ENet::SOCKOPT_TTL:
         result = setsockopt(socket, IPPROTO_IP, IP_TTL, (char *)&value, sizeof(int));
         break;
 
@@ -282,17 +282,17 @@ int ENet::Win32Platform::socket_set_option(ENetSocket socket, ENetSocketOption o
     return result == SOCKET_ERROR ? -1 : 0;
 }
 
-int ENet::Win32Platform::socket_get_option(ENetSocket socket, ENetSocketOption option, int *value)
+int ENet::Win32Platform::socket_get_option(ENetSocket socket, SocketOption option, int *value)
 {
     int result = SOCKET_ERROR, len;
     switch (option)
     {
-    case ENET_SOCKOPT_ERROR:
+    case ENet::SOCKOPT_ERROR:
         len = sizeof(int);
         result = getsockopt(socket, SOL_SOCKET, SO_ERROR, (char *)value, &len);
         break;
 
-    case ENET_SOCKOPT_TTL:
+    case ENet::SOCKOPT_TTL:
         len = sizeof(int);
         result = getsockopt(socket, IPPROTO_IP, IP_TTL, (char *)value, &len);
         break;
@@ -345,7 +345,7 @@ ENetSocket ENet::Win32Platform::socket_accept(ENetSocket socket, ENet::Address *
     return result;
 }
 
-int ENet::Win32Platform::socket_shutdown(ENetSocket socket, ENetSocketShutdown how)
+int ENet::Win32Platform::socket_shutdown(ENetSocket socket, SocketShutdown how)
 {
     return shutdown(socket, (int)how) == SOCKET_ERROR ? -1 : 0;
 }
@@ -446,12 +446,12 @@ int ENet::Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uin
     FD_ZERO(&readSet);
     FD_ZERO(&writeSet);
 
-    if (*condition & ENET_SOCKET_WAIT_SEND)
+    if (*condition & ENet::SOCKET_WAIT_SEND)
     {
         FD_SET(socket, &writeSet);
     }
 
-    if (*condition & ENET_SOCKET_WAIT_RECEIVE)
+    if (*condition & ENet::SOCKET_WAIT_RECEIVE)
     {
         FD_SET(socket, &readSet);
     }
@@ -463,7 +463,7 @@ int ENet::Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uin
         return -1;
     }
 
-    *condition = ENET_SOCKET_WAIT_NONE;
+    *condition = ENet::SOCKET_WAIT_NONE;
 
     if (selectCount == 0)
     {
@@ -472,12 +472,12 @@ int ENet::Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uin
 
     if (FD_ISSET(socket, &writeSet))
     {
-        *condition |= ENET_SOCKET_WAIT_SEND;
+        *condition |= ENet::SOCKET_WAIT_SEND;
     }
 
     if (FD_ISSET(socket, &readSet))
     {
-        *condition |= ENET_SOCKET_WAIT_RECEIVE;
+        *condition |= ENet::SOCKET_WAIT_RECEIVE;
     }
 
     return 0;

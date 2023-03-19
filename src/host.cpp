@@ -37,7 +37,7 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
     }
     memset(host->peers, 0, peerCount * sizeof(ENet::Peer));
 
-    host->socket = ENet::socket_create(ENET_SOCKET_TYPE_DATAGRAM);
+    host->socket = ENet::socket_create(ENet::SOCKET_TYPE_DATAGRAM);
     if (host->socket == ENET_SOCKET_NULL || (address != NULL && ENet::socket_bind(host->socket, address) < 0))
     {
         if (host->socket != ENET_SOCKET_NULL)
@@ -51,10 +51,10 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
         return NULL;
     }
 
-    ENet::socket_set_option(host->socket, ENET_SOCKOPT_NONBLOCK, 1);
-    ENet::socket_set_option(host->socket, ENET_SOCKOPT_BROADCAST, 1);
-    ENet::socket_set_option(host->socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
-    ENet::socket_set_option(host->socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
+    ENet::socket_set_option(host->socket, ENet::SOCKOPT_NONBLOCK, 1);
+    ENet::socket_set_option(host->socket, ENet::SOCKOPT_BROADCAST, 1);
+    ENet::socket_set_option(host->socket, ENet::SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
+    ENet::socket_set_option(host->socket, ENet::SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
 
     if (address != NULL && ENet::socket_get_address(host->socket, &host->address) < 0)
     {

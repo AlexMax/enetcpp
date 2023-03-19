@@ -25,7 +25,7 @@ void ENet::time_set(uint32_t newTimeBase)
     return ENet::Platform::Get().time_set(newTimeBase);
 }
 
-ENetSocket ENet::socket_create(ENetSocketType type)
+ENetSocket ENet::socket_create(ENet::SocketType type)
 {
     return ENet::Platform::Get().socket_create(type);
 }
@@ -70,17 +70,17 @@ int ENet::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout)
     return ENet::Platform::Get().socket_wait(socket, condition, timeout);
 }
 
-int ENet::socket_set_option(ENetSocket socket, ENetSocketOption option, int value)
+int ENet::socket_set_option(ENetSocket socket, ENet::SocketOption option, int value)
 {
     return ENet::Platform::Get().socket_set_option(socket, option, value);
 }
 
-int ENet::socket_get_option(ENetSocket socket, ENetSocketOption option, int *value)
+int ENet::socket_get_option(ENetSocket socket, ENet::SocketOption option, int *value)
 {
     return ENet::Platform::Get().socket_get_option(socket, option, value);
 }
 
-int ENet::socket_shutdown(ENetSocket socket, ENetSocketShutdown how)
+int ENet::socket_shutdown(ENetSocket socket, ENet::SocketShutdown how)
 {
     return ENet::Platform::Get().socket_shutdown(socket, how);
 }

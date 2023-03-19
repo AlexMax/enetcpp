@@ -2171,16 +2171,16 @@ int ENet::host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout)
                 return 0;
             }
 
-            waitCondition = ENET_SOCKET_WAIT_RECEIVE | ENET_SOCKET_WAIT_INTERRUPT;
+            waitCondition = ENet::SOCKET_WAIT_RECEIVE | ENet::SOCKET_WAIT_INTERRUPT;
 
             if (ENet::socket_wait(host->socket, &waitCondition, ENET_TIME_DIFFERENCE(timeout, host->serviceTime)) != 0)
             {
                 return -1;
             }
-        } while (waitCondition & ENET_SOCKET_WAIT_INTERRUPT);
+        } while (waitCondition & ENet::SOCKET_WAIT_INTERRUPT);
 
         host->serviceTime = ENet::time_get();
-    } while (waitCondition & ENET_SOCKET_WAIT_RECEIVE);
+    } while (waitCondition & ENet::SOCKET_WAIT_RECEIVE);
 
     return 0;
 }
