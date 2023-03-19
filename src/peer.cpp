@@ -230,7 +230,7 @@ static void enet_peer_reset_outgoing_commands(ENet::List *queue)
 
             if (outgoingCommand->packet->referenceCount == 0)
             {
-                enet_packet_destroy(outgoingCommand->packet);
+                ENet::packet_destroy(outgoingCommand->packet);
             }
         }
 
@@ -264,7 +264,7 @@ static void enet_peer_remove_incoming_commands(ENet::List *queue, ENet::ListIter
 
             if (incomingCommand->packet->referenceCount == 0)
             {
-                enet_packet_destroy(incomingCommand->packet);
+                ENet::packet_destroy(incomingCommand->packet);
             }
         }
 
@@ -938,7 +938,7 @@ ENetIncomingCommand *enet_peer_queue_incoming_command(ENetPeer *peer, const ENet
         goto notifyError;
     }
 
-    packet = enet_packet_create(data, dataLength, flags);
+    packet = ENet::packet_create(data, dataLength, flags);
     if (packet == NULL)
     {
         goto notifyError;
@@ -1004,7 +1004,7 @@ discardCommand:
 
     if (packet != NULL && packet->referenceCount == 0)
     {
-        enet_packet_destroy(packet);
+        ENet::packet_destroy(packet);
     }
 
     return &dummyCommand;
@@ -1012,7 +1012,7 @@ discardCommand:
 notifyError:
     if (packet != NULL && packet->referenceCount == 0)
     {
-        enet_packet_destroy(packet);
+        ENet::packet_destroy(packet);
     }
 
     return NULL;

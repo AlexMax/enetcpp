@@ -10,8 +10,8 @@
     @{
 */
 
-ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
-                           uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
+ENetHost *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
+                            uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
     ENetHost *host;
     ENetPeer *currentPeer;
@@ -128,7 +128,7 @@ ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t 
     return host;
 }
 
-void enet_host_destroy(ENetHost *host)
+void ENet::host_destroy(ENetHost *host)
 {
     ENetPeer *currentPeer;
 
@@ -270,7 +270,7 @@ void enet_host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
 
     if (packet->referenceCount == 0)
     {
-        enet_packet_destroy(packet);
+        ENet::packet_destroy(packet);
     }
 }
 

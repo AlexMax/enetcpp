@@ -515,7 +515,7 @@ ENET_API int initialize();
   @param inits user-overridden callbacks where any NULL callbacks will use ENet's defaults
   @returns 0 on success, < 0 on failure
 */
-ENET_API int initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits);
+ENET_API int initialize_with_callbacks(ENetVersion version, const Callbacks *inits);
 
 /**
   Shuts down ENet globally.  Should be called when a program that has
@@ -608,8 +608,6 @@ ENET_API int address_get_host_ip(const ENetAddress *address, char *hostName, siz
 */
 ENET_API int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength);
 
-} // namespace ENet
-
 /** @} */
 
 /** Creates a packet that may be sent to a peer.
@@ -619,12 +617,12 @@ ENET_API int address_get_host(const ENetAddress *address, char *hostName, size_t
     @param flags        flags for this packet as described for the ENetPacket structure.
     @returns the packet on success, NULL on failure
 */
-ENET_API ENetPacket *enet_packet_create(const void *data, size_t dataLength, uint32_t flags);
+ENET_API ENetPacket *packet_create(const void *data, size_t dataLength, uint32_t flags);
 
 /** Destroys the packet and deallocates its data.
     @param packet packet to be destroyed
 */
-ENET_API void enet_packet_destroy(ENetPacket *packet);
+ENET_API void packet_destroy(ENetPacket *packet);
 
 /** Attempts to resize the data in the packet to length specified in the
     dataLength parameter
@@ -632,8 +630,8 @@ ENET_API void enet_packet_destroy(ENetPacket *packet);
     @param dataLength new size for the packet data
     @returns 0 on success, < 0 on failure
 */
-ENET_API int enet_packet_resize(ENetPacket *packet, size_t dataLength);
-ENET_API uint32_t enet_crc32(const ENetBuffer *buffers, size_t bufferCount);
+ENET_API int packet_resize(ENetPacket *packet, size_t dataLength);
+ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
 
 /** Creates a host for communicating to peers.
 
@@ -653,13 +651,15 @@ ENET_API uint32_t enet_crc32(const ENetBuffer *buffers, size_t bufferCount);
     the window size of a connection which limits the amount of reliable packets that may be in transit
     at any given time.
 */
-ENET_API ENetHost *enet_host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
-                                    uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API ENetHost *host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
+                               uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
 /** Destroys the host and all resources associated with it.
     @param host pointer to the host to destroy
 */
-ENET_API void enet_host_destroy(ENetHost *host);
+ENET_API void host_destroy(ENetHost *host);
+
+} // namespace ENet
 
 /** Initiates a connection to a foreign host.
     @param host host seeking the connection

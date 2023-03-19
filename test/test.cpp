@@ -53,7 +53,7 @@ void host_server(ENetHost *server)
                    event.packet->dataLength, event.packet->data, (char *)event.peer->data, event.channelID);
 
             /* Clean up the packet now that we're done using it. */
-            enet_packet_destroy(event.packet);
+            ENet::packet_destroy(event.packet);
             break;
 
         case ENET_EVENT_TYPE_DISCONNECT:
@@ -88,7 +88,7 @@ int main()
 
     /* create a server */
     printf("starting server...\n");
-    server = enet_host_create(&address, MAX_CLIENTS, 2, 0, 0);
+    server = ENet::host_create(&address, MAX_CLIENTS, 2, 0, 0);
     if (server == NULL)
     {
         printf("An error occurred while trying to create an ENet server host.\n");
@@ -99,7 +99,7 @@ int main()
     for (i = 0; i < MAX_CLIENTS; ++i)
     {
         ENet::address_set_host(&address, "127.0.0.1");
-        clients[i].host = enet_host_create(NULL, 1, 2, 0, 0);
+        clients[i].host = ENet::host_create(NULL, 1, 2, 0, 0);
         clients[i].peer = enet_host_connect(clients[i].host, &address, 2, 0);
         if (clients[i].peer == NULL)
         {
@@ -127,12 +127,12 @@ int main()
     for (i = 0; i < MAX_CLIENTS; ++i)
     {
         enet_peer_disconnect_now(clients[i].peer, 0);
-        enet_host_destroy(clients[i].host);
+        ENet::host_destroy(clients[i].host);
     }
 
     host_server(server);
 
-    enet_host_destroy(server);
+    ENet::host_destroy(server);
     ENet::deinitialize();
     return 0;
 }

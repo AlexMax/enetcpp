@@ -5,9 +5,9 @@
 
 #include "enetcpp/enetcpp.h"
 
-static ENetCallbacks callbacks = {malloc, free, abort};
+static ENet::Callbacks callbacks = {malloc, free, abort};
 
-int ENet::initialize_with_callbacks(ENetVersion version, const ENetCallbacks *inits)
+int ENet::initialize_with_callbacks(ENetVersion version, const ENet::Callbacks *inits)
 {
     if (version < ENET_VERSION_CREATE(1, 3, 0))
     {

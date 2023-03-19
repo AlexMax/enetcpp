@@ -192,7 +192,7 @@ static void enet_protocol_remove_sent_unreliable_commands(ENetPeer *peer, ENet::
             {
                 outgoingCommand->packet->flags |= ENET_PACKET_FLAG_SENT;
 
-                enet_packet_destroy(outgoingCommand->packet);
+                ENet::packet_destroy(outgoingCommand->packet);
             }
         }
 
@@ -305,7 +305,7 @@ static ENetProtocolCommand enet_protocol_remove_sent_reliable_command(ENetPeer *
         {
             outgoingCommand->packet->flags |= ENET_PACKET_FLAG_SENT;
 
-            enet_packet_destroy(outgoingCommand->packet);
+            ENet::packet_destroy(outgoingCommand->packet);
         }
     }
 
@@ -1782,7 +1782,7 @@ static int enet_protocol_check_outgoing_commands(ENetHost *host, ENetPeer *peer,
 
                         if (outgoingCommand->packet->referenceCount == 0)
                         {
-                            enet_packet_destroy(outgoingCommand->packet);
+                            ENet::packet_destroy(outgoingCommand->packet);
                         }
 
                         ENet::list_remove(&outgoingCommand->outgoingCommandList);

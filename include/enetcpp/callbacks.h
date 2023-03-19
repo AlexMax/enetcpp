@@ -6,7 +6,10 @@
 
 #include <stdlib.h>
 
-struct ENetCallbacks
+namespace ENet
+{
+
+struct Callbacks
 {
     void *(ENET_CALLBACK *malloc)(size_t size);
     void(ENET_CALLBACK *free)(void *memory);
@@ -17,8 +20,6 @@ struct ENetCallbacks
     @{
     @ingroup private
 */
-namespace ENet
-{
 
 extern void *enet_malloc(size_t size);
 extern void enet_free(void *memory);
