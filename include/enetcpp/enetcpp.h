@@ -419,20 +419,18 @@ struct Host
                                   to be delivered */
 };
 
-} // namespace ENet
-
 /**
  * An ENet event type, as specified in @ref ENetEvent.
  */
-enum ENetEventType
+enum EventType
 {
     /** no event occurred within the specified time limit */
-    ENET_EVENT_TYPE_NONE = 0,
+    EVENT_TYPE_NONE = 0,
 
     /** a connection request initiated by enet_host_connect has completed.
      * The peer field contains the peer which successfully connected.
      */
-    ENET_EVENT_TYPE_CONNECT = 1,
+    EVENT_TYPE_CONNECT = 1,
 
     /** a peer has disconnected.  This event is generated on a successful
      * completion of a disconnect initiated by enet_peer_disconnect, if
@@ -441,7 +439,7 @@ enum ENetEventType
      * which disconnected. The data field contains user supplied data
      * describing the disconnection, or 0, if none is available.
      */
-    ENET_EVENT_TYPE_DISCONNECT = 2,
+    EVENT_TYPE_DISCONNECT = 2,
 
     /** a packet has been received from a peer.  The peer field specifies the
      * peer which sent the packet.  The channelID field specifies the channel
@@ -449,11 +447,8 @@ enum ENetEventType
      * the packet that was received; this packet must be destroyed with
      * enet_packet_destroy after use.
      */
-    ENET_EVENT_TYPE_RECEIVE = 3
+    EVENT_TYPE_RECEIVE = 3
 };
-
-namespace ENet
-{
 
 /**
  * An ENet event as returned by enet_host_service().
@@ -462,11 +457,11 @@ namespace ENet
  */
 struct Event
 {
-    ENetEventType type; /**< type of the event */
-    Peer *peer;         /**< peer that generated a connect, disconnect or receive event */
-    uint8_t channelID;  /**< channel on the peer that generated the event, if appropriate */
-    uint32_t data;      /**< data associated with the event, if appropriate */
-    Packet *packet;     /**< packet associated with the event, if appropriate */
+    EventType type;    /**< type of the event */
+    Peer *peer;        /**< peer that generated a connect, disconnect or receive event */
+    uint8_t channelID; /**< channel on the peer that generated the event, if appropriate */
+    uint32_t data;     /**< data associated with the event, if appropriate */
+    Packet *packet;    /**< packet associated with the event, if appropriate */
 };
 
 /**

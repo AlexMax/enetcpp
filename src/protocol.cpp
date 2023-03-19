@@ -73,7 +73,7 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
         case ENET_PEER_STATE_CONNECTION_SUCCEEDED:
             enet_protocol_change_state(host, peer, ENET_PEER_STATE_CONNECTED);
 
-            event->type = ENET_EVENT_TYPE_CONNECT;
+            event->type = ENet::EVENT_TYPE_CONNECT;
             event->peer = peer;
             event->data = peer->eventData;
 
@@ -82,7 +82,7 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
         case ENET_PEER_STATE_ZOMBIE:
             host->recalculateBandwidthLimits = 1;
 
-            event->type = ENET_EVENT_TYPE_DISCONNECT;
+            event->type = ENet::EVENT_TYPE_DISCONNECT;
             event->peer = peer;
             event->data = peer->eventData;
 
@@ -102,7 +102,7 @@ static int enet_protocol_dispatch_incoming_commands(ENet::Host *host, ENet::Even
                 continue;
             }
 
-            event->type = ENET_EVENT_TYPE_RECEIVE;
+            event->type = ENet::EVENT_TYPE_RECEIVE;
             event->peer = peer;
 
             if (!ENet::list_empty(&peer->dispatchedCommands))
@@ -130,7 +130,7 @@ static void enet_protocol_notify_connect(ENet::Host *host, ENet::Peer *peer, ENe
     {
         enet_protocol_change_state(host, peer, ENET_PEER_STATE_CONNECTED);
 
-        event->type = ENET_EVENT_TYPE_CONNECT;
+        event->type = ENet::EVENT_TYPE_CONNECT;
         event->peer = peer;
         event->data = peer->eventData;
     }
@@ -155,7 +155,7 @@ static void enet_protocol_notify_disconnect(ENet::Host *host, ENet::Peer *peer, 
     }
     else if (event != NULL)
     {
-        event->type = ENET_EVENT_TYPE_DISCONNECT;
+        event->type = ENet::EVENT_TYPE_DISCONNECT;
         event->peer = peer;
         event->data = 0;
 
@@ -1454,7 +1454,7 @@ static int enet_protocol_handle_incoming_commands(ENet::Host *host, ENet::Event 
     }
 
 commandError:
-    if (event != NULL && event->type != ENET_EVENT_TYPE_NONE)
+    if (event != NULL && event->type != ENet::EVENT_TYPE_NONE)
     {
         return 1;
     }
@@ -1497,7 +1497,7 @@ static int enet_protocol_receive_incoming_commands(ENet::Host *host, ENet::Event
             switch (host->intercept(host, event))
             {
             case 1:
-                if (event != NULL && event->type != ENET_EVENT_TYPE_NONE)
+                if (event != NULL && event->type != ENet::EVENT_TYPE_NONE)
                 {
                     return 1;
                 }
@@ -1894,7 +1894,7 @@ static int enet_protocol_send_outgoing_commands(ENet::Host *host, ENet::Event *e
                 ENET_TIME_GREATER_EQUAL(host->serviceTime, currentPeer->nextTimeout) &&
                 enet_protocol_check_timeouts(host, currentPeer, event) == 1)
             {
-                if (event != NULL && event->type != ENET_EVENT_TYPE_NONE)
+                if (event != NULL && event->type != ENet::EVENT_TYPE_NONE)
                 {
                     return 1;
                 }
@@ -2044,7 +2044,7 @@ int ENet::host_check_events(ENet::Host *host, ENet::Event *event)
         return -1;
     }
 
-    event->type = ENET_EVENT_TYPE_NONE;
+    event->type = ENet::EVENT_TYPE_NONE;
     event->peer = NULL;
     event->packet = NULL;
 
@@ -2057,7 +2057,7 @@ int ENet::host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout)
 
     if (event != NULL)
     {
-        event->type = ENET_EVENT_TYPE_NONE;
+        event->type = ENet::EVENT_TYPE_NONE;
         event->peer = NULL;
         event->packet = NULL;
 

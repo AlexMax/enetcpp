@@ -43,12 +43,12 @@ void host_server(ENet::Host *server)
     {
         switch (event.type)
         {
-        case ENET_EVENT_TYPE_CONNECT:
+        case ENet::EVENT_TYPE_CONNECT:
             printf("A new client connected from ::1:%u.\n", event.peer->address.port);
             /* Store any relevant client information here. */
             event.peer->data = (void *)"Client information";
             break;
-        case ENET_EVENT_TYPE_RECEIVE:
+        case ENet::EVENT_TYPE_RECEIVE:
             printf("A packet of length %zu containing %s was received from %s on channel %u.\n",
                    event.packet->dataLength, event.packet->data, (char *)event.peer->data, event.channelID);
 
@@ -56,13 +56,13 @@ void host_server(ENet::Host *server)
             ENet::packet_destroy(event.packet);
             break;
 
-        case ENET_EVENT_TYPE_DISCONNECT:
+        case ENet::EVENT_TYPE_DISCONNECT:
             printf("%s disconnected.\n", (char *)event.peer->data);
             /* Reset the peer's client information. */
             event.peer->data = NULL;
             break;
 
-        case ENET_EVENT_TYPE_NONE:
+        case ENet::EVENT_TYPE_NONE:
             break;
         }
     }
