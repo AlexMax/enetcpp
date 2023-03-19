@@ -45,7 +45,7 @@ struct ENetRangeCoder
     ENetSymbol symbols[4096];
 };
 
-void *enet_range_coder_create()
+void *ENet::range_coder_create()
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)ENet::enet_malloc(sizeof(ENetRangeCoder));
     if (rangeCoder == NULL)
@@ -56,7 +56,7 @@ void *enet_range_coder_create()
     return rangeCoder;
 }
 
-void enet_range_coder_destroy(void *context)
+void ENet::range_coder_destroy(void *context)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
     if (rangeCoder == NULL)
@@ -256,8 +256,8 @@ static const ENetSymbol emptyContext = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     })
 #endif
 
-size_t enet_range_coder_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
-                                 uint8_t *outData, size_t outLimit)
+size_t ENet::range_coder_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
+                                  uint8_t *outData, size_t outLimit)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
     uint8_t *outStart = outData, *outEnd = &outData[outLimit];
@@ -544,8 +544,8 @@ struct ENetExclude
 
 #define ENET_CONTEXT_NOT_EXCLUDED(value_, after, before)
 
-size_t enet_range_coder_decompress(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData,
-                                   size_t outLimit)
+size_t ENet::range_coder_decompress(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData,
+                                    size_t outLimit)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
     uint8_t *outStart = outData, *outEnd = &outData[outLimit];
@@ -705,14 +705,14 @@ int ENet::host_compress_with_range_coder(ENetHost *host)
 {
     ENetCompressor compressor;
     memset(&compressor, 0, sizeof(compressor));
-    compressor.context = enet_range_coder_create();
+    compressor.context = ENet::range_coder_create();
     if (compressor.context == NULL)
     {
         return -1;
     }
-    compressor.compress = enet_range_coder_compress;
-    compressor.decompress = enet_range_coder_decompress;
-    compressor.destroy = enet_range_coder_destroy;
+    compressor.compress = ENet::range_coder_compress;
+    compressor.decompress = ENet::range_coder_decompress;
+    compressor.destroy = ENet::range_coder_destroy;
     ENet::host_compress(host, &compressor);
     return 0;
 }

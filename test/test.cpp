@@ -126,7 +126,7 @@ int main()
 
     for (i = 0; i < MAX_CLIENTS; ++i)
     {
-        enet_peer_disconnect_now(clients[i].peer, 0);
+        ENet::peer_disconnect_now(clients[i].peer, 0);
         ENet::host_destroy(clients[i].host);
     }
 

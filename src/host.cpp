@@ -122,7 +122,7 @@ ENetHost *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t
         ENet::list_clear(&currentPeer->outgoingSendReliableCommands);
         ENet::list_clear(&currentPeer->dispatchedCommands);
 
-        enet_peer_reset(currentPeer);
+        ENet::peer_reset(currentPeer);
     }
 
     return host;
@@ -141,7 +141,7 @@ void ENet::host_destroy(ENetHost *host)
 
     for (currentPeer = host->peers; currentPeer < &host->peers[host->peerCount]; ++currentPeer)
     {
-        enet_peer_reset(currentPeer);
+        ENet::peer_reset(currentPeer);
     }
 
     if (host->compressor.context != NULL && host->compressor.destroy)
@@ -249,7 +249,7 @@ ENetPeer *ENet::host_connect(ENetHost *host, const ENetAddress *address, size_t 
     command.connect.connectID = currentPeer->connectID;
     command.connect.data = ENET_HOST_TO_NET_32(data);
 
-    enet_peer_queue_outgoing_command(currentPeer, &command, NULL, 0, 0);
+    ENet::peer_queue_outgoing_command(currentPeer, &command, NULL, 0, 0);
 
     return currentPeer;
 }
@@ -265,7 +265,7 @@ void ENet::host_broadcast(ENetHost *host, uint8_t channelID, ENetPacket *packet)
             continue;
         }
 
-        enet_peer_send(currentPeer, channelID, packet);
+        ENet::peer_send(currentPeer, channelID, packet);
     }
 
     if (packet->referenceCount == 0)
@@ -494,7 +494,7 @@ void ENet::host_bandwidth_throttle(ENetHost *host)
                 command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(bandwidthLimit);
             }
 
-            enet_peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
+            ENet::peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
         }
     }
 }
