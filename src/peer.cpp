@@ -86,7 +86,7 @@ int ENet::peer_send(ENet::Peer *peer, uint8_t channelID, ENet::Packet *packet)
                  fragmentOffset;
         uint8_t commandNumber;
         uint16_t startSequenceNumber;
-        ENet::List fragments;
+        ENet::List<ENet::OutgoingCommand> fragments;
         ENet::OutgoingCommand *fragment;
 
         if (fragmentCount > ENet::PROTOCOL_MAXIMUM_FRAGMENT_COUNT)
@@ -216,7 +216,7 @@ ENet::Packet *ENet::peer_receive(ENet::Peer *peer, uint8_t *channelID)
     return packet;
 }
 
-static void enet_peer_reset_outgoing_commands(ENet::List *queue)
+static void enet_peer_reset_outgoing_commands(ENet::List<ENet::OutgoingCommand> *queue)
 {
     ENet::OutgoingCommand *outgoingCommand;
 
@@ -238,12 +238,14 @@ static void enet_peer_reset_outgoing_commands(ENet::List *queue)
     }
 }
 
-static void enet_peer_remove_incoming_commands(ENet::List *queue, ENet::ListIterator startCommand,
-                                               ENet::ListIterator endCommand, ENet::IncomingCommand *excludeCommand)
+static void enet_peer_remove_incoming_commands(ENet::List<ENet::IncomingCommand> *queue,
+                                               ENet::ListIterator<ENet::IncomingCommand> startCommand,
+                                               ENet::ListIterator<ENet::IncomingCommand> endCommand,
+                                               ENet::IncomingCommand *excludeCommand)
 {
     (void)queue;
 
-    ENet::ListIterator currentCommand;
+    ENet::ListIterator<ENet::IncomingCommand> currentCommand;
 
     for (currentCommand = startCommand; currentCommand != endCommand;)
     {
@@ -256,7 +258,7 @@ static void enet_peer_remove_incoming_commands(ENet::List *queue, ENet::ListIter
             continue;
         }
 
-        ENet::list_remove(&incomingCommand->incomingCommandList);
+        ENet::list_remove(incomingCommand);
 
         if (incomingCommand->packet != NULL)
         {
@@ -277,7 +279,7 @@ static void enet_peer_remove_incoming_commands(ENet::List *queue, ENet::ListIter
     }
 }
 
-static void enet_peer_reset_incoming_commands(ENet::List *queue)
+static void enet_peer_reset_incoming_commands(ENet::List<ENet::IncomingCommand> *queue)
 {
     enet_peer_remove_incoming_commands(queue, ENet::list_begin(queue), ENet::list_end(queue), NULL);
 }
@@ -288,7 +290,7 @@ void ENet::peer_reset_queues(ENet::Peer *peer)
 
     if (peer->flags & ENet::PEER_FLAG_NEEDS_DISPATCH)
     {
-        ENet::list_remove(&peer->dispatchList);
+        ENet::list_remove(peer);
 
         peer->flags &= ~ENet::PEER_FLAG_NEEDS_DISPATCH;
     }
@@ -658,7 +660,7 @@ ENet::OutgoingCommand *ENet::peer_queue_outgoing_command(ENet::Peer *peer, const
 void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Channel *channel,
                                                       ENet::IncomingCommand *queuedCommand)
 {
-    ENet::ListIterator droppedCommand, startCommand, currentCommand;
+    ENet::ListIterator<ENet::IncomingCommand> droppedCommand, startCommand, currentCommand;
 
     for (droppedCommand = startCommand = currentCommand = ENet::list_begin(&channel->incomingUnreliableCommands);
          currentCommand != ENet::list_end(&channel->incomingUnreliableCommands);
@@ -687,7 +689,7 @@ void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Ch
 
                 if (!(peer->flags & ENet::PEER_FLAG_NEEDS_DISPATCH))
                 {
-                    ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+                    ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), peer);
 
                     peer->flags |= ENet::PEER_FLAG_NEEDS_DISPATCH;
                 }
@@ -722,7 +724,7 @@ void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Ch
 
                 if (!(peer->flags & ENet::PEER_FLAG_NEEDS_DISPATCH))
                 {
-                    ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+                    ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), peer);
 
                     peer->flags |= ENet::PEER_FLAG_NEEDS_DISPATCH;
                 }
@@ -738,7 +740,7 @@ void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Ch
 
         if (!(peer->flags & ENet::PEER_FLAG_NEEDS_DISPATCH))
         {
-            ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+            ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), peer);
 
             peer->flags |= ENet::PEER_FLAG_NEEDS_DISPATCH;
         }
@@ -754,7 +756,7 @@ void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Ch
 void ENet::peer_dispatch_incoming_reliable_commands(ENet::Peer *peer, ENet::Channel *channel,
                                                     ENet::IncomingCommand *queuedCommand)
 {
-    ENet::ListIterator currentCommand;
+    ENet::ListIterator<ENet::IncomingCommand> currentCommand;
 
     for (currentCommand = ENet::list_begin(&channel->incomingReliableCommands);
          currentCommand != ENet::list_end(&channel->incomingReliableCommands);
@@ -788,7 +790,7 @@ void ENet::peer_dispatch_incoming_reliable_commands(ENet::Peer *peer, ENet::Chan
 
     if (!(peer->flags & ENet::PEER_FLAG_NEEDS_DISPATCH))
     {
-        ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), &peer->dispatchList);
+        ENet::list_insert(ENet::list_end(&peer->host->dispatchQueue), peer);
 
         peer->flags |= ENet::PEER_FLAG_NEEDS_DISPATCH;
     }
@@ -809,7 +811,7 @@ ENet::IncomingCommand *ENet::peer_queue_incoming_command(ENet::Peer *peer, const
     uint32_t unreliableSequenceNumber = 0, reliableSequenceNumber = 0;
     uint16_t reliableWindow, currentWindow;
     ENet::IncomingCommand *incomingCommand;
-    ENet::ListIterator currentCommand;
+    ENet::ListIterator<IncomingCommand> currentCommand;
     ENet::Packet *packet = NULL;
 
     if (peer->state == ENet::PEER_STATE_DISCONNECT_LATER)

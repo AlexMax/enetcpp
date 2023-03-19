@@ -56,7 +56,6 @@ set(ENETCPP_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/callbacks.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/compress.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/host.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/list.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/packet.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/peer.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/platform.cpp"

@@ -173,14 +173,19 @@ struct Packet
 
 struct Acknowledgement
 {
-    ListNode acknowledgementList;
+    ListNode<Acknowledgement> acknowledgementList;
     uint32_t sentTime;
     Protocol command;
+
+    ListNode<Acknowledgement> *list_node()
+    {
+        return &acknowledgementList;
+    }
 };
 
 struct OutgoingCommand
 {
-    ListNode outgoingCommandList;
+    ListNode<OutgoingCommand> outgoingCommandList;
     uint16_t reliableSequenceNumber;
     uint16_t unreliableSequenceNumber;
     uint32_t sentTime;
@@ -191,11 +196,16 @@ struct OutgoingCommand
     uint16_t sendAttempts;
     Protocol command;
     Packet *packet;
+
+    ListNode<OutgoingCommand> *list_node()
+    {
+        return &outgoingCommandList;
+    }
 };
 
 struct IncomingCommand
 {
-    ListNode incomingCommandList;
+    ListNode<IncomingCommand> incomingCommandList;
     uint16_t reliableSequenceNumber;
     uint16_t unreliableSequenceNumber;
     Protocol command;
@@ -203,6 +213,11 @@ struct IncomingCommand
     uint32_t fragmentsRemaining;
     uint32_t *fragments;
     Packet *packet;
+
+    ListNode<IncomingCommand> *list_node()
+    {
+        return &incomingCommandList;
+    }
 };
 
 enum PeerState
@@ -262,8 +277,8 @@ struct Channel
     uint16_t reliableWindows[PEER_RELIABLE_WINDOWS];
     uint16_t incomingReliableSequenceNumber;
     uint16_t incomingUnreliableSequenceNumber;
-    List incomingReliableCommands;
-    List incomingUnreliableCommands;
+    List<IncomingCommand> incomingReliableCommands;
+    List<IncomingCommand> incomingUnreliableCommands;
 };
 
 enum PeerFlag
@@ -279,7 +294,7 @@ enum PeerFlag
  */
 struct Peer
 {
-    ListNode dispatchList;
+    ListNode<Peer> dispatchList;
     Host *host;
     uint16_t outgoingPeerID;
     uint16_t incomingPeerID;
@@ -329,11 +344,11 @@ struct Peer
     uint32_t windowSize;
     uint32_t reliableDataInTransit;
     uint16_t outgoingReliableSequenceNumber;
-    List acknowledgements;
-    List sentReliableCommands;
-    List outgoingSendReliableCommands;
-    List outgoingCommands;
-    List dispatchedCommands;
+    List<Acknowledgement> acknowledgements;
+    List<OutgoingCommand> sentReliableCommands;
+    List<OutgoingCommand> outgoingSendReliableCommands;
+    List<OutgoingCommand> outgoingCommands;
+    List<IncomingCommand> dispatchedCommands;
     uint16_t flags;
     uint16_t reserved;
     uint16_t incomingUnsequencedGroup;
@@ -341,6 +356,11 @@ struct Peer
     uint32_t unsequencedWindow[PEER_UNSEQUENCED_WINDOW_SIZE / 32];
     uint32_t eventData;
     size_t totalWaitingData;
+
+    ListNode<Peer> *list_node()
+    {
+        return &dispatchList;
+    }
 };
 
 /** An ENet packet compressor for compressing UDP packets before socket sends or receives.
@@ -398,7 +418,7 @@ struct Host
     size_t peerCount;    /**< number of peers allocated for this host */
     size_t channelLimit; /**< maximum number of channels allowed for connected peers */
     uint32_t serviceTime;
-    List dispatchQueue;
+    List<Peer> dispatchQueue;
     uint32_t totalQueued;
     size_t packetSize;
     uint16_t headerFlags;
