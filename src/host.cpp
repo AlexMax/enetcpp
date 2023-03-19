@@ -10,7 +10,7 @@
     @{
 */
 
-ENet::Host *ENet::host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
+ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, size_t channelLimit,
                               uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
     ENet::Host *host;
@@ -83,7 +83,7 @@ ENet::Host *ENet::host_create(const ENetAddress *address, size_t peerCount, size
     host->commandCount = 0;
     host->bufferCount = 0;
     host->checksum = NULL;
-    host->receivedAddress.host = ENET_HOST_ANY;
+    host->receivedAddress.host = ENet::HOST_ANY;
     host->receivedAddress.port = 0;
     host->receivedData = NULL;
     host->receivedDataLength = 0;
@@ -162,7 +162,7 @@ uint32_t ENet::host_random(ENet::Host *host)
     return n ^ (n >> 14);
 }
 
-ENet::Peer *ENet::host_connect(ENet::Host *host, const ENetAddress *address, size_t channelCount, uint32_t data)
+ENet::Peer *ENet::host_connect(ENet::Host *host, const ENet::Address *address, size_t channelCount, uint32_t data)
 {
     ENet::Peer *currentPeer;
     ENet::Channel *channel;

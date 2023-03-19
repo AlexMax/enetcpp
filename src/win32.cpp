@@ -22,14 +22,13 @@ struct Win32Platform final : public Platform
     uint32_t time_get() override;
     void time_set(uint32_t newTimeBase) override;
     ENetSocket socket_create(ENetSocketType type) override;
-    int socket_bind(ENetSocket socket, const ENetAddress *address) override;
-    int socket_get_address(ENetSocket socket, ENetAddress *address) override;
+    int socket_bind(ENetSocket socket, const Address *address) override;
+    int socket_get_address(ENetSocket socket, Address *address) override;
     int socket_listen(ENetSocket socket, int backlog) override;
-    ENetSocket socket_accept(ENetSocket socket, ENetAddress *address) override;
-    int socket_connect(ENetSocket socket, const ENetAddress *address) override;
-    int socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
-                    size_t bufferCount) override;
-    int socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) override;
+    ENetSocket socket_accept(ENetSocket socket, Address *address) override;
+    int socket_connect(ENetSocket socket, const Address *address) override;
+    int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers, size_t bufferCount) override;
+    int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount) override;
     int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) override;
     int socket_set_option(ENetSocket socket, ENetSocketOption option, int value) override;
     int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) override;
@@ -37,10 +36,10 @@ struct Win32Platform final : public Platform
     void socket_destroy(ENetSocket socket) override;
     int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
                          uint32_t timeout) override;
-    int address_set_host_ip(ENetAddress *address, const char *hostName) override;
-    int address_set_host(ENetAddress *address, const char *hostName) override;
-    int address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength) override;
-    int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength) override;
+    int address_set_host_ip(Address *address, const char *hostName) override;
+    int address_set_host(Address *address, const char *hostName) override;
+    int address_get_host_ip(const Address *address, char *hostName, size_t nameLength) override;
+    int address_get_host(const Address *address, char *hostName, size_t nameLength) override;
     uint32_t host_random_seed() override;
 };
 
@@ -98,7 +97,7 @@ uint32_t ENet::Win32Platform::host_random_seed()
     return (uint32_t)timeGetTime();
 }
 
-int ENet::Win32Platform::address_set_host_ip(ENetAddress *address, const char *name)
+int ENet::Win32Platform::address_set_host_ip(ENet::Address *address, const char *name)
 {
     uint8_t vals[4] = {0, 0, 0, 0};
     int i;
@@ -127,7 +126,7 @@ int ENet::Win32Platform::address_set_host_ip(ENetAddress *address, const char *n
     return 0;
 }
 
-int ENet::Win32Platform::address_set_host(ENetAddress *address, const char *name)
+int ENet::Win32Platform::address_set_host(ENet::Address *address, const char *name)
 {
     struct hostent *hostEntry;
 
@@ -142,7 +141,7 @@ int ENet::Win32Platform::address_set_host(ENetAddress *address, const char *name
     return 0;
 }
 
-int ENet::Win32Platform::address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength)
+int ENet::Win32Platform::address_get_host_ip(const ENet::Address *address, char *name, size_t nameLength)
 {
     char *addr = inet_ntoa(*(struct in_addr *)&address->host);
     if (addr == NULL)
@@ -161,7 +160,7 @@ int ENet::Win32Platform::address_get_host_ip(const ENetAddress *address, char *n
     return 0;
 }
 
-int ENet::Win32Platform::address_get_host(const ENetAddress *address, char *name, size_t nameLength)
+int ENet::Win32Platform::address_get_host(const ENet::Address *address, char *name, size_t nameLength)
 {
     struct in_addr in;
     struct hostent *hostEntry;
@@ -186,7 +185,7 @@ int ENet::Win32Platform::address_get_host(const ENetAddress *address, char *name
     return 0;
 }
 
-int ENet::Win32Platform::socket_bind(ENetSocket socket, const ENetAddress *address)
+int ENet::Win32Platform::socket_bind(ENetSocket socket, const ENet::Address *address)
 {
     struct sockaddr_in sin;
 
@@ -208,7 +207,7 @@ int ENet::Win32Platform::socket_bind(ENetSocket socket, const ENetAddress *addre
     return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in)) == SOCKET_ERROR ? -1 : 0;
 }
 
-int ENet::Win32Platform::socket_get_address(ENetSocket socket, ENetAddress *address)
+int ENet::Win32Platform::socket_get_address(ENetSocket socket, ENet::Address *address)
 {
     struct sockaddr_in sin;
     int sinLength = sizeof(struct sockaddr_in);
@@ -304,7 +303,7 @@ int ENet::Win32Platform::socket_get_option(ENetSocket socket, ENetSocketOption o
     return result == SOCKET_ERROR ? -1 : 0;
 }
 
-int ENet::Win32Platform::socket_connect(ENetSocket socket, const ENetAddress *address)
+int ENet::Win32Platform::socket_connect(ENetSocket socket, const ENet::Address *address)
 {
     struct sockaddr_in sin;
     int result;
@@ -324,7 +323,7 @@ int ENet::Win32Platform::socket_connect(ENetSocket socket, const ENetAddress *ad
     return 0;
 }
 
-ENetSocket ENet::Win32Platform::socket_accept(ENetSocket socket, ENetAddress *address)
+ENetSocket ENet::Win32Platform::socket_accept(ENetSocket socket, ENet::Address *address)
 {
     SOCKET result;
     struct sockaddr_in sin;
@@ -359,7 +358,7 @@ void ENet::Win32Platform::socket_destroy(ENetSocket socket)
     }
 }
 
-int ENet::Win32Platform::socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
+int ENet::Win32Platform::socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers,
                                      size_t bufferCount)
 {
     struct sockaddr_in sin;
@@ -389,7 +388,7 @@ int ENet::Win32Platform::socket_send(ENetSocket socket, const ENetAddress *addre
     return (int)sentLength;
 }
 
-int ENet::Win32Platform::socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers,
+int ENet::Win32Platform::socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers,
                                         size_t bufferCount)
 {
     INT sinLength = sizeof(struct sockaddr_in);

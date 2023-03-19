@@ -27,14 +27,13 @@
 #define ENET_VERSION_GET_PATCH(version) ((version)&0xFF)
 #define ENET_VERSION ENET_VERSION_CREATE(ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH)
 
-using ENetVersion = uint32_t;
-
 namespace ENet
 {
+using Version = uint32_t;
+
 struct Host;
 struct Event;
 struct Packet;
-} // namespace ENet
 
 enum ENetSocketType
 {
@@ -71,9 +70,9 @@ enum ENetSocketShutdown
     ENET_SOCKET_SHUTDOWN_READ_WRITE = 2
 };
 
-#define ENET_HOST_ANY 0
-#define ENET_HOST_BROADCAST 0xFFFFFFFFU
-#define ENET_PORT_ANY 0
+constexpr uint32_t HOST_ANY = 0;
+constexpr uint32_t HOST_BROADCAST = 0xFFFFFFFFU;
+constexpr uint32_t PORT_ANY = 0;
 
 /**
  * Portable internet address structure.
@@ -85,14 +84,11 @@ enum ENetSocketShutdown
  * but not for enet_host_create.  Once a server responds to a broadcast, the
  * address is updated from ENET_HOST_BROADCAST to the server's actual IP address.
  */
-struct ENetAddress
+struct Address
 {
     uint32_t host;
     uint16_t port;
 };
-
-namespace ENet
-{
 
 /**
  * Packet flag bit constants.
@@ -282,8 +278,8 @@ struct Peer
     uint32_t connectID;
     uint8_t outgoingSessionID;
     uint8_t incomingSessionID;
-    ENetAddress address; /**< Internet address of the peer */
-    void *data;          /**< Application private data, may be freely modified */
+    Address address; /**< Internet address of the peer */
+    void *data;      /**< Application private data, may be freely modified */
     ENetPeerState state;
     Channel *channels;
     size_t channelCount;        /**< Number of channels allocated for communication with peer */
@@ -383,7 +379,7 @@ using InterceptCallback = int(ENET_CALLBACK *)(Host *host, Event *event);
 struct Host
 {
     ENetSocket socket;
-    ENetAddress address;        /**< Internet address of the host */
+    Address address;            /**< Internet address of the host */
     uint32_t incomingBandwidth; /**< downstream bandwidth of the host */
     uint32_t outgoingBandwidth; /**< upstream bandwidth of the host */
     uint32_t bandwidthThrottleEpoch;
@@ -405,7 +401,7 @@ struct Host
     ChecksumCallback checksum; /**< callback the user can set to enable packet checksums for this host */
     Compressor compressor;
     uint8_t packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
-    ENetAddress receivedAddress;
+    Address receivedAddress;
     uint8_t *receivedData;
     size_t receivedDataLength;
     uint32_t totalSentData;        /**< total data sent, user should reset to 0 as needed to prevent overflow */
@@ -488,15 +484,15 @@ struct Platform
     virtual uint32_t time_get() = 0;
     virtual void time_set(uint32_t newTimeBase) = 0;
     virtual ENetSocket socket_create(ENetSocketType type) = 0;
-    virtual int socket_bind(ENetSocket socket, const ENetAddress *address) = 0;
-    virtual int socket_get_address(ENetSocket socket, ENetAddress *address) = 0;
+    virtual int socket_bind(ENetSocket socket, const Address *address) = 0;
+    virtual int socket_get_address(ENetSocket socket, Address *address) = 0;
     virtual uint32_t host_random_seed() = 0;
     virtual int socket_listen(ENetSocket socket, int backlog) = 0;
-    virtual ENetSocket socket_accept(ENetSocket socket, ENetAddress *address) = 0;
-    virtual int socket_connect(ENetSocket socket, const ENetAddress *address) = 0;
-    virtual int socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
+    virtual ENetSocket socket_accept(ENetSocket socket, Address *address) = 0;
+    virtual int socket_connect(ENetSocket socket, const Address *address) = 0;
+    virtual int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers,
                             size_t bufferCount) = 0;
-    virtual int socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) = 0;
+    virtual int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount) = 0;
     virtual int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) = 0;
     virtual int socket_set_option(ENetSocket socket, ENetSocketOption option, int value) = 0;
     virtual int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) = 0;
@@ -504,10 +500,10 @@ struct Platform
     virtual void socket_destroy(ENetSocket socket) = 0;
     virtual int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
                                  uint32_t timeout) = 0;
-    virtual int address_set_host_ip(ENetAddress *address, const char *hostName) = 0;
-    virtual int address_set_host(ENetAddress *address, const char *hostName) = 0;
-    virtual int address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength) = 0;
-    virtual int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength) = 0;
+    virtual int address_set_host_ip(Address *address, const char *hostName) = 0;
+    virtual int address_set_host(Address *address, const char *hostName) = 0;
+    virtual int address_get_host_ip(const Address *address, char *hostName, size_t nameLength) = 0;
+    virtual int address_get_host(const Address *address, char *hostName, size_t nameLength) = 0;
     // TODO
     static Platform &Get();
 };
@@ -533,7 +529,7 @@ ENET_API int initialize();
   @param inits user-overridden callbacks where any NULL callbacks will use ENet's defaults
   @returns 0 on success, < 0 on failure
 */
-ENET_API int initialize_with_callbacks(ENetVersion version, const Callbacks *inits);
+ENET_API int initialize_with_callbacks(Version version, const Callbacks *inits);
 
 /**
   Shuts down ENet globally.  Should be called when a program that has
@@ -545,7 +541,7 @@ ENET_API void deinitialize();
   Gives the linked version of the ENet library.
   @returns the version number
 */
-ENET_API ENetVersion linked_version();
+ENET_API Version linked_version();
 
 /** @} */
 
@@ -566,13 +562,13 @@ ENET_API void time_set(uint32_t newTimeBase);
     @{
 */
 ENET_API ENetSocket socket_create(ENetSocketType type);
-ENET_API int socket_bind(ENetSocket socket, const ENetAddress *address);
-ENET_API int socket_get_address(ENetSocket socket, ENetAddress *address);
+ENET_API int socket_bind(ENetSocket socket, const Address *address);
+ENET_API int socket_get_address(ENetSocket socket, Address *address);
 ENET_API int socket_listen(ENetSocket socket, int backlog);
-ENET_API ENetSocket socket_accept(ENetSocket socket, ENetAddress *address);
-ENET_API int socket_connect(ENetSocket socket, const ENetAddress *address);
-ENET_API int socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount);
-ENET_API int socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount);
+ENET_API ENetSocket socket_accept(ENetSocket socket, Address *address);
+ENET_API int socket_connect(ENetSocket socket, const Address *address);
+ENET_API int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers, size_t bufferCount);
+ENET_API int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount);
 ENET_API int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout);
 ENET_API int socket_set_option(ENetSocket socket, ENetSocketOption option, int value);
 ENET_API int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value);
@@ -594,7 +590,7 @@ ENET_API int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENet
     @retval < 0 on failure
     @returns the address of the given hostName in address on success
 */
-ENET_API int address_set_host_ip(ENetAddress *address, const char *hostName);
+ENET_API int address_set_host_ip(Address *address, const char *hostName);
 
 /** Attempts to resolve the host named by the parameter hostName and sets
     the host field in the address parameter if successful.
@@ -604,7 +600,7 @@ ENET_API int address_set_host_ip(ENetAddress *address, const char *hostName);
     @retval < 0 on failure
     @returns the address of the given hostName in address on success
 */
-ENET_API int address_set_host(ENetAddress *address, const char *hostName);
+ENET_API int address_set_host(Address *address, const char *hostName);
 
 /** Gives the printable form of the IP address specified in the address parameter.
     @param address    address printed
@@ -614,7 +610,7 @@ ENET_API int address_set_host(ENetAddress *address, const char *hostName);
     @retval 0 on success
     @retval < 0 on failure
 */
-ENET_API int address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength);
+ENET_API int address_get_host_ip(const Address *address, char *hostName, size_t nameLength);
 
 /** Attempts to do a reverse lookup of the host field in the address parameter.
     @param address    address used for reverse lookup
@@ -624,7 +620,7 @@ ENET_API int address_get_host_ip(const ENetAddress *address, char *hostName, siz
     @retval 0 on success
     @retval < 0 on failure
 */
-ENET_API int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength);
+ENET_API int address_get_host(const Address *address, char *hostName, size_t nameLength);
 
 /** @} */
 
@@ -669,8 +665,8 @@ ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
     the window size of a connection which limits the amount of reliable packets that may be in transit
     at any given time.
 */
-ENET_API Host *host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
-                           uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API Host *host_create(const Address *address, size_t peerCount, size_t channelLimit, uint32_t incomingBandwidth,
+                           uint32_t outgoingBandwidth);
 
 /** Destroys the host and all resources associated with it.
     @param host pointer to the host to destroy
@@ -686,7 +682,7 @@ ENET_API void host_destroy(Host *host);
     @remarks The peer returned will have not completed the connection until enet_host_service()
     notifies of an ENET_EVENT_TYPE_CONNECT event for the peer.
 */
-ENET_API Peer *host_connect(Host *host, const ENetAddress *address, size_t channelCount, uint32_t data);
+ENET_API Peer *host_connect(Host *host, const Address *address, size_t channelCount, uint32_t data);
 
 /** Checks for any queued events on the host and dispatches one if available.
 

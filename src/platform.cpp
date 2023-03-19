@@ -30,12 +30,12 @@ ENetSocket ENet::socket_create(ENetSocketType type)
     return ENet::Platform::Get().socket_create(type);
 }
 
-int ENet::socket_bind(ENetSocket socket, const ENetAddress *address)
+int ENet::socket_bind(ENetSocket socket, const ENet::Address *address)
 {
     return ENet::Platform::Get().socket_bind(socket, address);
 }
 
-int ENet::socket_get_address(ENetSocket socket, ENetAddress *address)
+int ENet::socket_get_address(ENetSocket socket, ENet::Address *address)
 {
     return ENet::Platform::Get().socket_get_address(socket, address);
 }
@@ -45,22 +45,22 @@ int ENet::socket_listen(ENetSocket socket, int backlog)
     return ENet::Platform::Get().socket_listen(socket, backlog);
 }
 
-ENetSocket ENet::socket_accept(ENetSocket socket, ENetAddress *address)
+ENetSocket ENet::socket_accept(ENetSocket socket, ENet::Address *address)
 {
     return ENet::Platform::Get().socket_accept(socket, address);
 }
 
-int ENet::socket_connect(ENetSocket socket, const ENetAddress *address)
+int ENet::socket_connect(ENetSocket socket, const ENet::Address *address)
 {
     return ENet::Platform::Get().socket_connect(socket, address);
 }
 
-int ENet::socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers, size_t bufferCount)
+int ENet::socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers, size_t bufferCount)
 {
     return ENet::Platform::Get().socket_send(socket, address, buffers, bufferCount);
 }
 
-int ENet::socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount)
+int ENet::socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers, size_t bufferCount)
 {
     return ENet::Platform::Get().socket_receive(socket, address, buffers, bufferCount);
 }
@@ -95,22 +95,22 @@ int ENet::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSoc
     return ENet::Platform::Get().socketset_select(maxSocket, readSet, writeSet, timeout);
 }
 
-int ENet::address_set_host_ip(ENetAddress *address, const char *hostName)
+int ENet::address_set_host_ip(ENet::Address *address, const char *hostName)
 {
     return ENet::Platform::Get().address_set_host_ip(address, hostName);
 }
 
-int ENet::address_set_host(ENetAddress *address, const char *hostName)
+int ENet::address_set_host(ENet::Address *address, const char *hostName)
 {
     return ENet::Platform::Get().address_set_host(address, hostName);
 }
 
-int ENet::address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength)
+int ENet::address_get_host_ip(const ENet::Address *address, char *hostName, size_t nameLength)
 {
     return ENet::Platform::Get().address_get_host_ip(address, hostName, nameLength);
 }
 
-int ENet::address_get_host(const ENetAddress *address, char *hostName, size_t nameLength)
+int ENet::address_get_host(const ENet::Address *address, char *hostName, size_t nameLength)
 {
     return ENet::Platform::Get().address_get_host(address, hostName, nameLength);
 }

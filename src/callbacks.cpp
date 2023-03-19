@@ -7,7 +7,7 @@
 
 static ENet::Callbacks callbacks = {malloc, free, abort};
 
-int ENet::initialize_with_callbacks(ENetVersion version, const ENet::Callbacks *inits)
+int ENet::initialize_with_callbacks(ENet::Version version, const ENet::Callbacks *inits)
 {
     if (version < ENET_VERSION_CREATE(1, 3, 0))
     {
@@ -33,7 +33,7 @@ int ENet::initialize_with_callbacks(ENetVersion version, const ENet::Callbacks *
     return ENet::initialize();
 }
 
-ENetVersion ENet::linked_version()
+ENet::Version ENet::linked_version()
 {
     return ENET_VERSION;
 }

@@ -81,10 +81,10 @@ int main()
     int i = 0;
     ENet::Host *server;
     Client clients[MAX_CLIENTS];
-    ENetAddress address = {0, 0};
+    ENet::Address address = {0, 0};
 
-    address.host = ENET_HOST_ANY; /* Bind the server to the default localhost. */
-    address.port = 7777;          /* Bind the server to port 7777. */
+    address.host = ENet::HOST_ANY; /* Bind the server to the default localhost. */
+    address.port = 7777;           /* Bind the server to port 7777. */
 
     /* create a server */
     printf("starting server...\n");
