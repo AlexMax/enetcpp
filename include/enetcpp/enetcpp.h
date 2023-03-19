@@ -331,9 +331,12 @@ struct ENetPeer
     size_t totalWaitingData;
 };
 
+namespace ENet
+{
+
 /** An ENet packet compressor for compressing UDP packets before socket sends or receives.
  */
-struct ENetCompressor
+struct Compressor
 {
     /** Context data for the compressor. Must be non-NULL. */
     void *context;
@@ -350,14 +353,11 @@ struct ENetCompressor
 };
 
 /** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
-using ENetChecksumCallback = uint32_t(ENET_CALLBACK *)(const ENetBuffer *buffers, size_t bufferCount);
+using ChecksumCallback = uint32_t(ENET_CALLBACK *)(const ENetBuffer *buffers, size_t bufferCount);
 
 /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to
  * propagate an error. */
-using ENetInterceptCallback = int(ENET_CALLBACK *)(ENet::Host *host, ENet::Event *event);
-
-namespace ENet
-{
+using InterceptCallback = int(ENET_CALLBACK *)(Host *host, Event *event);
 
 /** An ENet host for communicating with peers.
   *
@@ -389,7 +389,7 @@ struct Host
     size_t peerCount;    /**< number of peers allocated for this host */
     size_t channelLimit; /**< maximum number of channels allowed for connected peers */
     uint32_t serviceTime;
-    ENet::List dispatchQueue;
+    List dispatchQueue;
     uint32_t totalQueued;
     size_t packetSize;
     uint16_t headerFlags;
@@ -397,8 +397,8 @@ struct Host
     size_t commandCount;
     ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
     size_t bufferCount;
-    ENetChecksumCallback checksum; /**< callback the user can set to enable packet checksums for this host */
-    ENetCompressor compressor;
+    ChecksumCallback checksum; /**< callback the user can set to enable packet checksums for this host */
+    Compressor compressor;
     uint8_t packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
     ENetAddress receivedAddress;
     uint8_t *receivedData;
@@ -408,7 +408,7 @@ struct Host
     uint32_t totalReceivedData;    /**< total data received, user should reset to 0 as needed to prevent overflow */
     uint32_t totalReceivedPackets; /**< total UDP packets received, user should reset to 0 as needed to prevent
                                          overflow */
-    ENetInterceptCallback intercept; /**< callback the user can set to intercept received raw UDP packets */
+    InterceptCallback intercept;   /**< callback the user can set to intercept received raw UDP packets */
     size_t connectedPeers;
     size_t bandwidthLimitedPeers;
     size_t duplicatePeers;     /**< optional number of allowed peers from duplicate IPs, defaults to
@@ -664,13 +664,13 @@ ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
     the window size of a connection which limits the amount of reliable packets that may be in transit
     at any given time.
 */
-ENET_API ENet::Host *host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
-                                 uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API Host *host_create(const ENetAddress *address, size_t peerCount, size_t channelLimit,
+                           uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
 /** Destroys the host and all resources associated with it.
     @param host pointer to the host to destroy
 */
-ENET_API void host_destroy(ENet::Host *host);
+ENET_API void host_destroy(Host *host);
 
 /** Initiates a connection to a foreign host.
     @param host host seeking the connection
@@ -707,7 +707,7 @@ ENET_API int host_check_events(Host *host, Event *event);
     @remarks enet_host_service should be called fairly regularly for adequate performance
     @ingroup host
 */
-ENET_API int host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout);
+ENET_API int host_service(Host *host, Event *event, uint32_t timeout);
 
 /** Sends any queued packets on the host specified to its designated peers.
 
@@ -716,33 +716,33 @@ ENET_API int host_service(ENet::Host *host, ENet::Event *event, uint32_t timeout
    call to enet_host_service().
     @ingroup host
 */
-ENET_API void host_flush(ENet::Host *host);
+ENET_API void host_flush(Host *host);
 
 /** Queues a packet to be sent to all peers associated with the host.
     @param host host on which to broadcast the packet
     @param channelID channel on which to broadcast
     @param packet packet to broadcast
 */
-ENET_API void host_broadcast(ENet::Host *host, uint8_t channelID, Packet *packet);
+ENET_API void host_broadcast(Host *host, uint8_t channelID, Packet *packet);
 
 /** Sets the packet compressor the host should use to compress and decompress packets.
     @param host host to enable or disable compression for
     @param compressor callbacks for for the packet compressor; if NULL, then compression is disabled
 */
-ENET_API void host_compress(ENet::Host *host, const ENetCompressor *compressor);
+ENET_API void host_compress(Host *host, const Compressor *compressor);
 
 /** Sets the packet compressor the host should use to the default range coder.
     @param host host to enable the range coder for
     @returns 0 on success, < 0 on failure
 */
-ENET_API int host_compress_with_range_coder(ENet::Host *host);
+ENET_API int host_compress_with_range_coder(Host *host);
 
 /** Limits the maximum allowed channels of future incoming connections.
     @param host host to limit
     @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to
    ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
 */
-ENET_API void host_channel_limit(ENet::Host *host, size_t channelLimit);
+ENET_API void host_channel_limit(Host *host, size_t channelLimit);
 
 /** Adjusts the bandwidth limits of a host.
     @param host host to adjust
@@ -751,11 +751,11 @@ ENET_API void host_channel_limit(ENet::Host *host, size_t channelLimit);
     @remarks the incoming and outgoing bandwidth parameters are identical in function to those
     specified in enet_host_create().
 */
-ENET_API void host_bandwidth_limit(ENet::Host *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
+ENET_API void host_bandwidth_limit(Host *host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth);
 
-extern void host_bandwidth_throttle(ENet::Host *host);
+extern void host_bandwidth_throttle(Host *host);
 extern uint32_t host_random_seed();
-extern uint32_t host_random(ENet::Host *host);
+extern uint32_t host_random(Host *host);
 
 /** Queues a packet to be sent.
 

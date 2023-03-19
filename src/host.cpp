@@ -274,7 +274,7 @@ void ENet::host_broadcast(ENet::Host *host, uint8_t channelID, ENet::Packet *pac
     }
 }
 
-void ENet::host_compress(ENet::Host *host, const ENetCompressor *compressor)
+void ENet::host_compress(ENet::Host *host, const ENet::Compressor *compressor)
 {
     if (host->compressor.context != NULL && host->compressor.destroy)
     {
