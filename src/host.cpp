@@ -235,19 +235,19 @@ ENet::Peer *ENet::host_connect(ENet::Host *host, const ENet::Address *address, s
 
     command.header.command = ENet::PROTOCOL_COMMAND_CONNECT | ENet::PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
     command.header.channelID = 0xFF;
-    command.connect.outgoingPeerID = ENET_HOST_TO_NET_16(currentPeer->incomingPeerID);
+    command.connect.outgoingPeerID = ENet::HOST_TO_NET_16(currentPeer->incomingPeerID);
     command.connect.incomingSessionID = currentPeer->incomingSessionID;
     command.connect.outgoingSessionID = currentPeer->outgoingSessionID;
-    command.connect.mtu = ENET_HOST_TO_NET_32(currentPeer->mtu);
-    command.connect.windowSize = ENET_HOST_TO_NET_32(currentPeer->windowSize);
-    command.connect.channelCount = ENET_HOST_TO_NET_32(channelCount);
-    command.connect.incomingBandwidth = ENET_HOST_TO_NET_32(host->incomingBandwidth);
-    command.connect.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
-    command.connect.packetThrottleInterval = ENET_HOST_TO_NET_32(currentPeer->packetThrottleInterval);
-    command.connect.packetThrottleAcceleration = ENET_HOST_TO_NET_32(currentPeer->packetThrottleAcceleration);
-    command.connect.packetThrottleDeceleration = ENET_HOST_TO_NET_32(currentPeer->packetThrottleDeceleration);
+    command.connect.mtu = ENet::HOST_TO_NET_32(currentPeer->mtu);
+    command.connect.windowSize = ENet::HOST_TO_NET_32(currentPeer->windowSize);
+    command.connect.channelCount = ENet::HOST_TO_NET_32(channelCount);
+    command.connect.incomingBandwidth = ENet::HOST_TO_NET_32(host->incomingBandwidth);
+    command.connect.outgoingBandwidth = ENet::HOST_TO_NET_32(host->outgoingBandwidth);
+    command.connect.packetThrottleInterval = ENet::HOST_TO_NET_32(currentPeer->packetThrottleInterval);
+    command.connect.packetThrottleAcceleration = ENet::HOST_TO_NET_32(currentPeer->packetThrottleAcceleration);
+    command.connect.packetThrottleDeceleration = ENet::HOST_TO_NET_32(currentPeer->packetThrottleDeceleration);
     command.connect.connectID = currentPeer->connectID;
-    command.connect.data = ENET_HOST_TO_NET_32(data);
+    command.connect.data = ENet::HOST_TO_NET_32(data);
 
     ENet::peer_queue_outgoing_command(currentPeer, &command, NULL, 0, 0);
 
@@ -484,15 +484,15 @@ void ENet::host_bandwidth_throttle(ENet::Host *host)
 
             command.header.command = ENet::PROTOCOL_COMMAND_BANDWIDTH_LIMIT | ENet::PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
             command.header.channelID = 0xFF;
-            command.bandwidthLimit.outgoingBandwidth = ENET_HOST_TO_NET_32(host->outgoingBandwidth);
+            command.bandwidthLimit.outgoingBandwidth = ENet::HOST_TO_NET_32(host->outgoingBandwidth);
 
             if (peer->incomingBandwidthThrottleEpoch == timeCurrent)
             {
-                command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(peer->outgoingBandwidth);
+                command.bandwidthLimit.incomingBandwidth = ENet::HOST_TO_NET_32(peer->outgoingBandwidth);
             }
             else
             {
-                command.bandwidthLimit.incomingBandwidth = ENET_HOST_TO_NET_32(bandwidthLimit);
+                command.bandwidthLimit.incomingBandwidth = ENet::HOST_TO_NET_32(bandwidthLimit);
             }
 
             ENet::peer_queue_outgoing_command(peer, &command, NULL, 0, 0);

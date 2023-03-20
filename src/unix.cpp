@@ -29,27 +29,31 @@ struct UNIXPlatform final : public Platform
     void deinitialize() override;
     uint32_t time_get() override;
     void time_set(uint32_t newTimeBase) override;
-    ENetSocket socket_create(ENetSocketType type) override;
-    int socket_bind(ENetSocket socket, const ENetAddress *address) override;
-    int socket_get_address(ENetSocket socket, ENetAddress *address) override;
+    ENetSocket socket_create(ENet::SocketType type) override;
+    int socket_bind(ENetSocket socket, const ENet::Address *address) override;
+    int socket_get_address(ENetSocket socket, ENet::Address *address) override;
     int socket_listen(ENetSocket socket, int backlog) override;
-    ENetSocket socket_accept(ENetSocket socket, ENetAddress *address) override;
-    int socket_connect(ENetSocket socket, const ENetAddress *address) override;
-    int socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
+    ENetSocket socket_accept(ENetSocket socket, ENet::Address *address) override;
+    int socket_connect(ENetSocket socket, const ENet::Address *address) override;
+    int socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers,
                     size_t bufferCount) override;
-    int socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount) override;
+    int socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers, size_t bufferCount) override;
     int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) override;
-    int socket_set_option(ENetSocket socket, ENetSocketOption option, int value) override;
-    int socket_get_option(ENetSocket socket, ENetSocketOption option, int *value) override;
-    int socket_shutdown(ENetSocket socket, ENetSocketShutdown how) override;
+    int socket_set_option(ENetSocket socket, ENet::SocketOption option, int value) override;
+    int socket_get_option(ENetSocket socket, ENet::SocketOption option, int *value) override;
+    int socket_shutdown(ENetSocket socket, ENet::SocketShutdown how) override;
     void socket_destroy(ENetSocket socket) override;
     int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
                          uint32_t timeout) override;
-    int address_set_host_ip(ENetAddress *address, const char *hostName) override;
-    int address_set_host(ENetAddress *address, const char *hostName) override;
-    int address_get_host_ip(const ENetAddress *address, char *hostName, size_t nameLength) override;
-    int address_get_host(const ENetAddress *address, char *hostName, size_t nameLength) override;
+    int address_set_host_ip(ENet::Address *address, const char *hostName) override;
+    int address_set_host(ENet::Address *address, const char *hostName) override;
+    int address_get_host_ip(const ENet::Address *address, char *hostName, size_t nameLength) override;
+    int address_get_host(const ENet::Address *address, char *hostName, size_t nameLength) override;
     uint32_t host_random_seed() override;
+    uint16_t HOST_TO_NET_16(const uint16_t value) override;
+    uint32_t HOST_TO_NET_32(const uint32_t value) override;
+    uint16_t NET_TO_HOST_16(const uint16_t value) override;
+    uint32_t NET_TO_HOST_32(const uint32_t value) override;
 };
 
 Platform &Platform::Get()
@@ -135,7 +139,7 @@ void UNIXPlatform::time_set(uint32_t newTimeBase)
     timeBase = timeVal.tv_sec * 1000 + timeVal.tv_usec / 1000 - newTimeBase;
 }
 
-int UNIXPlatform::address_set_host_ip(ENetAddress *address, const char *name)
+int UNIXPlatform::address_set_host_ip(ENet::Address *address, const char *name)
 {
 #ifdef HAS_INET_PTON
     if (!inet_pton(AF_INET, name, &address->host))
@@ -147,7 +151,7 @@ int UNIXPlatform::address_set_host_ip(ENetAddress *address, const char *name)
     return 0;
 }
 
-int UNIXPlatform::address_set_host(ENetAddress *address, const char *name)
+int UNIXPlatform::address_set_host(ENet::Address *address, const char *name)
 {
 #ifdef HAS_GETADDRINFO
     struct addrinfo hints, *resultList = NULL, *result = NULL;
@@ -203,10 +207,10 @@ int UNIXPlatform::address_set_host(ENetAddress *address, const char *name)
     }
 #endif
 
-    return enet_address_set_host_ip(address, name);
+    return ENet::address_set_host_ip(address, name);
 }
 
-int UNIXPlatform::address_get_host_ip(const ENetAddress *address, char *name, size_t nameLength)
+int UNIXPlatform::address_get_host_ip(const ENet::Address *address, char *name, size_t nameLength)
 {
 #ifdef HAS_INET_NTOP
     if (inet_ntop(AF_INET, &address->host, name, nameLength) == NULL)
@@ -227,7 +231,7 @@ int UNIXPlatform::address_get_host_ip(const ENetAddress *address, char *name, si
     return 0;
 }
 
-int UNIXPlatform::address_get_host(const ENetAddress *address, char *name, size_t nameLength)
+int UNIXPlatform::address_get_host(const ENet::Address *address, char *name, size_t nameLength)
 {
 #ifdef HAS_GETNAMEINFO
     struct sockaddr_in sin;
@@ -236,7 +240,7 @@ int UNIXPlatform::address_get_host(const ENetAddress *address, char *name, size_
     memset(&sin, 0, sizeof(struct sockaddr_in));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+    sin.sin_port = ENet::HOST_TO_NET_16(address->port);
     sin.sin_addr.s_addr = address->host;
 
     err = getnameinfo((struct sockaddr *)&sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
@@ -288,10 +292,10 @@ int UNIXPlatform::address_get_host(const ENetAddress *address, char *name, size_
     }
 #endif
 
-    return enet_address_get_host_ip(address, name, nameLength);
+    return ENet::address_get_host_ip(address, name, nameLength);
 }
 
-int UNIXPlatform::socket_bind(ENetSocket socket, const ENetAddress *address)
+int UNIXPlatform::socket_bind(ENetSocket socket, const ENet::Address *address)
 {
     struct sockaddr_in sin;
 
@@ -301,7 +305,7 @@ int UNIXPlatform::socket_bind(ENetSocket socket, const ENetAddress *address)
 
     if (address != NULL)
     {
-        sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+        sin.sin_port = ENet::HOST_TO_NET_16(address->port);
         sin.sin_addr.s_addr = address->host;
     }
     else
@@ -313,7 +317,7 @@ int UNIXPlatform::socket_bind(ENetSocket socket, const ENetAddress *address)
     return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in));
 }
 
-int UNIXPlatform::socket_get_address(ENetSocket socket, ENetAddress *address)
+int UNIXPlatform::socket_get_address(ENetSocket socket, ENet::Address *address)
 {
     struct sockaddr_in sin;
     socklen_t sinLength = sizeof(struct sockaddr_in);
@@ -324,7 +328,7 @@ int UNIXPlatform::socket_get_address(ENetSocket socket, ENetAddress *address)
     }
 
     address->host = (uint32_t)sin.sin_addr.s_addr;
-    address->port = ENET_NET_TO_HOST_16(sin.sin_port);
+    address->port = ENet::NET_TO_HOST_16(sin.sin_port);
 
     return 0;
 }
@@ -334,17 +338,17 @@ int UNIXPlatform::socket_listen(ENetSocket socket, int backlog)
     return listen(socket, backlog < 0 ? SOMAXCONN : backlog);
 }
 
-ENetSocket UNIXPlatform::socket_create(ENetSocketType type)
+ENetSocket UNIXPlatform::socket_create(ENet::SocketType type)
 {
-    return socket(PF_INET, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+    return socket(PF_INET, type == ENet::SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
 
-int UNIXPlatform::socket_set_option(ENetSocket socket, ENetSocketOption option, int value)
+int UNIXPlatform::socket_set_option(ENetSocket socket, ENet::SocketOption option, int value)
 {
     int result = -1;
     switch (option)
     {
-    case ENET_SOCKOPT_NONBLOCK:
+    case ENet::SOCKOPT_NONBLOCK:
 #ifdef HAS_FCNTL
         result = fcntl(socket, F_SETFL, (value ? O_NONBLOCK : 0) | (fcntl(socket, F_GETFL) & ~O_NONBLOCK));
 #else
@@ -352,23 +356,23 @@ int UNIXPlatform::socket_set_option(ENetSocket socket, ENetSocketOption option, 
 #endif
         break;
 
-    case ENET_SOCKOPT_BROADCAST:
+    case ENet::SOCKOPT_BROADCAST:
         result = setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_REUSEADDR:
+    case ENet::SOCKOPT_REUSEADDR:
         result = setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_RCVBUF:
+    case ENet::SOCKOPT_RCVBUF:
         result = setsockopt(socket, SOL_SOCKET, SO_RCVBUF, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_SNDBUF:
+    case ENet::SOCKOPT_SNDBUF:
         result = setsockopt(socket, SOL_SOCKET, SO_SNDBUF, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_RCVTIMEO: {
+    case ENet::SOCKOPT_RCVTIMEO: {
         struct timeval timeVal;
         timeVal.tv_sec = value / 1000;
         timeVal.tv_usec = (value % 1000) * 1000;
@@ -376,7 +380,7 @@ int UNIXPlatform::socket_set_option(ENetSocket socket, ENetSocketOption option, 
         break;
     }
 
-    case ENET_SOCKOPT_SNDTIMEO: {
+    case ENet::SOCKOPT_SNDTIMEO: {
         struct timeval timeVal;
         timeVal.tv_sec = value / 1000;
         timeVal.tv_usec = (value % 1000) * 1000;
@@ -384,11 +388,11 @@ int UNIXPlatform::socket_set_option(ENetSocket socket, ENetSocketOption option, 
         break;
     }
 
-    case ENET_SOCKOPT_NODELAY:
+    case ENet::SOCKOPT_NODELAY:
         result = setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char *)&value, sizeof(int));
         break;
 
-    case ENET_SOCKOPT_TTL:
+    case ENet::SOCKOPT_TTL:
         result = setsockopt(socket, IPPROTO_IP, IP_TTL, (char *)&value, sizeof(int));
         break;
 
@@ -398,18 +402,18 @@ int UNIXPlatform::socket_set_option(ENetSocket socket, ENetSocketOption option, 
     return result == -1 ? -1 : 0;
 }
 
-int UNIXPlatform::socket_get_option(ENetSocket socket, ENetSocketOption option, int *value)
+int UNIXPlatform::socket_get_option(ENetSocket socket, ENet::SocketOption option, int *value)
 {
     int result = -1;
     socklen_t len;
     switch (option)
     {
-    case ENET_SOCKOPT_ERROR:
+    case ENet::SOCKOPT_ERROR:
         len = sizeof(int);
         result = getsockopt(socket, SOL_SOCKET, SO_ERROR, value, &len);
         break;
 
-    case ENET_SOCKOPT_TTL:
+    case ENet::SOCKOPT_TTL:
         len = sizeof(int);
         result = getsockopt(socket, IPPROTO_IP, IP_TTL, (char *)value, &len);
         break;
@@ -420,7 +424,7 @@ int UNIXPlatform::socket_get_option(ENetSocket socket, ENetSocketOption option, 
     return result == -1 ? -1 : 0;
 }
 
-int UNIXPlatform::socket_connect(ENetSocket socket, const ENetAddress *address)
+int UNIXPlatform::socket_connect(ENetSocket socket, const ENet::Address *address)
 {
     struct sockaddr_in sin;
     int result;
@@ -428,7 +432,7 @@ int UNIXPlatform::socket_connect(ENetSocket socket, const ENetAddress *address)
     memset(&sin, 0, sizeof(struct sockaddr_in));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+    sin.sin_port = ENet::HOST_TO_NET_16(address->port);
     sin.sin_addr.s_addr = address->host;
 
     result = connect(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in));
@@ -440,7 +444,7 @@ int UNIXPlatform::socket_connect(ENetSocket socket, const ENetAddress *address)
     return result;
 }
 
-ENetSocket UNIXPlatform::socket_accept(ENetSocket socket, ENetAddress *address)
+ENetSocket UNIXPlatform::socket_accept(ENetSocket socket, ENet::Address *address)
 {
     int result;
     struct sockaddr_in sin;
@@ -456,13 +460,13 @@ ENetSocket UNIXPlatform::socket_accept(ENetSocket socket, ENetAddress *address)
     if (address != NULL)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
-        address->port = ENET_NET_TO_HOST_16(sin.sin_port);
+        address->port = ENet::NET_TO_HOST_16(sin.sin_port);
     }
 
     return result;
 }
 
-int UNIXPlatform::socket_shutdown(ENetSocket socket, ENetSocketShutdown how)
+int UNIXPlatform::socket_shutdown(ENetSocket socket, ENet::SocketShutdown how)
 {
     return shutdown(socket, (int)how);
 }
@@ -475,7 +479,7 @@ void UNIXPlatform::socket_destroy(ENetSocket socket)
     }
 }
 
-int UNIXPlatform::socket_send(ENetSocket socket, const ENetAddress *address, const ENetBuffer *buffers,
+int UNIXPlatform::socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers,
                               size_t bufferCount)
 {
     struct msghdr msgHdr;
@@ -489,7 +493,7 @@ int UNIXPlatform::socket_send(ENetSocket socket, const ENetAddress *address, con
         memset(&sin, 0, sizeof(struct sockaddr_in));
 
         sin.sin_family = AF_INET;
-        sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+        sin.sin_port = ENet::HOST_TO_NET_16(address->port);
         sin.sin_addr.s_addr = address->host;
 
         msgHdr.msg_name = &sin;
@@ -514,7 +518,7 @@ int UNIXPlatform::socket_send(ENetSocket socket, const ENetAddress *address, con
     return sentLength;
 }
 
-int UNIXPlatform::socket_receive(ENetSocket socket, ENetAddress *address, ENetBuffer *buffers, size_t bufferCount)
+int UNIXPlatform::socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers, size_t bufferCount)
 {
     struct msghdr msgHdr;
     struct sockaddr_in sin;
@@ -553,7 +557,7 @@ int UNIXPlatform::socket_receive(ENetSocket socket, ENetAddress *address, ENetBu
     if (address != NULL)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
-        address->port = ENET_NET_TO_HOST_16(sin.sin_port);
+        address->port = ENet::NET_TO_HOST_16(sin.sin_port);
     }
 
     return recvLength;
@@ -579,12 +583,12 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
     pollSocket.fd = socket;
     pollSocket.events = 0;
 
-    if (*condition & ENET_SOCKET_WAIT_SEND)
+    if (*condition & ENet::SOCKET_WAIT_SEND)
     {
         pollSocket.events |= POLLOUT;
     }
 
-    if (*condition & ENET_SOCKET_WAIT_RECEIVE)
+    if (*condition & ENet::SOCKET_WAIT_RECEIVE)
     {
         pollSocket.events |= POLLIN;
     }
@@ -593,9 +597,9 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
 
     if (pollCount < 0)
     {
-        if (errno == EINTR && *condition & ENET_SOCKET_WAIT_INTERRUPT)
+        if (errno == EINTR && *condition & ENet::SOCKET_WAIT_INTERRUPT)
         {
-            *condition = ENET_SOCKET_WAIT_INTERRUPT;
+            *condition = ENet::SOCKET_WAIT_INTERRUPT;
 
             return 0;
         }
@@ -603,7 +607,7 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
         return -1;
     }
 
-    *condition = ENET_SOCKET_WAIT_NONE;
+    *condition = ENet::SOCKET_WAIT_NONE;
 
     if (pollCount == 0)
     {
@@ -612,12 +616,12 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
 
     if (pollSocket.revents & POLLOUT)
     {
-        *condition |= ENET_SOCKET_WAIT_SEND;
+        *condition |= ENet::SOCKET_WAIT_SEND;
     }
 
     if (pollSocket.revents & POLLIN)
     {
-        *condition |= ENET_SOCKET_WAIT_RECEIVE;
+        *condition |= ENet::SOCKET_WAIT_RECEIVE;
     }
 
     return 0;
@@ -632,12 +636,12 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
     FD_ZERO(&readSet);
     FD_ZERO(&writeSet);
 
-    if (*condition & ENET_SOCKET_WAIT_SEND)
+    if (*condition & ENet::SOCKET_WAIT_SEND)
     {
         FD_SET(socket, &writeSet);
     }
 
-    if (*condition & ENET_SOCKET_WAIT_RECEIVE)
+    if (*condition & ENet::SOCKET_WAIT_RECEIVE)
     {
         FD_SET(socket, &readSet);
     }
@@ -646,9 +650,9 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
 
     if (selectCount < 0)
     {
-        if (errno == EINTR && *condition & ENET_SOCKET_WAIT_INTERRUPT)
+        if (errno == EINTR && *condition & ENet::SOCKET_WAIT_INTERRUPT)
         {
-            *condition = ENET_SOCKET_WAIT_INTERRUPT;
+            *condition = ENet::SOCKET_WAIT_INTERRUPT;
 
             return 0;
         }
@@ -656,7 +660,7 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
         return -1;
     }
 
-    *condition = ENET_SOCKET_WAIT_NONE;
+    *condition = ENet::SOCKET_WAIT_NONE;
 
     if (selectCount == 0)
     {
@@ -665,16 +669,36 @@ int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t t
 
     if (FD_ISSET(socket, &writeSet))
     {
-        *condition |= ENET_SOCKET_WAIT_SEND;
+        *condition |= ENet::SOCKET_WAIT_SEND;
     }
 
     if (FD_ISSET(socket, &readSet))
     {
-        *condition |= ENET_SOCKET_WAIT_RECEIVE;
+        *condition |= ENet::SOCKET_WAIT_RECEIVE;
     }
 
     return 0;
 #endif
+}
+
+uint16_t UNIXPlatform::HOST_TO_NET_16(const uint16_t value)
+{
+    return htons(value);
+}
+
+uint32_t UNIXPlatform::HOST_TO_NET_32(const uint32_t value)
+{
+    return htonl(value);
+}
+
+uint16_t UNIXPlatform::NET_TO_HOST_16(const uint16_t value)
+{
+    return ntohs(value);
+}
+
+uint32_t UNIXPlatform::NET_TO_HOST_32(const uint32_t value)
+{
+    return ntohl(value);
 }
 
 } // namespace ENet

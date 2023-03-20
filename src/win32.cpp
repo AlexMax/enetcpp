@@ -195,7 +195,7 @@ int ENet::Win32Platform::socket_bind(ENetSocket socket, const ENet::Address *add
 
     if (address != NULL)
     {
-        sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+        sin.sin_port = ENet::HOST_TO_NET_16(address->port);
         sin.sin_addr.s_addr = address->host;
     }
     else
@@ -218,7 +218,7 @@ int ENet::Win32Platform::socket_get_address(ENetSocket socket, ENet::Address *ad
     }
 
     address->host = (uint32_t)sin.sin_addr.s_addr;
-    address->port = ENET_NET_TO_HOST_16(sin.sin_port);
+    address->port = ENet::NET_TO_HOST_16(sin.sin_port);
 
     return 0;
 }
@@ -311,7 +311,7 @@ int ENet::Win32Platform::socket_connect(ENetSocket socket, const ENet::Address *
     memset(&sin, 0, sizeof(struct sockaddr_in));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+    sin.sin_port = ENet::HOST_TO_NET_16(address->port);
     sin.sin_addr.s_addr = address->host;
 
     result = connect(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in));
@@ -339,7 +339,7 @@ ENetSocket ENet::Win32Platform::socket_accept(ENetSocket socket, ENet::Address *
     if (address != NULL)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
-        address->port = ENET_NET_TO_HOST_16(sin.sin_port);
+        address->port = ENet::NET_TO_HOST_16(sin.sin_port);
     }
 
     return result;
@@ -369,7 +369,7 @@ int ENet::Win32Platform::socket_send(ENetSocket socket, const ENet::Address *add
         memset(&sin, 0, sizeof(struct sockaddr_in));
 
         sin.sin_family = AF_INET;
-        sin.sin_port = ENET_HOST_TO_NET_16(address->port);
+        sin.sin_port = ENet::HOST_TO_NET_16(address->port);
         sin.sin_addr.s_addr = address->host;
     }
 
@@ -417,7 +417,7 @@ int ENet::Win32Platform::socket_receive(ENetSocket socket, ENet::Address *addres
     if (address != NULL)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
-        address->port = ENET_NET_TO_HOST_16(sin.sin_port);
+        address->port = ENet::NET_TO_HOST_16(sin.sin_port);
     }
 
     return (int)recvLength;

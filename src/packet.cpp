@@ -141,7 +141,7 @@ uint32_t ENet::crc32(const ENetBuffer *buffers, size_t bufferCount)
         ++buffers;
     }
 
-    return ENET_HOST_TO_NET_32(~crc);
+    return ENet::HOST_TO_NET_32(~crc);
 }
 
 /** @} */

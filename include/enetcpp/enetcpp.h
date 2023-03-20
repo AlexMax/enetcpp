@@ -527,7 +527,10 @@ struct Platform
     virtual int address_set_host(Address *address, const char *hostName) = 0;
     virtual int address_get_host_ip(const Address *address, char *hostName, size_t nameLength) = 0;
     virtual int address_get_host(const Address *address, char *hostName, size_t nameLength) = 0;
-    // TODO
+    virtual uint16_t HOST_TO_NET_16(const uint16_t value) = 0;
+    virtual uint32_t HOST_TO_NET_32(const uint32_t value) = 0;
+    virtual uint16_t NET_TO_HOST_16(const uint16_t value) = 0;
+    virtual uint32_t NET_TO_HOST_32(const uint32_t value) = 0;
     static Platform &Get();
 };
 
@@ -929,5 +932,10 @@ ENET_API size_t range_coder_decompress(void *context, const uint8_t *inData, siz
                                        size_t outLimit);
 
 extern size_t protocol_command_size(uint8_t commandNumber);
+
+extern uint16_t HOST_TO_NET_16(const uint16_t value);
+extern uint32_t HOST_TO_NET_32(const uint32_t value);
+extern uint16_t NET_TO_HOST_16(const uint16_t value);
+extern uint32_t NET_TO_HOST_32(const uint32_t value);
 
 } // namespace ENet

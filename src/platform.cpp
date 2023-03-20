@@ -119,3 +119,23 @@ uint32_t ENet::host_random_seed()
 {
     return ENet::Platform::Get().host_random_seed();
 }
+
+uint16_t ENet::HOST_TO_NET_16(const uint16_t value)
+{
+    return ENet::Platform::Get().HOST_TO_NET_16(value);
+}
+
+uint32_t ENet::HOST_TO_NET_32(const uint32_t value)
+{
+    return ENet::Platform::Get().HOST_TO_NET_32(value);
+}
+
+uint16_t ENet::NET_TO_HOST_16(const uint16_t value)
+{
+    return ENet::Platform::Get().NET_TO_HOST_16(value);
+}
+
+uint32_t ENet::NET_TO_HOST_32(const uint32_t value)
+{
+    return ENet::Platform::Get().NET_TO_HOST_32(value);
+}

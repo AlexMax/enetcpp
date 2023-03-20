@@ -22,12 +22,6 @@ using ENetSocket = SOCKET;
 
 #define ENET_SOCKET_NULL INVALID_SOCKET
 
-#define ENET_HOST_TO_NET_16(value) (htons(value))
-#define ENET_HOST_TO_NET_32(value) (htonl(value))
-
-#define ENET_NET_TO_HOST_16(value) (ntohs(value))
-#define ENET_NET_TO_HOST_32(value) (ntohl(value))
-
 struct ENetBuffer
 {
     size_t dataLength;
