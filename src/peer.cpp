@@ -122,7 +122,7 @@ int ENet::peer_send(ENet::Peer *peer, uint8_t channelID, ENet::Packet *packet)
             {
                 while (!ENet::list_empty(&fragments))
                 {
-                    fragment = (ENet::OutgoingCommand *)ENet::list_remove(ENet::list_begin(&fragments));
+                    fragment = ENet::list_remove(ENet::list_begin(&fragments));
 
                     ENet::enet_free(fragment);
                 }
@@ -149,7 +149,7 @@ int ENet::peer_send(ENet::Peer *peer, uint8_t channelID, ENet::Packet *packet)
 
         while (!ENet::list_empty(&fragments))
         {
-            fragment = (ENet::OutgoingCommand *)ENet::list_remove(ENet::list_begin(&fragments));
+            fragment = ENet::list_remove(ENet::list_begin(&fragments));
 
             ENet::peer_setup_outgoing_command(peer, fragment);
         }
@@ -193,7 +193,7 @@ ENet::Packet *ENet::peer_receive(ENet::Peer *peer, uint8_t *channelID)
         return NULL;
     }
 
-    incomingCommand = (ENet::IncomingCommand *)ENet::list_remove(ENet::list_begin(&peer->dispatchedCommands));
+    incomingCommand = ENet::list_remove(ENet::list_begin(&peer->dispatchedCommands));
 
     if (channelID != NULL)
     {
@@ -222,7 +222,7 @@ static void enet_peer_reset_outgoing_commands(ENet::List<ENet::OutgoingCommand> 
 
     while (!ENet::list_empty(queue))
     {
-        outgoingCommand = (ENet::OutgoingCommand *)ENet::list_remove(ENet::list_begin(queue));
+        outgoingCommand = ENet::list_remove(ENet::list_begin(queue));
 
         if (outgoingCommand->packet != NULL)
         {
@@ -249,7 +249,7 @@ static void enet_peer_remove_incoming_commands(ENet::List<ENet::IncomingCommand>
 
     for (currentCommand = startCommand; currentCommand != endCommand;)
     {
-        ENet::IncomingCommand *incomingCommand = (ENet::IncomingCommand *)currentCommand;
+        ENet::IncomingCommand *incomingCommand = currentCommand;
 
         currentCommand = ENet::list_next(currentCommand);
 
@@ -666,7 +666,7 @@ void ENet::peer_dispatch_incoming_unreliable_commands(ENet::Peer *peer, ENet::Ch
          currentCommand != ENet::list_end(&channel->incomingUnreliableCommands);
          currentCommand = ENet::list_next(currentCommand))
     {
-        ENet::IncomingCommand *incomingCommand = (ENet::IncomingCommand *)currentCommand;
+        ENet::IncomingCommand *incomingCommand = currentCommand;
 
         if ((incomingCommand->command.header.command & ENet::PROTOCOL_COMMAND_MASK) ==
             ENet::PROTOCOL_COMMAND_SEND_UNSEQUENCED)
@@ -762,7 +762,7 @@ void ENet::peer_dispatch_incoming_reliable_commands(ENet::Peer *peer, ENet::Chan
          currentCommand != ENet::list_end(&channel->incomingReliableCommands);
          currentCommand = ENet::list_next(currentCommand))
     {
-        ENet::IncomingCommand *incomingCommand = (ENet::IncomingCommand *)currentCommand;
+        ENet::IncomingCommand *incomingCommand = currentCommand;
 
         if (incomingCommand->fragmentsRemaining > 0 ||
             incomingCommand->reliableSequenceNumber != (uint16_t)(channel->incomingReliableSequenceNumber + 1))
@@ -849,7 +849,7 @@ ENet::IncomingCommand *ENet::peer_queue_incoming_command(ENet::Peer *peer, const
              currentCommand != ENet::list_end(&channel->incomingReliableCommands);
              currentCommand = ENet::list_previous(currentCommand))
         {
-            incomingCommand = (ENet::IncomingCommand *)currentCommand;
+            incomingCommand = currentCommand;
 
             if (reliableSequenceNumber >= channel->incomingReliableSequenceNumber)
             {
@@ -889,7 +889,7 @@ ENet::IncomingCommand *ENet::peer_queue_incoming_command(ENet::Peer *peer, const
              currentCommand != ENet::list_end(&channel->incomingUnreliableCommands);
              currentCommand = ENet::list_previous(currentCommand))
         {
-            incomingCommand = (ENet::IncomingCommand *)currentCommand;
+            incomingCommand = currentCommand;
 
             if ((command->header.command & ENet::PROTOCOL_COMMAND_MASK) == ENet::PROTOCOL_COMMAND_SEND_UNSEQUENCED)
             {
