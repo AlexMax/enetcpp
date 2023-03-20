@@ -20,7 +20,7 @@ inline T MIN(const T x, const T y)
 }
 
 template <typename T>
-inline T DIFFERENCE(const T x, const T y)
+inline T DISTANCE(const T x, const T y)
 {
     return x < y ? y - x : x - y;
 }

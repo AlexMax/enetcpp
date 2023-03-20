@@ -1954,7 +1954,7 @@ static int enet_protocol_send_outgoing_commands(ENet::Host *host, ENet::Event *e
 #endif
 
                 currentPeer->packetLossVariance =
-                    (currentPeer->packetLossVariance * 3 + ENet::DIFFERENCE(packetLoss, currentPeer->packetLoss)) / 4;
+                    (currentPeer->packetLossVariance * 3 + ENet::DISTANCE(packetLoss, currentPeer->packetLoss)) / 4;
                 currentPeer->packetLoss = (currentPeer->packetLoss * 7 + packetLoss) / 8;
 
                 currentPeer->packetLossEpoch = host->serviceTime;

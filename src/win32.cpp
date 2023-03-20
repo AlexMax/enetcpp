@@ -41,6 +41,10 @@ struct Win32Platform final : public Platform
     int address_get_host_ip(const Address *address, char *hostName, size_t nameLength) override;
     int address_get_host(const Address *address, char *hostName, size_t nameLength) override;
     uint32_t host_random_seed() override;
+    uint16_t HOST_TO_NET_16(const uint16_t value) override;
+    uint32_t HOST_TO_NET_32(const uint32_t value) override;
+    uint16_t NET_TO_HOST_16(const uint16_t value) override;
+    uint32_t NET_TO_HOST_32(const uint32_t value) override;
 };
 
 Platform &Platform::Get()
@@ -481,4 +485,24 @@ int ENet::Win32Platform::socket_wait(ENetSocket socket, uint32_t *condition, uin
     }
 
     return 0;
+}
+
+uint16_t ENet::Win32Platform::HOST_TO_NET_16(const uint16_t value)
+{
+    return htons(value);
+}
+
+uint32_t ENet::Win32Platform::HOST_TO_NET_32(const uint32_t value)
+{
+    return htonl(value);
+}
+
+uint16_t ENet::Win32Platform::NET_TO_HOST_16(const uint16_t value)
+{
+    return ntohs(value);
+}
+
+uint32_t ENet::Win32Platform::NET_TO_HOST_32(const uint32_t value)
+{
+    return ntohl(value);
 }
