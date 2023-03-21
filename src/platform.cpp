@@ -25,72 +25,74 @@ void ENet::time_set(uint32_t newTimeBase)
     return ENet::Platform::Get().time_set(newTimeBase);
 }
 
-ENetSocket ENet::socket_create(ENet::SocketType type)
+ENet::Socket ENet::socket_create(ENet::SocketType type)
 {
     return ENet::Platform::Get().socket_create(type);
 }
 
-int ENet::socket_bind(ENetSocket socket, const ENet::Address *address)
+int ENet::socket_bind(ENet::Socket socket, const ENet::Address *address)
 {
     return ENet::Platform::Get().socket_bind(socket, address);
 }
 
-int ENet::socket_get_address(ENetSocket socket, ENet::Address *address)
+int ENet::socket_get_address(ENet::Socket socket, ENet::Address *address)
 {
     return ENet::Platform::Get().socket_get_address(socket, address);
 }
 
-int ENet::socket_listen(ENetSocket socket, int backlog)
+int ENet::socket_listen(ENet::Socket socket, int backlog)
 {
     return ENet::Platform::Get().socket_listen(socket, backlog);
 }
 
-ENetSocket ENet::socket_accept(ENetSocket socket, ENet::Address *address)
+ENet::Socket ENet::socket_accept(ENet::Socket socket, ENet::Address *address)
 {
     return ENet::Platform::Get().socket_accept(socket, address);
 }
 
-int ENet::socket_connect(ENetSocket socket, const ENet::Address *address)
+int ENet::socket_connect(ENet::Socket socket, const ENet::Address *address)
 {
     return ENet::Platform::Get().socket_connect(socket, address);
 }
 
-int ENet::socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers, size_t bufferCount)
+int ENet::socket_send(ENet::Socket socket, const ENet::Address *address, const ENet::Buffer *buffers,
+                      size_t bufferCount)
 {
     return ENet::Platform::Get().socket_send(socket, address, buffers, bufferCount);
 }
 
-int ENet::socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers, size_t bufferCount)
+int ENet::socket_receive(ENet::Socket socket, ENet::Address *address, ENet::Buffer *buffers, size_t bufferCount)
 {
     return ENet::Platform::Get().socket_receive(socket, address, buffers, bufferCount);
 }
 
-int ENet::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout)
+int ENet::socket_wait(ENet::Socket socket, uint32_t *condition, uint32_t timeout)
 {
     return ENet::Platform::Get().socket_wait(socket, condition, timeout);
 }
 
-int ENet::socket_set_option(ENetSocket socket, ENet::SocketOption option, int value)
+int ENet::socket_set_option(ENet::Socket socket, ENet::SocketOption option, int value)
 {
     return ENet::Platform::Get().socket_set_option(socket, option, value);
 }
 
-int ENet::socket_get_option(ENetSocket socket, ENet::SocketOption option, int *value)
+int ENet::socket_get_option(ENet::Socket socket, ENet::SocketOption option, int *value)
 {
     return ENet::Platform::Get().socket_get_option(socket, option, value);
 }
 
-int ENet::socket_shutdown(ENetSocket socket, ENet::SocketShutdown how)
+int ENet::socket_shutdown(ENet::Socket socket, ENet::SocketShutdown how)
 {
     return ENet::Platform::Get().socket_shutdown(socket, how);
 }
 
-void ENet::socket_destroy(ENetSocket socket)
+void ENet::socket_destroy(ENet::Socket socket)
 {
     return ENet::Platform::Get().socket_destroy(socket);
 }
 
-int ENet::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, uint32_t timeout)
+int ENet::socketset_select(ENet::Socket maxSocket, ENet::SocketSet *readSet, ENet::SocketSet *writeSet,
+                           uint32_t timeout)
 {
     return ENet::Platform::Get().socketset_select(maxSocket, readSet, writeSet, timeout);
 }

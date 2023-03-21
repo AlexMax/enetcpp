@@ -136,7 +136,7 @@ enum PacketFlag
     PACKET_FLAG_SENT = (1 << 8)
 };
 
-using PacketFreeCallback = void(ENET_CALLBACK *)(Packet *);
+using PacketFreeCallback = void (*)(Packet *);
 
 /**
  * ENet packet structure.
@@ -371,22 +371,21 @@ struct Compressor
     void *context;
     /** Compresses from inBuffers[0:inBufferCount-1], containing inLimit bytes, to outData, outputting at most
      * outLimit bytes. Should return 0 on failure. */
-    size_t(ENET_CALLBACK *compress)(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
-                                    uint8_t *outData, size_t outLimit);
+    size_t (*compress)(void *context, const Buffer *inBuffers, size_t inBufferCount, size_t inLimit, uint8_t *outData,
+                       size_t outLimit);
     /** Decompresses from inData, containing inLimit bytes, to outData, outputting at most outLimit bytes. Should
      * return 0 on failure. */
-    size_t(ENET_CALLBACK *decompress)(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData,
-                                      size_t outLimit);
+    size_t (*decompress)(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData, size_t outLimit);
     /** Destroys the context when compression is disabled or the host is destroyed. May be NULL. */
-    void(ENET_CALLBACK *destroy)(void *context);
+    void (*destroy)(void *context);
 };
 
 /** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
-using ChecksumCallback = uint32_t(ENET_CALLBACK *)(const ENetBuffer *buffers, size_t bufferCount);
+using ChecksumCallback = uint32_t (*)(const Buffer *buffers, size_t bufferCount);
 
 /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to
  * propagate an error. */
-using InterceptCallback = int(ENET_CALLBACK *)(Host *host, Event *event);
+using InterceptCallback = int (*)(Host *host, Event *event);
 
 /** An ENet host for communicating with peers.
   *
@@ -406,7 +405,7 @@ using InterceptCallback = int(ENET_CALLBACK *)(Host *host, Event *event);
   */
 struct Host
 {
-    ENetSocket socket;
+    Socket socket;
     Address address;            /**< Internet address of the host */
     uint32_t incomingBandwidth; /**< downstream bandwidth of the host */
     uint32_t outgoingBandwidth; /**< upstream bandwidth of the host */
@@ -424,7 +423,7 @@ struct Host
     uint16_t headerFlags;
     Protocol commands[PROTOCOL_MAXIMUM_PACKET_COMMANDS];
     size_t commandCount;
-    ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
+    Buffer buffers[ENET_BUFFER_MAXIMUM];
     size_t bufferCount;
     ChecksumCallback checksum; /**< callback the user can set to enable packet checksums for this host */
     Compressor compressor;
@@ -506,23 +505,21 @@ struct Platform
     virtual void deinitialize() = 0;
     virtual uint32_t time_get() = 0;
     virtual void time_set(uint32_t newTimeBase) = 0;
-    virtual ENetSocket socket_create(SocketType type) = 0;
-    virtual int socket_bind(ENetSocket socket, const Address *address) = 0;
-    virtual int socket_get_address(ENetSocket socket, Address *address) = 0;
+    virtual Socket socket_create(SocketType type) = 0;
+    virtual int socket_bind(Socket socket, const Address *address) = 0;
+    virtual int socket_get_address(Socket socket, Address *address) = 0;
     virtual uint32_t host_random_seed() = 0;
-    virtual int socket_listen(ENetSocket socket, int backlog) = 0;
-    virtual ENetSocket socket_accept(ENetSocket socket, Address *address) = 0;
-    virtual int socket_connect(ENetSocket socket, const Address *address) = 0;
-    virtual int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers,
-                            size_t bufferCount) = 0;
-    virtual int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount) = 0;
-    virtual int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) = 0;
-    virtual int socket_set_option(ENetSocket socket, SocketOption option, int value) = 0;
-    virtual int socket_get_option(ENetSocket socket, SocketOption option, int *value) = 0;
-    virtual int socket_shutdown(ENetSocket socket, SocketShutdown how) = 0;
-    virtual void socket_destroy(ENetSocket socket) = 0;
-    virtual int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
-                                 uint32_t timeout) = 0;
+    virtual int socket_listen(Socket socket, int backlog) = 0;
+    virtual Socket socket_accept(Socket socket, Address *address) = 0;
+    virtual int socket_connect(Socket socket, const Address *address) = 0;
+    virtual int socket_send(Socket socket, const Address *address, const Buffer *buffers, size_t bufferCount) = 0;
+    virtual int socket_receive(Socket socket, Address *address, Buffer *buffers, size_t bufferCount) = 0;
+    virtual int socket_wait(Socket socket, uint32_t *condition, uint32_t timeout) = 0;
+    virtual int socket_set_option(Socket socket, SocketOption option, int value) = 0;
+    virtual int socket_get_option(Socket socket, SocketOption option, int *value) = 0;
+    virtual int socket_shutdown(Socket socket, SocketShutdown how) = 0;
+    virtual void socket_destroy(Socket socket) = 0;
+    virtual int socketset_select(Socket maxSocket, SocketSet *readSet, SocketSet *writeSet, uint32_t timeout) = 0;
     virtual int address_set_host_ip(Address *address, const char *hostName) = 0;
     virtual int address_set_host(Address *address, const char *hostName) = 0;
     virtual int address_get_host_ip(const Address *address, char *hostName, size_t nameLength) = 0;
@@ -587,20 +584,20 @@ ENET_API void time_set(uint32_t newTimeBase);
 /** @defgroup socket ENet socket functions
     @{
 */
-ENET_API ENetSocket socket_create(SocketType type);
-ENET_API int socket_bind(ENetSocket socket, const Address *address);
-ENET_API int socket_get_address(ENetSocket socket, Address *address);
-ENET_API int socket_listen(ENetSocket socket, int backlog);
-ENET_API ENetSocket socket_accept(ENetSocket socket, Address *address);
-ENET_API int socket_connect(ENetSocket socket, const Address *address);
-ENET_API int socket_send(ENetSocket socket, const Address *address, const ENetBuffer *buffers, size_t bufferCount);
-ENET_API int socket_receive(ENetSocket socket, Address *address, ENetBuffer *buffers, size_t bufferCount);
-ENET_API int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout);
-ENET_API int socket_set_option(ENetSocket socket, SocketOption option, int value);
-ENET_API int socket_get_option(ENetSocket socket, SocketOption option, int *value);
-ENET_API int socket_shutdown(ENetSocket socket, SocketShutdown how);
-ENET_API void socket_destroy(ENetSocket socket);
-ENET_API int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet, uint32_t timeout);
+ENET_API Socket socket_create(SocketType type);
+ENET_API int socket_bind(Socket socket, const Address *address);
+ENET_API int socket_get_address(Socket socket, Address *address);
+ENET_API int socket_listen(Socket socket, int backlog);
+ENET_API Socket socket_accept(Socket socket, Address *address);
+ENET_API int socket_connect(Socket socket, const Address *address);
+ENET_API int socket_send(Socket socket, const Address *address, const Buffer *buffers, size_t bufferCount);
+ENET_API int socket_receive(Socket socket, Address *address, Buffer *buffers, size_t bufferCount);
+ENET_API int socket_wait(Socket socket, uint32_t *condition, uint32_t timeout);
+ENET_API int socket_set_option(Socket socket, SocketOption option, int value);
+ENET_API int socket_get_option(Socket socket, SocketOption option, int *value);
+ENET_API int socket_shutdown(Socket socket, SocketShutdown how);
+ENET_API void socket_destroy(Socket socket);
+ENET_API int socketset_select(Socket maxSocket, SocketSet *readSet, SocketSet *writeSet, uint32_t timeout);
 
 /** @} */
 
@@ -671,7 +668,7 @@ ENET_API void packet_destroy(Packet *packet);
     @returns 0 on success, < 0 on failure
 */
 ENET_API int packet_resize(Packet *packet, size_t dataLength);
-ENET_API uint32_t crc32(const ENetBuffer *buffers, size_t bufferCount);
+ENET_API uint32_t crc32(const Buffer *buffers, size_t bufferCount);
 
 /** Creates a host for communicating to peers.
 
@@ -926,7 +923,7 @@ extern void peer_on_disconnect(Peer *peer);
 
 ENET_API void *range_coder_create();
 ENET_API void range_coder_destroy(void *context);
-ENET_API size_t range_coder_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
+ENET_API size_t range_coder_compress(void *context, const Buffer *inBuffers, size_t inBufferCount, size_t inLimit,
                                      uint8_t *outData, size_t outLimit);
 ENET_API size_t range_coder_decompress(void *context, const uint8_t *inData, size_t inLimit, uint8_t *outData,
                                        size_t outLimit);

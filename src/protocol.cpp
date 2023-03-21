@@ -1276,7 +1276,7 @@ static int enet_protocol_handle_incoming_commands(ENet::Host *host, ENet::Event 
     {
         uint32_t *checksum = (uint32_t *)&host->receivedData[headerSize - sizeof(uint32_t)],
                  desiredChecksum = *checksum;
-        ENetBuffer buffer;
+        ENet::Buffer buffer;
 
         *checksum = peer != NULL ? peer->connectID : 0;
 
@@ -1475,7 +1475,7 @@ static int enet_protocol_receive_incoming_commands(ENet::Host *host, ENet::Event
     for (packets = 0; packets < 256; ++packets)
     {
         int receivedLength;
-        ENetBuffer buffer;
+        ENet::Buffer buffer;
 
         buffer.data = host->packetData[0];
         buffer.dataLength = sizeof(host->packetData[0]);
@@ -1537,7 +1537,7 @@ static int enet_protocol_receive_incoming_commands(ENet::Host *host, ENet::Event
 static void enet_protocol_send_acknowledgements(ENet::Host *host, ENet::Peer *peer)
 {
     ENet::Protocol *command = &host->commands[host->commandCount];
-    ENetBuffer *buffer = &host->buffers[host->bufferCount];
+    ENet::Buffer *buffer = &host->buffers[host->bufferCount];
     ENet::Acknowledgement *acknowledgement;
     ENet::ListIterator<ENet::Acknowledgement> currentAcknowledgement;
     uint16_t reliableSequenceNumber;
@@ -1547,7 +1547,7 @@ static void enet_protocol_send_acknowledgements(ENet::Host *host, ENet::Peer *pe
     while (currentAcknowledgement != ENet::list_end(&peer->acknowledgements))
     {
         if (command >= &host->commands[sizeof(host->commands) / sizeof(ENet::Protocol)] ||
-            buffer >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
+            buffer >= &host->buffers[sizeof(host->buffers) / sizeof(ENet::Buffer)] ||
             peer->mtu - host->packetSize < sizeof(ENet::ProtocolAcknowledge))
         {
             peer->flags |= ENet::PEER_FLAG_CONTINUE_SENDING;
@@ -1655,7 +1655,7 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
                                                  ENet::List<ENet::OutgoingCommand> *sentUnreliableCommands)
 {
     ENet::Protocol *command = &host->commands[host->commandCount];
-    ENetBuffer *buffer = &host->buffers[host->bufferCount];
+    ENet::Buffer *buffer = &host->buffers[host->bufferCount];
     ENet::OutgoingCommand *outgoingCommand;
     ENet::ListIterator<ENet::OutgoingCommand> currentCommand, currentSendReliableCommand;
     ENet::Channel *channel = NULL;
@@ -1737,7 +1737,7 @@ static int enet_protocol_check_outgoing_commands(ENet::Host *host, ENet::Peer *p
 
         commandSize = commandSizes[outgoingCommand->command.header.command & ENet::PROTOCOL_COMMAND_MASK];
         if (command >= &host->commands[sizeof(host->commands) / sizeof(ENet::Protocol)] ||
-            buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENetBuffer)] ||
+            buffer + 1 >= &host->buffers[sizeof(host->buffers) / sizeof(ENet::Buffer)] ||
             peer->mtu - host->packetSize < commandSize ||
             (outgoingCommand->packet != NULL &&
              (uint16_t)(peer->mtu - host->packetSize) < (uint16_t)(commandSize + outgoingCommand->fragmentLength)))

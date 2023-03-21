@@ -11,9 +11,9 @@ namespace ENet
 
 struct Callbacks
 {
-    void *(ENET_CALLBACK *malloc)(size_t size);
-    void(ENET_CALLBACK *free)(void *memory);
-    void(ENET_CALLBACK *no_memory)();
+    void *(*malloc)(size_t size);
+    void (*free)(void *memory);
+    void (*no_memory)();
 };
 
 /** @defgroup callbacks ENet internal callbacks

@@ -256,7 +256,7 @@ static const ENetSymbol emptyContext = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     })
 #endif
 
-size_t ENet::range_coder_compress(void *context, const ENetBuffer *inBuffers, size_t inBufferCount, size_t inLimit,
+size_t ENet::range_coder_compress(void *context, const ENet::Buffer *inBuffers, size_t inBufferCount, size_t inLimit,
                                   uint8_t *outData, size_t outLimit)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
