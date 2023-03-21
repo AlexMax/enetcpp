@@ -29,21 +29,21 @@ struct UNIXPlatform final : public Platform
     void deinitialize() override;
     uint32_t time_get() override;
     void time_set(uint32_t newTimeBase) override;
-    ENetSocket socket_create(ENet::SocketType type) override;
-    int socket_bind(ENetSocket socket, const ENet::Address *address) override;
-    int socket_get_address(ENetSocket socket, ENet::Address *address) override;
-    int socket_listen(ENetSocket socket, int backlog) override;
-    ENetSocket socket_accept(ENetSocket socket, ENet::Address *address) override;
-    int socket_connect(ENetSocket socket, const ENet::Address *address) override;
-    int socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers,
+    ENet::Socket socket_create(ENet::SocketType type) override;
+    int socket_bind(ENet::Socket socket, const ENet::Address *address) override;
+    int socket_get_address(ENet::Socket socket, ENet::Address *address) override;
+    int socket_listen(ENet::Socket socket, int backlog) override;
+    ENet::Socket socket_accept(ENet::Socket socket, ENet::Address *address) override;
+    int socket_connect(ENet::Socket socket, const ENet::Address *address) override;
+    int socket_send(ENet::Socket socket, const ENet::Address *address, const ENet::Buffer *buffers,
                     size_t bufferCount) override;
-    int socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers, size_t bufferCount) override;
-    int socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout) override;
-    int socket_set_option(ENetSocket socket, ENet::SocketOption option, int value) override;
-    int socket_get_option(ENetSocket socket, ENet::SocketOption option, int *value) override;
-    int socket_shutdown(ENetSocket socket, ENet::SocketShutdown how) override;
-    void socket_destroy(ENetSocket socket) override;
-    int socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
+    int socket_receive(ENet::Socket socket, ENet::Address *address, ENet::Buffer *buffers, size_t bufferCount) override;
+    int socket_wait(ENet::Socket socket, uint32_t *condition, uint32_t timeout) override;
+    int socket_set_option(ENet::Socket socket, ENet::SocketOption option, int value) override;
+    int socket_get_option(ENet::Socket socket, ENet::SocketOption option, int *value) override;
+    int socket_shutdown(ENet::Socket socket, ENet::SocketShutdown how) override;
+    void socket_destroy(ENet::Socket socket) override;
+    int socketset_select(ENet::Socket maxSocket, ENet::SocketSet *readSet, ENet::SocketSet *writeSet,
                          uint32_t timeout) override;
     int address_set_host_ip(ENet::Address *address, const char *hostName) override;
     int address_set_host(ENet::Address *address, const char *hostName) override;
@@ -295,7 +295,7 @@ int UNIXPlatform::address_get_host(const ENet::Address *address, char *name, siz
     return ENet::address_get_host_ip(address, name, nameLength);
 }
 
-int UNIXPlatform::socket_bind(ENetSocket socket, const ENet::Address *address)
+int UNIXPlatform::socket_bind(ENet::Socket socket, const ENet::Address *address)
 {
     struct sockaddr_in sin;
 
@@ -317,7 +317,7 @@ int UNIXPlatform::socket_bind(ENetSocket socket, const ENet::Address *address)
     return bind(socket, (struct sockaddr *)&sin, sizeof(struct sockaddr_in));
 }
 
-int UNIXPlatform::socket_get_address(ENetSocket socket, ENet::Address *address)
+int UNIXPlatform::socket_get_address(ENet::Socket socket, ENet::Address *address)
 {
     struct sockaddr_in sin;
     socklen_t sinLength = sizeof(struct sockaddr_in);
@@ -333,17 +333,17 @@ int UNIXPlatform::socket_get_address(ENetSocket socket, ENet::Address *address)
     return 0;
 }
 
-int UNIXPlatform::socket_listen(ENetSocket socket, int backlog)
+int UNIXPlatform::socket_listen(ENet::Socket socket, int backlog)
 {
     return listen(socket, backlog < 0 ? SOMAXCONN : backlog);
 }
 
-ENetSocket UNIXPlatform::socket_create(ENet::SocketType type)
+ENet::Socket UNIXPlatform::socket_create(ENet::SocketType type)
 {
     return socket(PF_INET, type == ENet::SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
 
-int UNIXPlatform::socket_set_option(ENetSocket socket, ENet::SocketOption option, int value)
+int UNIXPlatform::socket_set_option(ENet::Socket socket, ENet::SocketOption option, int value)
 {
     int result = -1;
     switch (option)
@@ -402,7 +402,7 @@ int UNIXPlatform::socket_set_option(ENetSocket socket, ENet::SocketOption option
     return result == -1 ? -1 : 0;
 }
 
-int UNIXPlatform::socket_get_option(ENetSocket socket, ENet::SocketOption option, int *value)
+int UNIXPlatform::socket_get_option(ENet::Socket socket, ENet::SocketOption option, int *value)
 {
     int result = -1;
     socklen_t len;
@@ -424,7 +424,7 @@ int UNIXPlatform::socket_get_option(ENetSocket socket, ENet::SocketOption option
     return result == -1 ? -1 : 0;
 }
 
-int UNIXPlatform::socket_connect(ENetSocket socket, const ENet::Address *address)
+int UNIXPlatform::socket_connect(ENet::Socket socket, const ENet::Address *address)
 {
     struct sockaddr_in sin;
     int result;
@@ -444,7 +444,7 @@ int UNIXPlatform::socket_connect(ENetSocket socket, const ENet::Address *address
     return result;
 }
 
-ENetSocket UNIXPlatform::socket_accept(ENetSocket socket, ENet::Address *address)
+ENet::Socket UNIXPlatform::socket_accept(ENet::Socket socket, ENet::Address *address)
 {
     int result;
     struct sockaddr_in sin;
@@ -466,12 +466,12 @@ ENetSocket UNIXPlatform::socket_accept(ENetSocket socket, ENet::Address *address
     return result;
 }
 
-int UNIXPlatform::socket_shutdown(ENetSocket socket, ENet::SocketShutdown how)
+int UNIXPlatform::socket_shutdown(ENet::Socket socket, ENet::SocketShutdown how)
 {
     return shutdown(socket, (int)how);
 }
 
-void UNIXPlatform::socket_destroy(ENetSocket socket)
+void UNIXPlatform::socket_destroy(ENet::Socket socket)
 {
     if (socket != -1)
     {
@@ -479,7 +479,7 @@ void UNIXPlatform::socket_destroy(ENetSocket socket)
     }
 }
 
-int UNIXPlatform::socket_send(ENetSocket socket, const ENet::Address *address, const ENetBuffer *buffers,
+int UNIXPlatform::socket_send(ENet::Socket socket, const ENet::Address *address, const ENet::Buffer *buffers,
                               size_t bufferCount)
 {
     struct msghdr msgHdr;
@@ -518,7 +518,7 @@ int UNIXPlatform::socket_send(ENetSocket socket, const ENet::Address *address, c
     return sentLength;
 }
 
-int UNIXPlatform::socket_receive(ENetSocket socket, ENet::Address *address, ENetBuffer *buffers, size_t bufferCount)
+int UNIXPlatform::socket_receive(ENet::Socket socket, ENet::Address *address, ENet::Buffer *buffers, size_t bufferCount)
 {
     struct msghdr msgHdr;
     struct sockaddr_in sin;
@@ -563,7 +563,7 @@ int UNIXPlatform::socket_receive(ENetSocket socket, ENet::Address *address, ENet
     return recvLength;
 }
 
-int UNIXPlatform::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet, ENetSocketSet *writeSet,
+int UNIXPlatform::socketset_select(ENet::Socket maxSocket, ENet::SocketSet *readSet, ENet::SocketSet *writeSet,
                                    uint32_t timeout)
 {
     struct timeval timeVal;
@@ -574,7 +574,7 @@ int UNIXPlatform::socketset_select(ENetSocket maxSocket, ENetSocketSet *readSet,
     return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
 }
 
-int UNIXPlatform::socket_wait(ENetSocket socket, uint32_t *condition, uint32_t timeout)
+int UNIXPlatform::socket_wait(ENet::Socket socket, uint32_t *condition, uint32_t timeout)
 {
 #ifdef HAS_POLL
     struct pollfd pollSocket;
