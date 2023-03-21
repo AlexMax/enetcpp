@@ -3,11 +3,12 @@
  @brief ENet Win32 system specific functions
 */
 
-#ifndef _WIN32
+#include "enetcpp/enetcpp.h"
+
+#ifndef ENET_PLATFORM_WIN32
 #error "this file should only be used on Windows platforms"
 #endif
 
-#include "enetcpp/enetcpp.h"
 #include <windows.h>
 #include <mmsystem.h>
 #include <ws2ipdef.h>

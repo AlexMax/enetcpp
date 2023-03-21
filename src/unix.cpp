@@ -3,7 +3,9 @@
  @brief ENet Unix system specific functions
 */
 
-#ifndef __unix__
+#include "enetcpp/enetcpp.h"
+
+#ifndef ENET_PLATFORM_UNIX
 #error "this file should only be used on UNIX-like platforms"
 #endif
 
@@ -17,8 +19,6 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-
-#include "enetcpp/enetcpp.h"
 
 namespace ENet
 {

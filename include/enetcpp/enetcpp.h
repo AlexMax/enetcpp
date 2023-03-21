@@ -8,10 +8,14 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
+#define ENET_PLATFORM_WIN32
 #include "enetcpp/win32.h"
-#else
+#elif defined(__unix__)
+#define ENET_PLATFORM_UNIX
 #include "enetcpp/unix.h"
+#else
+#error "unknown platform, please provide a platform header"
 #endif
 
 #include "enetcpp/protocol.h"
