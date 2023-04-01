@@ -25,6 +25,9 @@
 // This test was taken from the zpl fork of ENet
 //
 
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "./doctest.h"
+
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "enetcpp/enetcpp.h"
@@ -68,17 +71,13 @@ void host_server(ENet::Host *server)
     }
 }
 
-int main()
+TEST_CASE("Test 32 connected clients")
 {
-    if (ENet::initialize() != 0)
-    {
-        printf("An error occurred while initializing ENet.\n");
-        return 1;
-    }
+    const int initOK = ENet::initialize();
+    REQUIRE(initOK == 0);
 
-#define MAX_CLIENTS 32
+    constexpr size_t MAX_CLIENTS = 32;
 
-    int i = 0;
     ENet::Host *server;
     Client clients[MAX_CLIENTS];
     ENet::Address address = {0, 0};
@@ -89,23 +88,15 @@ int main()
     /* create a server */
     printf("starting server...\n");
     server = ENet::host_create(&address, MAX_CLIENTS, 2, 0, 0);
-    if (server == NULL)
-    {
-        printf("An error occurred while trying to create an ENet server host.\n");
-        return 1;
-    }
+    REQUIRE(server != NULL);
 
     printf("starting clients...\n");
-    for (i = 0; i < MAX_CLIENTS; ++i)
+    for (size_t i = 0; i < MAX_CLIENTS; ++i)
     {
         ENet::address_set_host(&address, "127.0.0.1");
         clients[i].host = ENet::host_create(NULL, 1, 2, 0, 0);
         clients[i].peer = ENet::host_connect(clients[i].host, &address, 2, 0);
-        if (clients[i].peer == NULL)
-        {
-            printf("coundlnt connect\n");
-            return 1;
-        }
+        REQUIRE(clients[i].peer != NULL);
     }
 
     // program will make N iterations, and then exit
@@ -116,7 +107,7 @@ int main()
         host_server(server);
 
         ENet::Event event;
-        for (i = 0; i < MAX_CLIENTS; ++i)
+        for (size_t i = 0; i < MAX_CLIENTS; ++i)
         {
             ENet::host_service(clients[i].host, &event, 0);
         }
@@ -124,7 +115,7 @@ int main()
         counter--;
     } while (counter > 0);
 
-    for (i = 0; i < MAX_CLIENTS; ++i)
+    for (size_t i = 0; i < MAX_CLIENTS; ++i)
     {
         ENet::peer_disconnect_now(clients[i].peer, 0);
         ENet::host_destroy(clients[i].host);
@@ -134,5 +125,4 @@ int main()
 
     ENet::host_destroy(server);
     ENet::deinitialize();
-    return 0;
 }

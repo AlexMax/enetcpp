@@ -42,6 +42,8 @@ function(target_check_enetcpp)
     endif()
 endfunction()
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 project(enetcpp LANGUAGES CXX)
 
 set(ENETCPP_HEADERS
@@ -91,5 +93,4 @@ if(WIN32)
     target_link_libraries(enetcpp PUBLIC winmm ws2_32)
 endif()
 
-add_executable(test "${CMAKE_CURRENT_SOURCE_DIR}/test/test.cpp")
-target_link_libraries(test PUBLIC enetcpp)
+add_subdirectory(tests)
