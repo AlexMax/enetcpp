@@ -6,18 +6,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - cc: /usr/bin/clang
-            cxx: /usr/bin/clang++
-          - cc: /usr/bin/clang
-            cxx: /usr/bin/clang++
-            cxx_standard: 14
           - cc: /usr/bin/gcc
             cxx: /usr/bin/g++
+          - cc: /usr/bin/clang
+            cxx: /usr/bin/clang++
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
-      CXX_STANDARD: ${{ matrix.cxx_standard }}
-      LEXIO_TEST_NONSTD: ${{ matrix.lexio_test_nonstd }}
+      CXX_STANDARD: 14
     steps:
     - uses: actions/checkout@v3
     - name: Configure
@@ -28,6 +24,8 @@ jobs:
       run: bash ${{github.workspace}}/ci/run_test.sh
   Windows:
     runs-on: windows-latest
+    env:
+      CXX_STANDARD: 14
     steps:
     - uses: actions/checkout@v3
     - name: Configure
@@ -45,8 +43,7 @@ jobs:
       CXX_STANDARD: 14
     steps:
     - uses: actions/checkout@v3
-    - name: Install Ninja
-      run: brew install ninja
+    - uses: seanmiddleditch/gha-setup-ninja@master
     - name: Configure
       run: bash ${{github.workspace}}/ci/configure.sh
     - name: Build
