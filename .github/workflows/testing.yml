@@ -1,0 +1,55 @@
+name: Testing
+on: push
+jobs:
+  Linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - cc: /usr/bin/clang
+            cxx: /usr/bin/clang++
+          - cc: /usr/bin/clang
+            cxx: /usr/bin/clang++
+            cxx_standard: 14
+          - cc: /usr/bin/gcc
+            cxx: /usr/bin/g++
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CXX_STANDARD: ${{ matrix.cxx_standard }}
+      LEXIO_TEST_NONSTD: ${{ matrix.lexio_test_nonstd }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure
+      run: bash ${{github.workspace}}/ci/configure.sh
+    - name: Build
+      run: bash ${{github.workspace}}/ci/build.sh
+    - name: Run Tests
+      run: bash ${{github.workspace}}/ci/run_test.sh
+  Windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure
+      shell: pwsh
+      run: ${{github.workspace}}/ci/configure.ps1
+    - name: Build
+      shell: pwsh
+      run: ${{github.workspace}}/ci/build.ps1
+    - name: Run Tests
+      shell: pwsh
+      run: ${{github.workspace}}/ci/run_test.ps1
+  macOS:
+    runs-on: macos-latest
+    env:
+      CXX_STANDARD: 14
+      GENERATOR: Xcode
+      LEXIO_TEST_NONSTD: "ON"
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure
+      run: bash ${{github.workspace}}/ci/configure.sh
+    - name: Build
+      run: bash ${{github.workspace}}/ci/build.sh
+    - name: Run Tests
+      run: bash ${{github.workspace}}/ci/run_test.sh
