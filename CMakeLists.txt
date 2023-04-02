@@ -95,4 +95,12 @@ if(WIN32)
     target_link_libraries(enetcpp PUBLIC winmm ws2_32)
 endif()
 
+# Only use clang-tidy with Clang.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    find_program(CLANG_TIDY_EXE clang-tidy)
+    if(CLANG_TIDY_EXE)
+        set_target_properties(enetcpp PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    endif()
+endif()
+
 add_subdirectory(tests)

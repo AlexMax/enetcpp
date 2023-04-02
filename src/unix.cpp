@@ -118,14 +118,14 @@ void UNIXPlatform::deinitialize()
 
 uint32_t UNIXPlatform::host_random_seed()
 {
-    return (uint32_t)time(NULL);
+    return (uint32_t)time(nullptr);
 }
 
 uint32_t UNIXPlatform::time_get()
 {
     struct timeval timeVal;
 
-    gettimeofday(&timeVal, NULL);
+    gettimeofday(&timeVal, nullptr);
 
     return timeVal.tv_sec * 1000 + timeVal.tv_usec / 1000 - timeBase;
 }
@@ -134,7 +134,7 @@ void UNIXPlatform::time_set(uint32_t newTimeBase)
 {
     struct timeval timeVal;
 
-    gettimeofday(&timeVal, NULL);
+    gettimeofday(&timeVal, nullptr);
 
     timeBase = timeVal.tv_sec * 1000 + timeVal.tv_usec / 1000 - newTimeBase;
 }
@@ -154,19 +154,20 @@ int UNIXPlatform::address_set_host_ip(ENet::Address *address, const char *name)
 int UNIXPlatform::address_set_host(ENet::Address *address, const char *name)
 {
 #ifdef HAS_GETADDRINFO
-    struct addrinfo hints, *resultList = NULL, *result = NULL;
+    struct addrinfo hints, *resultList = nullptr, *result = nullptr;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
 
-    if (getaddrinfo(name, NULL, NULL, &resultList) != 0)
+    if (getaddrinfo(name, nullptr, nullptr, &resultList) != 0)
     {
         return -1;
     }
 
-    for (result = resultList; result != NULL; result = result->ai_next)
+    for (result = resultList; result != nullptr; result = result->ai_next)
     {
-        if (result->ai_family == AF_INET && result->ai_addr != NULL && result->ai_addrlen >= sizeof(struct sockaddr_in))
+        if (result->ai_family == AF_INET && result->ai_addr != nullptr &&
+            result->ai_addrlen >= sizeof(struct sockaddr_in))
         {
             struct sockaddr_in *sin = (struct sockaddr_in *)result->ai_addr;
 
@@ -178,7 +179,7 @@ int UNIXPlatform::address_set_host(ENet::Address *address, const char *name)
         }
     }
 
-    if (resultList != NULL)
+    if (resultList != nullptr)
     {
         freeaddrinfo(resultList);
     }
@@ -213,7 +214,7 @@ int UNIXPlatform::address_set_host(ENet::Address *address, const char *name)
 int UNIXPlatform::address_get_host_ip(const ENet::Address *address, char *name, size_t nameLength)
 {
 #ifdef HAS_INET_NTOP
-    if (inet_ntop(AF_INET, &address->host, name, nameLength) == NULL)
+    if (inet_ntop(AF_INET, &address->host, name, nameLength) == nullptr)
 #else
     char *addr = inet_ntoa(*(struct in_addr *)&address->host);
     if (addr != NULL)
@@ -243,10 +244,10 @@ int UNIXPlatform::address_get_host(const ENet::Address *address, char *name, siz
     sin.sin_port = ENet::HOST_TO_NET_16(address->port);
     sin.sin_addr.s_addr = address->host;
 
-    err = getnameinfo((struct sockaddr *)&sin, sizeof(sin), name, nameLength, NULL, 0, NI_NAMEREQD);
+    err = getnameinfo((struct sockaddr *)&sin, sizeof(sin), name, nameLength, nullptr, 0, NI_NAMEREQD);
     if (!err)
     {
-        if (name != NULL && nameLength > 0 && !memchr(name, '\0', nameLength))
+        if (name != nullptr && nameLength > 0 && !memchr(name, '\0', nameLength))
         {
             return -1;
         }
@@ -303,7 +304,7 @@ int UNIXPlatform::socket_bind(ENet::Socket socket, const ENet::Address *address)
 
     sin.sin_family = AF_INET;
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         sin.sin_port = ENet::HOST_TO_NET_16(address->port);
         sin.sin_addr.s_addr = address->host;
@@ -450,14 +451,15 @@ ENet::Socket UNIXPlatform::socket_accept(ENet::Socket socket, ENet::Address *add
     struct sockaddr_in sin;
     socklen_t sinLength = sizeof(struct sockaddr_in);
 
-    result = accept(socket, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? &sinLength : NULL);
+    result = accept(socket, address != nullptr ? (struct sockaddr *)&sin : nullptr,
+                    address != nullptr ? &sinLength : nullptr);
 
     if (result == -1)
     {
         return ENET_SOCKET_NULL;
     }
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
         address->port = ENet::NET_TO_HOST_16(sin.sin_port);
@@ -488,7 +490,7 @@ int UNIXPlatform::socket_send(ENet::Socket socket, const ENet::Address *address,
 
     memset(&msgHdr, 0, sizeof(struct msghdr));
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         memset(&sin, 0, sizeof(struct sockaddr_in));
 
@@ -526,7 +528,7 @@ int UNIXPlatform::socket_receive(ENet::Socket socket, ENet::Address *address, EN
 
     memset(&msgHdr, 0, sizeof(struct msghdr));
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         msgHdr.msg_name = &sin;
         msgHdr.msg_namelen = sizeof(struct sockaddr_in);
@@ -554,7 +556,7 @@ int UNIXPlatform::socket_receive(ENet::Socket socket, ENet::Address *address, EN
     }
 #endif
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
         address->port = ENet::NET_TO_HOST_16(sin.sin_port);
@@ -571,7 +573,7 @@ int UNIXPlatform::socketset_select(ENet::Socket maxSocket, ENet::SocketSet *read
     timeVal.tv_sec = timeout / 1000;
     timeVal.tv_usec = (timeout % 1000) * 1000;
 
-    return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
+    return select(maxSocket + 1, readSet, writeSet, nullptr, &timeVal);
 }
 
 int UNIXPlatform::socket_wait(ENet::Socket socket, uint32_t *condition, uint32_t timeout)

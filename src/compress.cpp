@@ -48,9 +48,9 @@ struct ENetRangeCoder
 void *ENet::range_coder_create()
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)ENet::enet_malloc(sizeof(ENetRangeCoder));
-    if (rangeCoder == NULL)
+    if (rangeCoder == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
 
     return rangeCoder;
@@ -59,7 +59,7 @@ void *ENet::range_coder_create()
 void ENet::range_coder_destroy(void *context)
 {
     ENetRangeCoder *rangeCoder = (ENetRangeCoder *)context;
-    if (rangeCoder == NULL)
+    if (rangeCoder == nullptr)
     {
         return;
     }
@@ -267,7 +267,7 @@ size_t ENet::range_coder_compress(void *context, const ENet::Buffer *inBuffers, 
     uint16_t predicted = 0;
     size_t order = 0, nextSymbol = 0;
 
-    if (rangeCoder == NULL || inBufferCount <= 0 || inLimit <= 0)
+    if (rangeCoder == nullptr || inBufferCount <= 0 || inLimit <= 0)
     {
         return 0;
     }
@@ -559,7 +559,7 @@ size_t ENet::range_coder_decompress(void *context, const uint8_t *inData, size_t
     ENetExclude *nextExclude = excludes;
 #endif
 
-    if (rangeCoder == NULL || inLimit <= 0)
+    if (rangeCoder == nullptr || inLimit <= 0)
     {
         return 0;
     }
@@ -706,7 +706,7 @@ int ENet::host_compress_with_range_coder(ENet::Host *host)
     ENet::Compressor compressor;
     memset(&compressor, 0, sizeof(compressor));
     compressor.context = ENet::range_coder_create();
-    if (compressor.context == NULL)
+    if (compressor.context == nullptr)
     {
         return -1;
     }

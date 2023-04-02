@@ -28,8 +28,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "./doctest.h"
 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 #include "enetcpp/enetcpp.h"
 #include <stdio.h>
 
@@ -62,7 +60,7 @@ void host_server(ENet::Host *server)
         case ENet::EVENT_TYPE_DISCONNECT:
             printf("%s disconnected.\n", (char *)event.peer->data);
             /* Reset the peer's client information. */
-            event.peer->data = NULL;
+            event.peer->data = nullptr;
             break;
 
         case ENet::EVENT_TYPE_NONE:
@@ -88,15 +86,15 @@ TEST_CASE("Test 32 connected clients")
     /* create a server */
     printf("starting server...\n");
     server = ENet::host_create(&address, MAX_CLIENTS, 2, 0, 0);
-    REQUIRE(server != NULL);
+    REQUIRE(server != nullptr);
 
     printf("starting clients...\n");
     for (size_t i = 0; i < MAX_CLIENTS; ++i)
     {
         ENet::address_set_host(&address, "127.0.0.1");
-        clients[i].host = ENet::host_create(NULL, 1, 2, 0, 0);
+        clients[i].host = ENet::host_create(nullptr, 1, 2, 0, 0);
         clients[i].peer = ENet::host_connect(clients[i].host, &address, 2, 0);
-        REQUIRE(clients[i].peer != NULL);
+        REQUIRE(clients[i].peer != nullptr);
     }
 
     // program will make N iterations, and then exit

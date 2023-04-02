@@ -13,9 +13,9 @@
 ENet::Packet *ENet::packet_create(const void *data, size_t dataLength, uint32_t flags)
 {
     ENet::Packet *packet = (ENet::Packet *)ENet::enet_malloc(sizeof(ENet::Packet));
-    if (packet == NULL)
+    if (packet == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
 
     if (flags & ENet::PACKET_FLAG_NO_ALLOCATE)
@@ -24,18 +24,18 @@ ENet::Packet *ENet::packet_create(const void *data, size_t dataLength, uint32_t 
     }
     else if (dataLength <= 0)
     {
-        packet->data = NULL;
+        packet->data = nullptr;
     }
     else
     {
         packet->data = (uint8_t *)ENet::enet_malloc(dataLength);
-        if (packet->data == NULL)
+        if (packet->data == nullptr)
         {
             ENet::enet_free(packet);
-            return NULL;
+            return nullptr;
         }
 
-        if (data != NULL)
+        if (data != nullptr)
         {
             memcpy(packet->data, data, dataLength);
         }
@@ -44,24 +44,24 @@ ENet::Packet *ENet::packet_create(const void *data, size_t dataLength, uint32_t 
     packet->referenceCount = 0;
     packet->flags = flags;
     packet->dataLength = dataLength;
-    packet->freeCallback = NULL;
-    packet->userData = NULL;
+    packet->freeCallback = nullptr;
+    packet->userData = nullptr;
 
     return packet;
 }
 
 void ENet::packet_destroy(ENet::Packet *packet)
 {
-    if (packet == NULL)
+    if (packet == nullptr)
     {
         return;
     }
 
-    if (packet->freeCallback != NULL)
+    if (packet->freeCallback != nullptr)
     {
         (*packet->freeCallback)(packet);
     }
-    if (!(packet->flags & ENet::PACKET_FLAG_NO_ALLOCATE) && packet->data != NULL)
+    if (!(packet->flags & ENet::PACKET_FLAG_NO_ALLOCATE) && packet->data != nullptr)
     {
         ENet::enet_free(packet->data);
     }
@@ -80,7 +80,7 @@ int ENet::packet_resize(ENet::Packet *packet, size_t dataLength)
     }
 
     newData = (uint8_t *)ENet::enet_malloc(dataLength);
-    if (newData == NULL)
+    if (newData == nullptr)
     {
         return -1;
     }

@@ -14,9 +14,9 @@ int ENet::initialize_with_callbacks(ENet::Version version, const ENet::Callbacks
         return -1;
     }
 
-    if (inits->malloc != NULL || inits->free != NULL)
+    if (inits->malloc != nullptr || inits->free != nullptr)
     {
-        if (inits->malloc == NULL || inits->free == NULL)
+        if (inits->malloc == nullptr || inits->free == nullptr)
         {
             return -1;
         }
@@ -25,7 +25,7 @@ int ENet::initialize_with_callbacks(ENet::Version version, const ENet::Callbacks
         callbacks.free = inits->free;
     }
 
-    if (inits->no_memory != NULL)
+    if (inits->no_memory != nullptr)
     {
         callbacks.no_memory = inits->no_memory;
     }
@@ -42,7 +42,7 @@ void *ENet::enet_malloc(size_t size)
 {
     void *memory = callbacks.malloc(size);
 
-    if (memory == NULL)
+    if (memory == nullptr)
     {
         callbacks.no_memory();
     }

@@ -4,9 +4,9 @@
 */
 #pragma once
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdlib>
+#include <cstdint>
+#include <cstddef>
 
 #if defined(_WIN32)
 #define ENET_PLATFORM_WIN32

@@ -18,27 +18,27 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
 
     if (peerCount > ENet::PROTOCOL_MAXIMUM_PEER_ID)
     {
-        return NULL;
+        return nullptr;
     }
 
     host = (ENet::Host *)ENet::enet_malloc(sizeof(ENet::Host));
-    if (host == NULL)
+    if (host == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     memset(host, 0, sizeof(ENet::Host));
 
     host->peers = (ENet::Peer *)ENet::enet_malloc(peerCount * sizeof(ENet::Peer));
-    if (host->peers == NULL)
+    if (host->peers == nullptr)
     {
         ENet::enet_free(host);
 
-        return NULL;
+        return nullptr;
     }
     memset(host->peers, 0, peerCount * sizeof(ENet::Peer));
 
     host->socket = ENet::socket_create(ENet::SOCKET_TYPE_DATAGRAM);
-    if (host->socket == ENET_SOCKET_NULL || (address != NULL && ENet::socket_bind(host->socket, address) < 0))
+    if (host->socket == ENET_SOCKET_NULL || (address != nullptr && ENet::socket_bind(host->socket, address) < 0))
     {
         if (host->socket != ENET_SOCKET_NULL)
         {
@@ -48,7 +48,7 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
         ENet::enet_free(host->peers);
         ENet::enet_free(host);
 
-        return NULL;
+        return nullptr;
     }
 
     ENet::socket_set_option(host->socket, ENet::SOCKOPT_NONBLOCK, 1);
@@ -56,7 +56,7 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
     ENet::socket_set_option(host->socket, ENet::SOCKOPT_RCVBUF, ENet::HOST_RECEIVE_BUFFER_SIZE);
     ENet::socket_set_option(host->socket, ENet::SOCKOPT_SNDBUF, ENet::HOST_SEND_BUFFER_SIZE);
 
-    if (address != NULL && ENet::socket_get_address(host->socket, &host->address) < 0)
+    if (address != nullptr && ENet::socket_get_address(host->socket, &host->address) < 0)
     {
         host->address = *address;
     }
@@ -82,10 +82,10 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
     host->peerCount = peerCount;
     host->commandCount = 0;
     host->bufferCount = 0;
-    host->checksum = NULL;
+    host->checksum = nullptr;
     host->receivedAddress.host = ENet::HOST_ANY;
     host->receivedAddress.port = 0;
-    host->receivedData = NULL;
+    host->receivedData = nullptr;
     host->receivedDataLength = 0;
 
     host->totalSentData = 0;
@@ -100,12 +100,12 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
     host->maximumPacketSize = ENet::HOST_DEFAULT_MAXIMUM_PACKET_SIZE;
     host->maximumWaitingData = ENet::HOST_DEFAULT_MAXIMUM_WAITING_DATA;
 
-    host->compressor.context = NULL;
-    host->compressor.compress = NULL;
-    host->compressor.decompress = NULL;
-    host->compressor.destroy = NULL;
+    host->compressor.context = nullptr;
+    host->compressor.compress = nullptr;
+    host->compressor.decompress = nullptr;
+    host->compressor.destroy = nullptr;
 
-    host->intercept = NULL;
+    host->intercept = nullptr;
 
     ENet::list_clear(&host->dispatchQueue);
 
@@ -114,7 +114,7 @@ ENet::Host *ENet::host_create(const ENet::Address *address, size_t peerCount, si
         currentPeer->host = host;
         currentPeer->incomingPeerID = currentPeer - host->peers;
         currentPeer->outgoingSessionID = currentPeer->incomingSessionID = 0xFF;
-        currentPeer->data = NULL;
+        currentPeer->data = nullptr;
 
         ENet::list_clear(&currentPeer->acknowledgements);
         ENet::list_clear(&currentPeer->sentReliableCommands);
@@ -132,7 +132,7 @@ void ENet::host_destroy(ENet::Host *host)
 {
     ENet::Peer *currentPeer;
 
-    if (host == NULL)
+    if (host == nullptr)
     {
         return;
     }
@@ -144,7 +144,7 @@ void ENet::host_destroy(ENet::Host *host)
         ENet::peer_reset(currentPeer);
     }
 
-    if (host->compressor.context != NULL && host->compressor.destroy)
+    if (host->compressor.context != nullptr && host->compressor.destroy)
     {
         (*host->compressor.destroy)(host->compressor.context);
     }
@@ -187,13 +187,13 @@ ENet::Peer *ENet::host_connect(ENet::Host *host, const ENet::Address *address, s
 
     if (currentPeer >= &host->peers[host->peerCount])
     {
-        return NULL;
+        return nullptr;
     }
 
     currentPeer->channels = (ENet::Channel *)ENet::enet_malloc(channelCount * sizeof(ENet::Channel));
-    if (currentPeer->channels == NULL)
+    if (currentPeer->channels == nullptr)
     {
-        return NULL;
+        return nullptr;
     }
     currentPeer->channelCount = channelCount;
     currentPeer->state = ENet::PEER_STATE_CONNECTING;
@@ -249,7 +249,7 @@ ENet::Peer *ENet::host_connect(ENet::Host *host, const ENet::Address *address, s
     command.connect.connectID = currentPeer->connectID;
     command.connect.data = ENet::HOST_TO_NET_32(data);
 
-    ENet::peer_queue_outgoing_command(currentPeer, &command, NULL, 0, 0);
+    ENet::peer_queue_outgoing_command(currentPeer, &command, nullptr, 0, 0);
 
     return currentPeer;
 }
@@ -276,7 +276,7 @@ void ENet::host_broadcast(ENet::Host *host, uint8_t channelID, ENet::Packet *pac
 
 void ENet::host_compress(ENet::Host *host, const ENet::Compressor *compressor)
 {
-    if (host->compressor.context != NULL && host->compressor.destroy)
+    if (host->compressor.context != nullptr && host->compressor.destroy)
     {
         (*host->compressor.destroy)(host->compressor.context);
     }
@@ -287,7 +287,7 @@ void ENet::host_compress(ENet::Host *host, const ENet::Compressor *compressor)
     }
     else
     {
-        host->compressor.context = NULL;
+        host->compressor.context = nullptr;
     }
 }
 
@@ -495,7 +495,7 @@ void ENet::host_bandwidth_throttle(ENet::Host *host)
                 command.bandwidthLimit.incomingBandwidth = ENet::HOST_TO_NET_32(bandwidthLimit);
             }
 
-            ENet::peer_queue_outgoing_command(peer, &command, NULL, 0, 0);
+            ENet::peer_queue_outgoing_command(peer, &command, nullptr, 0, 0);
         }
     }
 }

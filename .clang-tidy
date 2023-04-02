@@ -1,0 +1,2 @@
+Checks: '-*,clang-diagnostic-*,modernize-use-nullptr'
+HeaderFilterRegex: include/enetcpp/.*\.h$

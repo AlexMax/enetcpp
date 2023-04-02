@@ -137,7 +137,7 @@ int ENet::Win32Platform::address_set_host(ENet::Address *address, const char *na
     struct hostent *hostEntry;
 
     hostEntry = gethostbyname(name);
-    if (hostEntry == NULL || hostEntry->h_addrtype != AF_INET)
+    if (hostEntry == nullptr || hostEntry->h_addrtype != AF_INET)
     {
         return ENet::address_set_host_ip(address, name);
     }
@@ -150,7 +150,7 @@ int ENet::Win32Platform::address_set_host(ENet::Address *address, const char *na
 int ENet::Win32Platform::address_get_host_ip(const ENet::Address *address, char *name, size_t nameLength)
 {
     char *addr = inet_ntoa(*(struct in_addr *)&address->host);
-    if (addr == NULL)
+    if (addr == nullptr)
     {
         return -1;
     }
@@ -174,7 +174,7 @@ int ENet::Win32Platform::address_get_host(const ENet::Address *address, char *na
     in.s_addr = address->host;
 
     hostEntry = gethostbyaddr((char *)&in, sizeof(struct in_addr), AF_INET);
-    if (hostEntry == NULL)
+    if (hostEntry == nullptr)
     {
         return ENet::address_get_host_ip(address, name, nameLength);
     }
@@ -199,7 +199,7 @@ int ENet::Win32Platform::socket_bind(ENet::Socket socket, const ENet::Address *a
 
     sin.sin_family = AF_INET;
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         sin.sin_port = ENet::HOST_TO_NET_16(address->port);
         sin.sin_addr.s_addr = address->host;
@@ -335,14 +335,15 @@ ENet::Socket ENet::Win32Platform::socket_accept(ENet::Socket socket, ENet::Addre
     struct sockaddr_in sin;
     int sinLength = sizeof(struct sockaddr_in);
 
-    result = accept(socket, address != NULL ? (struct sockaddr *)&sin : NULL, address != NULL ? &sinLength : NULL);
+    result = accept(socket, address != nullptr ? (struct sockaddr *)&sin : nullptr,
+                    address != nullptr ? &sinLength : nullptr);
 
     if (result == INVALID_SOCKET)
     {
         return ENET_SOCKET_NULL;
     }
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
         address->port = ENet::NET_TO_HOST_16(sin.sin_port);
@@ -370,7 +371,7 @@ int ENet::Win32Platform::socket_send(ENet::Socket socket, const ENet::Address *a
     struct sockaddr_in sin;
     DWORD sentLength = 0;
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         memset(&sin, 0, sizeof(struct sockaddr_in));
 
@@ -420,7 +421,7 @@ int ENet::Win32Platform::socket_receive(ENet::Socket socket, ENet::Address *addr
         return -1;
     }
 
-    if (address != NULL)
+    if (address != nullptr)
     {
         address->host = (uint32_t)sin.sin_addr.s_addr;
         address->port = ENet::NET_TO_HOST_16(sin.sin_port);
@@ -437,7 +438,7 @@ int ENet::Win32Platform::socketset_select(ENet::Socket maxSocket, ENet::SocketSe
     timeVal.tv_sec = timeout / 1000;
     timeVal.tv_usec = (timeout % 1000) * 1000;
 
-    return select(maxSocket + 1, readSet, writeSet, NULL, &timeVal);
+    return select(maxSocket + 1, readSet, writeSet, nullptr, &timeVal);
 }
 
 int ENet::Win32Platform::socket_wait(ENet::Socket socket, uint32_t *condition, uint32_t timeout)
@@ -462,7 +463,7 @@ int ENet::Win32Platform::socket_wait(ENet::Socket socket, uint32_t *condition, u
         FD_SET(socket, &readSet);
     }
 
-    selectCount = select(socket + 1, &readSet, &writeSet, NULL, &timeVal);
+    selectCount = select(socket + 1, &readSet, &writeSet, nullptr, &timeVal);
 
     if (selectCount < 0)
     {
