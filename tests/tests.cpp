@@ -29,7 +29,7 @@
 #include "./doctest.h"
 
 #include "enetcpp/enetcpp.h"
-#include <stdio.h>
+#include <cstdio>
 
 struct Client
 {

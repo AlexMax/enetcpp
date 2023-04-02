@@ -2,7 +2,7 @@
  @file  peer.c
  @brief ENet peer management functions
 */
-#include <string.h>
+#include <cstring>
 #include "enetcpp/enetcpp.h"
 
 /** @defgroup peer ENet peer functions

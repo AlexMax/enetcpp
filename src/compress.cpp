@@ -3,7 +3,7 @@
  @brief An adaptive order-2 PPM range coder
 */
 
-#include <string.h>
+#include <cstring>
 #include "enetcpp/enetcpp.h"
 
 struct ENetSymbol

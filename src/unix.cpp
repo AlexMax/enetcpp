@@ -16,9 +16,9 @@
 #include <netinet/tcp.h>
 #include <netdb.h>
 #include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
+#include <cstring>
+#include <cerrno>
+#include <ctime>
 
 namespace ENet
 {

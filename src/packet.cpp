@@ -3,7 +3,7 @@
  @brief ENet packet management functions
 */
 
-#include <string.h>
+#include <cstring>
 #include "enetcpp/enetcpp.h"
 
 /** @defgroup Packet ENet packet functions

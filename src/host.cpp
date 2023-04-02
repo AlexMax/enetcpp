@@ -3,7 +3,7 @@
  @brief ENet host management functions
 */
 
-#include <string.h>
+#include <cstring>
 #include "enetcpp/enetcpp.h"
 
 /** @defgroup host ENet host functions
