@@ -43,6 +43,8 @@ function(target_check_enetcpp)
 endfunction()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(enetcpp LANGUAGES CXX)
 

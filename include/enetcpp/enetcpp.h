@@ -11,7 +11,7 @@
 #if defined(_WIN32)
 #define ENET_PLATFORM_WIN32
 #include "enetcpp/win32.h"
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(__APPLE__)
 #define ENET_PLATFORM_UNIX
 #include "enetcpp/unix.h"
 #else
