@@ -199,6 +199,7 @@ ENet::Peer *ENet::host_connect(ENet::Host *host, const ENet::Address *address, s
     currentPeer->state = ENet::PEER_STATE_CONNECTING;
     currentPeer->address = *address;
     currentPeer->connectID = ENet::host_random(host);
+    currentPeer->mtu = host->mtu;
 
     if (host->outgoingBandwidth == 0)
     {

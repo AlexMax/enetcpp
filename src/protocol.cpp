@@ -385,6 +385,7 @@ static ENet::Peer *enet_protocol_handle_connect(ENet::Host *host, ENet::Protocol
     peer->state = ENet::PEER_STATE_ACKNOWLEDGING_CONNECT;
     peer->connectID = command->connect.connectID;
     peer->address = host->receivedAddress;
+    peer->mtu = host->mtu;
     peer->outgoingPeerID = ENet::NET_TO_HOST_16(command->connect.outgoingPeerID);
     peer->incomingBandwidth = ENet::NET_TO_HOST_32(command->connect.incomingBandwidth);
     peer->outgoingBandwidth = ENet::NET_TO_HOST_32(command->connect.outgoingBandwidth);
